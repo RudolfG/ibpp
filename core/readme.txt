@@ -45,7 +45,7 @@ website at http://www.ibpp.org.
 
 ---------------------------------------------------------------------------
 
-Release Notes for Version 2.4 (November, 2005)
+Release Notes for Version 2.5 (March, 2006)
 
 
 1/ Introduction
@@ -70,14 +70,29 @@ More background information on http://www.ibpp.org website.
 2/ Installation
 
 There is no 'installation' per se because IBPP Project does not release
-binaries. It is much better / safer that you build your own binaries of the
-class library with your tools, while adjusting compiler settings to suit your
-host projects. Please refer to the file howtobuild.txt from this distribution
-for basic instructions. The online documentation on http://www.ibpp.org is a
-second source of information.
+binaries. It is much better / safer that you adjust your own programs build
+procedures to integrate the 'core' files of IBPP straight into your own
+productions.
+Please refer to the file howtobuild.txt from this distribution for more
+complete instructions on how to do so.
 
 
-3/ New or Updated Features since Version 2.3
+3/ New or Updated Features since Version 2.4
+
+[ TO BE WRITTEN ]
+
+
+4/ Comments, Acknowledgments
+
+This 2.5 version is considered the best IBPP version available to date and we
+recommend all its users to upgrade at their earliest opportunity.
+
+We have a lot of people to thank. The ibpp.h file cites some of them. But many
+people suggested various kind of enhancements or were invaluable for their
+mentoring or expertise in various fields.
+
+
+5/ History section - What was New or Updated between Version 2.3 and 2.4
 
 Version 2.4 was initially meant essentially as a maintenance version. We chose
 to tag it 2.4 instead of 2.3.6 mostly because of the exception classes changes
@@ -158,18 +173,7 @@ So we ask users of IBPP not to start using IBPP::Row as is, consider it already
 deprecated in its current form. We will introduce something 'bigger' in the
 next major version (3.0).
 
-
-4/ Comments, Acknowledgments
-
-This 2.4 version is considered the best IBPP version available to date and we
-recommend all its users to upgrade at their earliest opportunity.
-
-We have a lot of people to thank. The ibpp.h file cites some of them. But many
-people suggested various kind of enhancements or were invaluable for their
-mentoring or expertise in various fields.
-
-
-5/ History section - What was New or Updated between Version 2.2 and 2.3
+6/ History section - What was New or Updated between Version 2.2 and 2.3
 
 - The Service interface now support sweep action. See ibpp.h for details:
 	virtual void Sweep(const std::string& dbfile) = 0;
@@ -205,7 +209,7 @@ in the future.
 Studio .NET 2003. All is required is to open the 'ibpp.sln' and then hit build.
 
 
-6/ History section - What was New or Updated between Version 2.1 and 2.2
+7/ History section - What was New or Updated between Version 2.1 and 2.2
 
 - Dates valid range has been extended, both in the Date and Timestamp classes.
 IBPP now fully support the range extending from 1 JAN 0001 to 31 DEC 9999. The

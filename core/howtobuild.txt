@@ -27,6 +27,8 @@ Contributor(s): ______________________________________.
 
 ---------------------------------------------------------------------------
 
+[ THIS CRAP GOT TO BE TRASHED AND REWRITTEN ]
+
 Dear developers,
 
 This is a short documentation instructing you how to build IBPP Library on the

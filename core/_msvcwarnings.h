@@ -34,8 +34,8 @@
 // Template generated names are often very long and MSVC generates a warning
 // when compiling in debug mode if the length is greater than 255 symbols.
 // This is a limitation of the Microsoft debugger/debugging info storage.
-// At least as of MSVC++ 6.0. This might have improved in MSVC 7.0.
-// This warning is really annoying to see, while does not carry any really
+// At least as of MSVC++ 6.0 and 7.x. This might have improved in MSVC 8.0.
+// This warning is really annoying to see, while it does not carry any really
 // usefull information. So we disable it.
 //
 // This _msvcwarnings.h file is included straight on the command-line when
