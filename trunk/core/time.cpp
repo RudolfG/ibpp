@@ -31,6 +31,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef IBPP_MSVC
+#pragma warning(disable: 4786 4996)
+#ifndef _DEBUG
+#pragma warning(disable: 4702)
+#endif
+#endif
+
 #include "ibpp.h"
 #include "_internals.h"
 

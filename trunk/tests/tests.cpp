@@ -31,11 +31,18 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "ibpp.h"
+#ifdef IBPP_MSVC
+#pragma warning(disable: 4786 4996)
+#ifndef _DEBUG
+#pragma warning(disable: 4702)
+#endif
+#endif
 
 #ifdef IBPP_WINDOWS
 #include <windows.h>
 #endif
+
+#include "../core/ibpp.h"
 
 #ifdef IBPP_UNIX
 #include <unistd.h>

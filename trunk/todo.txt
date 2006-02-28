@@ -1,4 +1,4 @@
-$Id: todonotes.txt,v 1.19 2004/11/03 17:50:46 epocman Exp $
+$Id: $
 
 IBPP, A c++ Client API for Firebird 1.0 (and Interbase 6.0)
 

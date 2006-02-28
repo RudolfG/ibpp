@@ -1,4 +1,4 @@
-$Id: howtobuild.txt,v 1.9.2.3 2005/11/07 20:15:36 epocman Exp $
+$Id: $
 
 IBPP, A c++ Client API for Firebird (and Interbase)
 
