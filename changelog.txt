@@ -1,4 +1,4 @@
-$Id: changelog.txt,v 1.61.2.7 2005/11/17 08:26:20 epocman Exp $
+$Id: $
 
 IBPP, A c++ Client API for Firebird (and Interbase)
 
