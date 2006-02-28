@@ -1,0 +1,184 @@
+$Id: howtobuild.txt,v 1.9.2.3 2005/11/07 20:15:36 epocman Exp $
+
+IBPP, A c++ Client API for Firebird (and Interbase)
+
+HOW TO BUILD THE LIBRARY
+
+---------------------------------------------------------------------------
+
+The contents of this file are subject to the Mozilla Public License
+Version 1.0 (the "License"); you may not use this file except in
+compliance with the License. You may obtain a copy of the License at
+http://www.mozilla.org/MPL/
+
+Software distributed under the License is distributed on an "AS IS"
+basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+License for the specific language governing rights and limitations
+under the License.
+
+The Original Code is "IBPP 0.9" and all its associated documentation.
+
+The Initial Developer of the Original Code is T.I.P. Group S.A.
+Portions created by T.I.P. Group S.A. are
+Copyright (C) 2000 T.I.P Group S.A.
+All Rights Reserved.
+
+Contributor(s): ______________________________________.
+
+---------------------------------------------------------------------------
+
+Dear developers,
+
+This is a short documentation instructing you how to build IBPP Library on the
+various supported platforms and compilers.
+
+Starting with version 2.4, IBPP has merged all its builds procedure in a single
+integrated Makefile. On some platforms (Win32 using MSVC and BCB today),
+this new Makefile require you to use some additional (free) tools.
+
+It could be done without these tools (and was done in such a way in the past),
+BUT it was considered much easier to maintain an integrated set of Makefile(s)
+than very different ones for each platform. The old make-bcc and make-msvc files
+have been retired. A single Makefile subsists and allows you to build the
+library on all its supported platforms.
+
+(*) WHAT YOU WILL NEED in addition to IBPP source code
+
+    FOR ALL SYSTEMS : you need to get and install one of the distributions of
+    Firebird 1.x or InterBase 6.x (InterBase 7.x should work too). Though IBPP
+    puts a clear bias towards Firebird.
+
+    FOR LINUX : you need GCC 3.2 or higher. IBPP relies on decent C++ Standard
+    Library support and all versions of GCC prior 3.2 are a bit sketchy about
+    this, to say the least. Major Linux distributions are now being updated to
+    GCC 3.2 or higher anyway so this is not a concern. What's more, you can
+    always at least install a private compiler copy to build IBPP if you can't
+    upgrade your system provided one.
+
+    FOR WIN32, using MSVC 6, BCB/BCC, DMC : you need GNU make and GNU sh.
+	Visit http://unxutils.sourceforge.net/ and download UnxUpdates.zip.
+	From this archive, extract make.exe and zsh.exe, store them in a directory
+	in your PATH. Rename zsh.exe to sh.exe. You're done.
+
+    FOR WIN32, using MinGW : very logically, you will only need MSYS + MINGW. If
+    you're interested in building using MinGW, chances are that you already know
+    how to get and install MSYS & MINGW.
+
+    FOR WIN32, using CygWin : again, you will only need CygWin. If you're
+    interested in building using CygWin, chances are that you already know how
+    to get and install CygWin. Special configurations where you use CygWin tools
+    but compile with the MinGW compilers are also possible. Regarding IBPP, this
+    is considered a MinGW build. Not a CygWin build.
+
+
+(*) HOW TO BUILD ON MAC OS X
+
+    Change directory to the IBPP source code and run :
+
+        make IBPP_GCC=1                 # Release build
+        make IBPP_GCC=1 DEBUG=1         # Debug build
+		
+
+(*) HOW TO BUILD ON LINUX AND ON WINDOWS (USING MINGW OR CYGWIN)
+
+    (For MinGW/MSYS, we assume you started a MSYS shell.)
+
+    Change directory to the IBPP source code and run :
+
+        make IBPP_GCC=1                 # Release build
+        make IBPP_GCC=1 DEBUG=1         # Debug build
+
+
+(*) HOW TO BUILD ON WIN32 (USING BORLAND TOOLS AND GNU-MAKE)
+
+    If your C++ Builder is installed, your system environment variables should
+    already be defined correctly (regarding PATH to Borland tools and so on). If
+    this is not the case, read how we fix this for the Microsoft Visual Studio 6
+    below.
+
+	Visit http://unxutils.sourceforge.net/ and download UnxUpdates.zip.
+	From this archive, extract make.exe and zsh.exe, store them in a directory
+	in your PATH. Rename zsh.exe to sh.exe.
+	
+    Change directory to the IBPP source code and run :
+
+        make IBPP_WINDOWS=1 IBPP_BCC=1                 # Release build
+        make IBPP_WINDOWS=1 IBPP_BCC=1 DEBUG=1         # Debug build
+	
+	If make reports errors, please update your PATH so that the GNU-MAKE is
+	found *before* the Borland one. You might want to rename make.exe to
+	gnumake.exe to helps both coexist in peace.
+
+
+(*) HOW TO BUILD ON WIN32 (USING MICROSOFT TOOLS AND GNU-MAKE)
+
+    On some Microsoft Visual Studio configurations, the required environment
+    variables are not always pre-defined. Some programmers prefer to start a
+    prompt and run the VCVARS32.BAT file (Microsoft provided in the compiler Bin
+    directory) to set the required PATH and other variables prior to compiling.
+
+	Visit http://unxutils.sourceforge.net/ and download UnxUpdates.zip.
+	From this archive, extract make.exe and zsh.exe, store them in a directory
+	in your PATH. Rename zsh.exe to sh.exe.
+	
+    Change directory to the IBPP source code and run :
+
+        make IBPP_WINDOWS=1 IBPP_MSVC=1            # Release build
+        make IBPP_WINDOWS=1 IBPP_MSVC=1 DEBUG=1         # Debug build
+
+
+(*) HOW TO BUILD ON WIN32 (USING MICROSOFT VISUAL STUDIO .NET 2003 (7.1) GUI)
+
+    Open the ibpp-vc71.sln solution file. Hit build or batch build to build
+	both the debug and release at the same time.
+
+
+(*) HOW TO BUILD ON WIN32 (USING MICROSOFT VISUAL STUDIO 2005 (8.0) GUI)
+
+    Open the ibpp-vc80.sln solution file. Hit build or batch build to build
+	both the debug and release at the same time.
+
+
+(*) HOW TO BUILD ON WIN32 (USING DIGITAL MARS COMPILER)
+
+    You will need Digital Mars Compiler (DMC) 8.34 or higher. It will install to
+    a C:\DM hierarchy by default. You also need to get STLport 4.5.3 from DMC
+    website (version adapted to DMC). You will end up with a C:\DM\stlport tree
+    in your DMC installation. Finally, you need to update the \dm\bin\sc.ini
+    file. The line reading :
+    
+    INCLUDE="%@P%\..\include";"%@P%\..\mfc\include";"%@P%\..\stl";%INCLUDE%
+
+    needs to be changed to :
+    
+    INCLUDE="%@P%\..\stlport\stlport";"%@P%\..\include";"%@P%\..\mfc\include";%INCLUDE%
+
+    That is : REMOVE the reference to the SGI stl near the end of the line and
+    ADD the path to the stlport version of stl *before* any other include
+    directories.
+    
+	Visit http://unxutils.sourceforge.net/ and download UnxUpdates.zip.
+	From this archive, extract make.exe and zsh.exe, store them in a directory
+	in your PATH. Rename zsh.exe to sh.exe.
+	
+    Change directory to the IBPP source code and run :
+
+        make IBPP_WINDOWS=1 IBPP_DMC=1                 # Release build
+        make IBPP_WINDOWS=1 IBPP_DMC=1 DEBUG=1         # Debug build
+
+
+(*) TIPS AND TRICKS
+
+    (o) CVS CLIENT ON WINDOWS
+
+    If you want a very nice and well-done CVS client for Windows, I recommend
+    you TortoiseCVS (http://www.tortoisecvs.org). This is an excellent piece of
+    software. This CVS client integrates completely with the Windows Explorer
+    UI. All CVS interactions are very easy to do and what's more : the SSH
+    functionnality is built-in ! Give it a try.
+
+-- 
+Olivier Mascia
+om at tipgroup dot com
+
+*** EOF ***
