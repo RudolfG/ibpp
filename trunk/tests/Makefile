@@ -1,7 +1,7 @@
 ###############################################################################
 #
 #	File    : $Id: Makefile,v 1.37.2.5 2005/09/27 09:46:42 epocman Exp $
-#	Subject : IBPP - Multi-Platform GNU Makefile
+#	Subject : IBPP 'tests' - Multi-Platform GNU Makefile
 #
 ###############################################################################
 #

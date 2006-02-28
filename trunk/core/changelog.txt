@@ -30,6 +30,13 @@ Contributor(s): ______________________________________.
 The most recent addition to this file is always on top and has the highest
 item number.
 
+15. Switched development to Subversion repository, now available at SourceForge.
+
+IBPP project didn't required the added facilities of Subversion compared to CVS.
+But, I, needed them. All my other projects (business projects) are hosted on
+Subversion. So as the main contributor to the code, I egoistically opted to
+simplify my developer's life. (O. Mascia).
+
 14. November 27, 2005
 
 - ibpp.sln (VS.2003 7.1) solution file has been renamed to ibpp-vc71.sln

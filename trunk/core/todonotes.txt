@@ -27,8 +27,7 @@ Contributor(s): ______________________________________.
 
 ---------------------------------------------------------------------------
 
-+++ IMPORTANT NOTE +++
-
-Nothing to say right now.
+- Complete the new "build" instructions
+- Adapt the tests Makefile and other build setups
 
 >>> EOF <<<

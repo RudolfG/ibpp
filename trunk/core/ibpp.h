@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 //	File    : $Id: ibpp.h,v 1.73.2.13 2005/11/17 08:26:20 epocman Exp $
-//	Subject : IBPP public header file. This is _the_ file you include in your
-//			  application files when developing with IBPP.
+//	Subject : IBPP public header file. This is _the_ only file you include in
+//			  your application files when developing with IBPP.
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -41,14 +41,12 @@
 //	COMMENTS
 //	Tabulations should be set every four characters when editing this file.
 //
-//	When compiling an IBPP project (or IBPP library itself), the following
-//	defines should be made on the command-line (or in makefiles) according
-//	to the OS platform and compiler used.
+//	When compiling a project using IBPP, the following defines should be made
+//	on the command-line (or in makefiles) according to the OS platform and
+//	compiler used.
 //
 //	Select the platform:	IBPP_WINDOWS | IBPP_LINUX | IBPP_DARWIN
 //	Select the compiler:	IBPP_BCC | IBPP_GCC | IBPP_MSVC | IBPP_DMC
-//
-//	See the documentation and makefiles for more information.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +95,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = 0x02040503; // Version == 2.4.5.3
+	const uint32_t Version = 0x02050000; // Version == 2.5.0.0
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
@@ -856,7 +854,7 @@ namespace IBPP
 	 * from where to attempt loading the fbclient.dll / gds32.dll.
 	 * If called, this function must be called *early* by the application,
 	 * before *any* other function or object methods of IBPP.
-	 * This is a NO-OP on platforms other than Win32. */
+	 * Currently, this is a NO-OP on platforms other than Win32. */
 	 
 	void ClientLibSearchPaths(const std::string&);
 
