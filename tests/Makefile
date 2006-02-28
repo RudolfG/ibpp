@@ -441,26 +441,6 @@ runtests: checks $(TARGETS)
 	@echo "Now running tests programs..."
 	@cd $(TARGETDIR)/$(PLATFORM); ./tests
 
-# Build a source-code distribution zipfile
-# Note : this makes use of 7-Zip (www.7-zip.org).
-# Modify the ZIP7 variable to point at "7z.exe" if it is not
-# located on your path.
-
-ZIP7 = "c:/program files/7-Zip/7z.exe"
-
-zip:	license.txt howtobuild.txt readme.txt changelog.txt todonotes.txt \
-		fbheaders/ibase.h fbheaders/iberror.h \
-		Makefile ibpp.sln library.vcproj \
-		$(HDRS) $(SRCS) \
-		tests/tests.vcproj tests/tests.cpp
-	@rm -f ibpp-src.zip
-	@rm -f zip.txt
-	# Build a response file for wzzip.exe
-	@$(foreach file,$^,echo $(file) >>zip.txt;)
-	# Run 7-Zip
-	$(ZIP7) a -tzip -mx=9 ibpp-src.zip @zip.txt
-	@rm -f zip.txt
-
 #
 #	EOF
 #
