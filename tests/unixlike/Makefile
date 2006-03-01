@@ -1,6 +1,6 @@
 ###############################################################################
 #
-#	File    : $Id: Makefile,v 1.37.2.5 2005/09/27 09:46:42 epocman Exp $
+#	File    : $Id $
 #	Subject : IBPP 'tests' - Multi-Platform GNU Makefile
 #
 ###############################################################################
@@ -40,21 +40,8 @@
 #	Select Compiler and Platform
 #	This section works in conjunction with the 'checks' target to verify
 #	the automatic detection of the platform and the manual selection of the
-#	compiler. Read the howtobuild.txt file for useage information.
+#	compiler.
 #
-
-ifneq ($(IBPP_GCC),)
-	COMPILER=IBPP_GCC
-endif
-ifneq ($(IBPP_BCC),)
-	COMPILER=IBPP_BCC
-endif
-ifneq ($(IBPP_MSVC),)
-	COMPILER=IBPP_MSVC
-endif
-ifneq ($(IBPP_DMC),)
-	COMPILER=IBPP_DMC
-endif
 
 ifeq ($(shell uname),Darwin)
 	#	Darwin (OS X) Target Platform
@@ -67,23 +54,11 @@ ifeq ($(shell uname),Linux)
 	COMPILER=IBPP_GCC	# The only compiler supported on linux anyway
 else
 	#	Win32 Target Platform
-	ifeq ($(COMPILER),IBPP_MSVC)
-		PLATFORM=win32_msvc
-	else
-	ifeq ($(COMPILER),IBPP_BCC)
-		PLATFORM=win32_bcc
-	else
-	ifeq ($(COMPILER),IBPP_DMC)
-		PLATFORM=win32_dmc
-	else
-		ifeq ($(findstring mingw32,$(shell gcc -v 2>&1)),mingw32)
-			PLATFORM=win32_mingw
-		else	
-		ifeq ($(findstring cygwin,$(shell gcc -v 2>&1)),cygwin)
-			PLATFORM=win32_cygwin
-		endif
-		endif
-	endif
+	ifeq ($(findstring mingw32,$(shell gcc -v 2>&1)),mingw32)
+		PLATFORM=win32_mingw
+	else	
+	ifeq ($(findstring cygwin,$(shell gcc -v 2>&1)),cygwin)
+		PLATFORM=win32_cygwin
 	endif
 	endif
 endif	
@@ -210,76 +185,12 @@ ifeq ($(PLATFORM),win32_cygwin)
 				$(TARGETDIR)/$(PLATFORM)/tests.exe
 endif
 
-# building on win32_bcc (Borland C++ Builder)
-ifeq ($(PLATFORM),win32_bcc)
-	COMPDIR =	"/c/Program Files/Borland/CBuilder6"
-	CXX = 		bcc32.exe
-	CXXOUTPUT =	-o
-	CXXFLAGS =	-DIBPP_WINDOWS
-	CXXFLAGS +=	-DIBPP_BCC
-	CXXFLAGS +=	-q -6 -w -a8 -H -H=$(ROOTDIR)/$(TARGETDIR)/$(PLATFORM)/bcc.csm -pc -tWM \
-			   	-DWIN32 -D_WINDOWS \
-			   	-I./ -I./fbheaders
-	ifeq ($(TARGETDIR),release)
-		CXXFLAGS +=	-O2 -OS -DNDEBUG
-	else
-		CXXFLAGS +=	-Od -r- -k -v -y -vi- -D_DEBUG
-		CXXFLAGS += -vG
-	endif
-	#
-	TARGETS =	$(TARGETDIR)/$(PLATFORM)/ibpp$(DS).lib \
-				$(TARGETDIR)/$(PLATFORM)/tests.exe
-endif
-
-# building on win32_msvc (Microsoft Visual Studio 6.0 or 7.1)
-ifeq ($(PLATFORM),win32_msvc) 
-	CXX = 		cl.exe
-	CXXOUTPUT =	-Fo
-	CXXFLAGS =	-DIBPP_WINDOWS
-	CXXFLAGS +=	-DIBPP_MSVC
-	CXXFLAGS +=	-nologo -YX -GX -G6 -GR -Zp8 \
-				-DWIN32 -D_WINDOWS \
-				-I./ -I./fbheaders
-	ifeq ($(TARGETDIR),release)
-		CXXFLAGS +=	-MD -Ox -Oi- -FI _msvcwarnings.h -DNDEBUG -W4
-	else
-		CXXFLAGS +=	-MDd -Od -GZ -Zi -FI _msvcwarnings.h -D_DEBUG -W4
-	endif
-	#
-	TARGETS =	$(TARGETDIR)/$(PLATFORM)/ibpp$(DS).lib \
-				$(TARGETDIR)/$(PLATFORM)/tests.exe
-endif
-
-# building on win32_dmc (Digital Mars Compiler)
-ifeq ($(PLATFORM),win32_dmc)
-	COMPDIR =	c:/dm/bin
-	CXX = 		$(COMPDIR)/dmc.exe
-	CXXOUTPUT =	-o
-	CXXFLAGS =	-DIBPP_WINDOWS
-	CXXFLAGS +=	-DIBPP_DMC
-	CXXFLAGS +=	-mn -Aa -Ab -Ae -Ar -a8 \
-			   	-DWIN32 -D_WINDOWS \
-			   	-D_MT -DWIN32_LEAN_AND_MEAN -I./ -I./fbheaders
-	ifeq ($(TARGETDIR),release)
-		CXXFLAGS +=	-o+all -DNDEBUG
-	else
-		CXXFLAGS +=	-o+none -g -D_DEBUG
-	endif
-	#
-	TARGETS =	$(TARGETDIR)/$(PLATFORM)/ibpp$(DS).lib \
-				$(TARGETDIR)/$(PLATFORM)/tests.exe
-endif
-
 # *************************************************
 # Derived Definitions
 # *************************************************
 
 # make an object from each source file
-ifeq ($PLATFORM),win32_dmc)
-OBJS:=$(addprefix $(TARGETDIR)\\$(PLATFORM)\\,$(addsuffix .o,$(basename $(SRCS))))
-else
 OBJS:=$(addprefix $(TARGETDIR)/$(PLATFORM)/,$(addsuffix .o,$(basename $(SRCS))))
-endif
 
 # *************************************************
 # Build Rules
@@ -361,67 +272,6 @@ $(TARGETDIR)/$(PLATFORM)/tests.exe : $(TARGETDIR)/$(PLATFORM)/libibpp$(DS).a tes
 	cd $(TARGETDIR)/$(PLATFORM);\
 		$(CXX) $(CXXFLAGS) -I../../ -o tests.exe ../../tests/tests.cpp -L./ -libpp$(DS)
 endif
-
-#
-#	PRODUCTION RULES : WIN32_BCC SPECIFIC
-#
-
-$(TARGETDIR)/win32_bcc/ibpp$(DS).lib: $(OBJS)
-	@rm -f $@
-#	Build a response file for tlib.exe
-	@rm -f $@.txt
-	@$(foreach obj,$^,echo +$(subst /,\\\\,$(obj)) \& >>$@.txt;)
-	@echo "+" >>$@.txt
-#	Build a script to run tlib.exe
-#	tlib won't run properly unless ran from a Win32 command interpreter
-	@echo "tlib $(subst /,\\,$@) /C /P128 $(subst /,\\,@$@.txt)" >tlibx.bat
-#	If you use Win98, Cygwin and BCC, change the following line to:
-#	@start /w tlibx.bat
-	@cmd.exe "/C tlibx.bat"
-	@rm -f tlibx.bat
-
-	@echo ""
-	@echo "$@ *** Build Successful ***"
-	@echo ""
-
-$(TARGETDIR)/win32_bcc/tests.exe : $(TARGETDIR)/$(PLATFORM)/ibpp$(DS).lib tests/tests.cpp
-	cd $(TARGETDIR)/$(PLATFORM);\
-		$(CXX) $(CXXFLAGS) -I../../ ../../tests/tests.cpp ibpp$(DS).lib
-
-#
-#	PRODUCTION RULES : WIN32_MSVC SPECIFIC
-#
-
-$(TARGETDIR)/win32_msvc/ibpp$(DS).lib: $(OBJS)
-	@rm -f $@
-	@lib.exe -OUT:$@ $(OBJS)
-
-	@echo ""
-	@echo "$@ *** Build Successful ***"
-	@echo ""
-
-$(TARGETDIR)/win32_msvc/tests.exe : $(TARGETDIR)/$(PLATFORM)/ibpp$(DS).lib tests/tests.cpp
-	cd $(TARGETDIR)/$(PLATFORM);\
-		$(CXX) $(CXXFLAGS) -I../../  ../../tests/tests.cpp ibpp$(DS).lib advapi32.lib
-
-#
-#	PRODUCTION RULES : WIN32_DMC SPECIFIC
-#
-
-$(TARGETDIR)/win32_dmc/ibpp$(DS).lib: $(OBJS)
-	@rm -f $@
-#	dmc lib won't run properly unless ran from a Win32 command interpreter
-	@echo "$(subst /,\\\\,$(COMPDIR)/lib -c -n -p256 $@ $(OBJS))" >libx.bat
-	@cmd.exe "/C libx.bat"
-	@rm -f libx.bat
-
-	@echo ""
-	@echo "$@ *** Build Successful ***"
-	@echo ""
-
-$(TARGETDIR)/win32_dmc/tests.exe : $(TARGETDIR)/$(PLATFORM)/ibpp$(DS).lib tests/tests.cpp
-	cd $(TARGETDIR)/$(PLATFORM);\
-		$(CXX) $(CXXFLAGS) -I../../ ../../tests/tests.cpp ibpp$(DS).lib advapi32.lib
 
 #
 #	PRODUCTION RULES : SPECIAL TARGETS
