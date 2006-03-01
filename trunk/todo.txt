@@ -27,7 +27,7 @@ Contributor(s): ______________________________________.
 
 ---------------------------------------------------------------------------
 
-- Complete the new "build" instructions
-- Adapt the tests Makefile and other build setups
+- Adapt the tests Makefile for unixes
+- Build a Borland C++ Builder 6 project for the tests program
 
 >>> EOF <<<
