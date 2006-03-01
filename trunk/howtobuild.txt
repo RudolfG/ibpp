@@ -39,6 +39,7 @@ the lib in your own programs, but it is as well easy, if not easier and safer,
 to properly integrate IBPP source core inside your own applications build
 procedure.  Here are guidelines to help you do that.
 
+
 (*) WHICH FILES TO INTEGRATE
 
 Choose a proper location in your own source code tree of folders and files to
@@ -67,15 +68,16 @@ All the other code files (*.cpp) of the 'ibpp/core' folder must be compiled and
 linked with your application as if they were original portions of your
 application.  There are less than 20 code files, this is very easy to add to
 your Makefile, or visual project file.  In a Visual Studio Project, you might
-conveniently add a "group" named 'ibpp' and there 'add' the existing .cpp files
-from the 'ibpp/core' folder.  It is probably even more straightforward to do
-in your existing Makefile on unix systems.
+conveniently add a "group" (or "filter") named 'ibpp' and there 'add' the
+existing .cpp files from the 'ibpp/core' folder.  It is probably even more
+straightforward to do in your existing Makefile on unix systems.
 
 All the header files (*.h), other than 'ibpp.h' itself are included by one or
 multiple of the core code files.  They are NOT included by 'ibpp.h' itself.
 You should not have anything to do regarding those files.  They should be
 found automatically while compiling the core source files (because they are
 in the same directory than the code files themselves).
+
 
 (*) WHAT SPECIFIC COMPILER OPTIONS / SETTINGS TO USE
 
@@ -146,12 +148,42 @@ Borland free C++ compiler, cygwin, mingw, dmc (Digital Mars Compiler).
 - 32 bits or 64 bits platforms.
 
 
+(*) COMPILING THE 'TESTS' PROGRAMS
+
+The tests programs are located in the 'ibpp/tests' folder.  You never need to
+compile those tests programs as part of your applications.  That code is NOT
+part of IBPP.  It is part of the project because it is used to run the most
+basic tests when developing IBPP itself.  You can of course build the tests
+programs in order to verify that IBPP works correctly with you installed server.
+
+Compiling the tests program is easy.  It merely needs to compile and link the
+tests.cpp file along with those of the 'ibpp/core' folder.  To make things
+easier and to give samples of build procedures showing integration of IBPP in
+another application build system, you will find various procedures in sub-
+folders of the 'tests' folder.
+
+- unixes: contains a Makefile which should build the tests executable without
+  issues, out of the box, on most linux and unixes systems. At least those
+  where IBPP was tested at least once.
+  
+- bcb6: contains both a visual project and a 'simplest-build.bat' file, which
+  target Borland C++ Builder 6 (visual or command-line compiler).  The
+  'simplest-build.bat' file is really dumb but shows that there is no black
+  magic in compiling IBPP code along with your application code.
+  
+- vs2005: contains both a visual project and a 'simplest-build.bat' file, which
+  target Microsoft Visual Studio 2005 (visual or command-line compiler).  The
+  'simplest-build.bat' file is really dumb but shows that there is no black
+  magic in compiling IBPP code along with your application code.  It should
+  work too for Visual Studio .NET 7.x and possibly for Visual Studio 6.0.
+  
+
 (*) TIPS AND TRICKS
 
     (o) SVN CLIENT ON WINDOWS
 
     If you want a very nice and well-done SVN client for Windows, I recommend
-    you TortoiseSVN (http://tortoisesvn.tigiris.org). This is an excellent
+    you TortoiseSVN (http://tortoisesvn.tigris.org). This is an excellent
 	piece of software. This SVN client integrates completely with the Windows
 	Explorer UI. All SVN interactions are very easy to do and what's more the
 	SSH functionnality is built-in ! Give it a try.
