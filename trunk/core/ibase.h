@@ -33,7 +33,7 @@
  *
  */
 /*
-$Id: ibase.h,v 1.3 2004/11/03 17:50:47 epocman Exp $
+$Id: ibase.h,v 1.40.2.6 2004/03/29 03:50:10 skidder Exp $
  */
 
 #ifndef JRD_IBASE_H
@@ -69,7 +69,7 @@ $Id: ibase.h,v 1.3 2004/11/03 17:50:47 epocman Exp $
  *       Mark O'Donohue <mark.odonohue@ludwig.edu.au>
  *
  *
- *  $Id: ibase.h,v 1.3 2004/11/03 17:50:47 epocman Exp $
+ *  $Id: fb_types.h,v 1.25.2.2 2004/09/17 23:34:05 skidder Exp $
  *
  * 2002.02.15 Sean Leyne - Code Cleanup, removed obsolete "OS/2" port
  *
