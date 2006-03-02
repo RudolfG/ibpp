@@ -98,7 +98,6 @@ ifeq ($(PLATFORM),darwin)
 	CXXOUTPUT =	-o
 	CXXFLAGS =-DIBPP_DARWIN
 	CXXFLAGS+=-Wall -fPIC
-	CXXFLAGS+=-I./ -I./fbheaders
 	#
 	LIBS+=-framework Firebird -lm -ldl -lpthread
 	ifeq ($(TARGETDIR),release)
@@ -116,7 +115,6 @@ ifeq ($(PLATFORM),linux)
 	CXXOUTPUT =	-o
 	CXXFLAGS =-DIBPP_LINUX
 	CXXFLAGS+=-Wall -fPIC
-	CXXFLAGS+=-I../../core
 	#
 	# change -lfbclient by -lgds if building with Firebird 1.x or InterBase
 	# -lfbclient (or -lgds) is for Firebird 1.5 SS and higher
@@ -138,7 +136,7 @@ endif
 ifeq ($(PLATFORM),windows_mingw)
 	CXXOUTPUT =	-o
 	CXXFLAGS =-DIBPP_WINDOWS
-	CXXFLAGS+=-mthreads -D_MT -DWIN32_LEAN_AND_MEAN -I./ -I./fbheaders
+	CXXFLAGS+=-mthreads -D_MT -DWIN32_LEAN_AND_MEAN
 	ifeq ($(TARGETDIR),release)
 		CXXFLAGS+= -O3
 	else
@@ -153,7 +151,7 @@ endif
 ifeq ($(PLATFORM),windows_cygwin)
 	CXXOUTPUT =	-o
 	CXXFLAGS =-DIBPP_WINDOWS
-	CXXFLAGS+=-D_MT -DWIN32_LEAN_AND_MEAN -I./ -I./fbheaders
+	CXXFLAGS+=-D_MT -DWIN32_LEAN_AND_MEAN
 	ifeq ($(TARGETDIR),release)
 		CXXFLAGS+= -O3
 	else
