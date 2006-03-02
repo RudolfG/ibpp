@@ -52,7 +52,6 @@ endif
 
 # set target directories
 ROOTDIR:=$(shell pwd)
-ROOTDIR:=$(subst \,/,$(ROOTDIR))
 ifeq ($(DEBUG),)
 	DEBUG=0
 endif
@@ -68,8 +67,8 @@ endif
 # Source Files
 # *************************************************
 
-HDRS =	ibpp.h
-HDRS +=	_ibpp.h
+HDRS =	../../core/ibpp.h
+HDRS +=	../../core/_ibpp.h
 
 SRCS =	_ibpp.cpp
 SRCS += _dpb.cpp
@@ -117,7 +116,7 @@ ifeq ($(PLATFORM),linux)
 	CXXOUTPUT =	-o
 	CXXFLAGS =-DIBPP_LINUX
 	CXXFLAGS+=-Wall -fPIC
-	CXXFLAGS+=-I./ -I./fbheaders
+	CXXFLAGS+=-I../../core
 	#
 	# change -lfbclient by -lgds if building with Firebird 1.x or InterBase
 	# -lfbclient (or -lgds) is for Firebird 1.5 SS and higher
@@ -203,7 +202,7 @@ endif
 %.o: %.cpp
 
 # our own specific compilation rule
-$(TARGETDIR)/$(PLATFORM)/%.o: %.cpp $(HDRS)
+$(TARGETDIR)/$(PLATFORM)/%.o: ../../core/%.cpp $(HDRS)
 	$(CXX) $(CXXFLAGS) $(CXXOUTPUT)$@ -c $<
 
 #
