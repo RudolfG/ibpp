@@ -24,6 +24,19 @@
 //	* Tabulations should be set every four characters when editing this file.
 //
 ///////////////////////////////////////////////////////////////////////////////
+//
+//	This file is NOT part of the IBPP core files.  It is NOT meant to be
+//	compiled along with your own source code when you build a project using
+//	IBPP.  This file is only a sample / test program to quickly verify the
+//	major functionnalities of IBPP.  It is essentially used during development
+//	of IBPP itself.  As such, you _obviously_ might have to adjust some
+//	constants below to fit your specific configuration.
+//
+//	More specifically, please verify and adjust as you need it the constants
+//	DbName, BkName, ServerName, UserName and Password before compiling this
+//	test program.
+//
+///////////////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4786 4996)
@@ -60,20 +73,20 @@
 //	The DB should grow to around 25 MB while being exercised.
 
 #ifdef IBPP_UNIX
-	char* DbName = "/usr/tmp/test.fdb";
-	char* BkName = "/usr/tmp/test.fbk";
-	std::string ServerName = "localhost";
+	const char* DbName = "/usr/tmp/test.fdb";
+	const char* BkName = "/usr/tmp/test.fbk";
+	const std::string ServerName = "localhost";
 #else
-	char* DbName = "C:/test.fdb";	// FDB extension (GDB is hacked by Windows Me/XP "System Restore")
-	char* BkName = "C:/test.fbk";
-	std::string ServerName = "localhost";
+	const char* DbName = "C:/test.fdb";	// FDB extension (GDB is hacked by Windows Me/XP "System Restore")
+	const char* BkName = "C:/test.fbk";
+	const std::string ServerName = "localhost";	// Change to "" for local protocol / embedded
 #endif
 
 //	The tests use by default the well-known default of SYSDBA/masterkey
 //	credentials. Do not forget to update them if required.
 
-std::string UserName = "SYSDBA";
-std::string Password = "masterkey";
+const std::string UserName = "SYSDBA";
+const std::string Password = "masterkey";
 
 class Test
 {
