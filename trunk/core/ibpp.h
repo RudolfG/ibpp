@@ -339,6 +339,44 @@ namespace IBPP
 		~DBKey() { }
 	};
 
+	/* Class User wraps all the information about a user that the engine can manage. */
+
+	class User
+	{
+	public:
+		std::string username;
+		std::string password;
+		std::string firstname;
+		std::string middlename;
+		std::string lastname;
+		uint32_t userid;		// Only relevant on unixes
+		uint32_t groupid;		// Only relevant on unixes
+
+	private:
+		void copyfrom(const User& r)
+		{
+			username = r.username;
+			password = r.password;
+			firstname = r.firstname;
+			middlename = r.middlename;
+			lastname = r.lastname;
+			userid = r.userid;
+			groupid = r.groupid;
+		}
+
+	public:
+		void clear()
+		{
+			username.clear(); password.clear();
+			firstname.clear(); middlename.clear(); lastname.clear();
+			userid = groupid = 0;
+		}
+		User& operator=(const User& r)	{ copyfrom(r); return *this; }
+		User(const User& r)				{ copyfrom(r); }
+		User() : userid(0), groupid(0)	{ }
+		~User() { };
+	};
+
 	//	Interface Wrapper
 	template <class T>
 	class Ptr
@@ -452,12 +490,11 @@ namespace IBPP
 
 		virtual void GetVersion(std::string& version) = 0;
 
-		virtual void AddUser(const std::string& username, const std::string& password,
-			const std::string& first, const std::string& middle, const std::string& last) = 0;
-		virtual void ModifyUser(const std::string& username, const std::string& password,
-			const std::string& first, const std::string& middle, const std::string& last) = 0;
+		virtual void AddUser(const User& user) = 0;
+		virtual void ModifyUser(const User& user) = 0;
 		virtual void RemoveUser(const std::string& username) = 0;
-		virtual void ListUsers(std::vector<std::string>& users) = 0;
+		virtual void ListUsers(const std::string& username,
+			std::vector<User>& users) = 0; // Leave username "" to list all users
 
 		virtual void SetPageBuffers(const std::string& dbfile, int buffers) = 0;
 		virtual void SetSweepInterval(const std::string& dbfile, int sweep) = 0;

@@ -798,12 +798,11 @@ public:
 
 	void GetVersion(std::string& version);
 
-	void AddUser(const std::string& username, const std::string& password,
-			const std::string& first, const std::string& middle, const std::string& last);
-	void ModifyUser(const std::string& username, const std::string& password,
-			const std::string& first, const std::string& middle, const std::string& last);
+	void AddUser(const IBPP::User& user);
+	void ModifyUser(const IBPP::User& user);
 	void RemoveUser(const std::string& username);
-	void ListUsers(std::vector<std::string>& users);
+	void ListUsers(const std::string& username,
+		std::vector<IBPP::User>& users); // Leave username "" to list all users
 
 	void SetPageBuffers(const std::string& dbfile, int buffers);
 	void SetSweepInterval(const std::string& dbfile, int sweep);

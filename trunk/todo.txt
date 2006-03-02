@@ -21,7 +21,6 @@ Contributor(s):
 
 ---------------------------------------------------------------------------
 
-- Adapt the tests Makefile for unixes
-- Build a Borland C++ Builder 6 project for the tests program
+- Fix (!!) the tests Makefile for unixes
 
 >>> EOF <<<
