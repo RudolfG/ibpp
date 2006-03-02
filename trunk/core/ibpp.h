@@ -40,7 +40,6 @@
 //	compiler used.
 //
 //	Select the platform:	IBPP_WINDOWS | IBPP_LINUX | IBPP_DARWIN
-//	Select the compiler:	IBPP_BCC | IBPP_GCC | IBPP_MSVC | IBPP_DMC
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -51,9 +50,9 @@
 #error Please define IBPP_WINDOWS/IBPP_LINUX/IBPP_DARWIN before compiling !
 #endif
 
-#if !defined(IBPP_BCC) && !defined(IBPP_GCC) \
-	&& !defined(IBPP_MSVC) && !defined(IBPP_DMC)
-#error Please define IBPP_BCC/IBPP_GCC/IBPP_MSVC/IBPP_DMC before compiling !
+#if !defined(__BCPLUSPLUS__) && !defined(__GNUC__) \
+	&& !defined(_MSC_VER) && !defined(__DMC__)
+#error Your compiler is not recognized.
 #endif
 
 #if defined(IBPP_LINUX) || defined(IBPP_DARWIN)
@@ -67,7 +66,7 @@
 // the standard type 'int' is used. And where an exact integer size is required
 // the standard exact precision types definitions of C 99 standard are used.
 
-#if defined(IBPP_MSVC) || defined(IBPP_BCC)
+#if defined(_MSC_VER) || defined(__BCPLUSPLUS__)
 // C99 §7.18.1.1 Exact-width integer types (only those used by IBPP)
 typedef __int16 int16_t;
 typedef __int32 int32_t;

@@ -25,7 +25,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef IBPP_MSVC
+#ifdef _MSC_VER
 #pragma warning(disable: 4786 4996)
 #ifndef _DEBUG
 #pragma warning(disable: 4702)
@@ -84,7 +84,7 @@ void ExceptionBase::raise(const std::string& context, const char* message, va_li
 	if (message != 0)
 	{
 		char buffer[1024];
-#if defined(IBPP_MSVC) || defined(IBPP_DMC)
+#if defined(_MSC_VER) || defined(__DMC__)
 		_vsnprintf(buffer, sizeof(buffer)-1, message, argptr);
 #else
 		vsnprintf(buffer, sizeof(buffer)-1, message, argptr);

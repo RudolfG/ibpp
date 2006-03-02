@@ -114,9 +114,10 @@ code with those definitions, no matter if they use or reference ibpp or not.
 It should not harm anything to do so.
 
 The required prepocessor definitions are documented near the top of the ibpp.h
-header file.  Please review it for the details.  Basically one define is used
-to select the platform, another one is used to select the compiler and a
-third one is used to activate or not some debugging code.
+header file.  Please review it for the details.  Currently one define is
+used to select the platform. To the contrary of previous IBPP versions, the
+compiler is auto-detected by recognizing some hard-coded predefined macros
+provided by each supported compiler.
 
 That's all!
 

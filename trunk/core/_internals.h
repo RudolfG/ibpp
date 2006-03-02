@@ -29,11 +29,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#if defined(IBPP_BCC) || defined(IBPP_MSVC) || defined(IBPP_DMC)
+#if defined(__BCPLUSPLUS__) || defined(_MSC_VER) || defined(__DMC__)
 #define HAS_HDRSTOP
 #endif
 
-#if (defined(IBPP_GCC) && defined(IBPP_WINDOWS))
+#if (defined(__GNUC__) && defined(IBPP_WINDOWS))
 //	Setting flags for ibase.h -- using GCC/Cygwin/MinGW on Win32
 #ifndef _MSC_VER
 #define _MSC_VER 1
@@ -45,7 +45,7 @@
 
 #include "ibase.h"		// From Firebird 1.x or InterBase 6.x installation
 
-#if (defined(IBPP_GCC) && defined(IBPP_WINDOWS))
+#if (defined(__GNUC__) && defined(IBPP_WINDOWS))
 //	UNSETTING flags used above for ibase.h -- Huge conflicts with libstdc++ !
 #undef _MSC_VER
 #undef _WIN32
@@ -550,12 +550,12 @@ public:
 	bool operator == (const EventBufferIterator& i) const { return i.mIt == mIt; }
 	bool operator != (const EventBufferIterator& i) const { return i.mIt != mIt; }
 
-#ifdef IBPP_BCC
+#ifdef __BCPLUSPLUS__
 #pragma warn -8027
 #endif
 	std::string get_name() const
 		{ return std::string(mIt + 1, mIt + 1 + static_cast<int32_t>(*mIt)); }
-#ifdef IBPP_BCC
+#ifdef __BCPLUSPLUS__
 #pragma warn .8027
 #endif
 

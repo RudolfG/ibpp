@@ -25,7 +25,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef IBPP_MSVC
+#ifdef _MSC_VER
 #pragma warning(disable: 4786 4996)
 #ifndef _DEBUG
 #pragma warning(disable: 4702)
@@ -554,7 +554,7 @@ void Test::Test4(void)
 		st1->Set(6, bbs);
 
 		st1->Set(7, (i%2) != 0);
-#ifdef IBPP_DMC
+#ifdef __DMC__
 		st1->Set(8, (int32_t)i);
 #else
 		st1->Set(8, i);
