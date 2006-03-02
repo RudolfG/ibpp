@@ -199,7 +199,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -207,7 +209,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -219,7 +223,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -227,7 +233,33 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\core\_ibpp.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="1"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="1"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -239,7 +271,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -247,7 +281,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -259,7 +295,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -267,7 +305,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -279,7 +319,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -287,7 +329,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -299,7 +343,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -307,7 +353,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -319,7 +367,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -327,7 +377,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -339,7 +391,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -347,7 +401,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -359,7 +415,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -367,7 +425,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -379,7 +439,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -387,7 +449,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -399,7 +463,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -407,7 +473,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -419,7 +487,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -427,27 +497,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\core\ibpp.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -459,7 +511,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -467,7 +521,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -479,7 +535,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -487,7 +545,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -499,7 +559,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -507,7 +569,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -519,7 +583,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -527,7 +593,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -539,7 +607,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -547,7 +617,9 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
+							UsePrecompiledHeader="2"
+							PrecompiledHeaderThrough="_ibpp.h"
+							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
 				</File>
@@ -562,7 +634,7 @@
 				Name="ibpp-core"
 				>
 				<File
-					RelativePath="..\..\core\_internals.h"
+					RelativePath="..\..\core\_ibpp.h"
 					>
 				</File>
 				<File

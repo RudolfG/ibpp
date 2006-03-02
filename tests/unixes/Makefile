@@ -69,10 +69,10 @@ endif
 # *************************************************
 
 HDRS =	ibpp.h
-HDRS +=	_internals.h
-HDRS +=	_msvcwarnings.h
+HDRS +=	_ibpp.h
 
-SRCS =	_dpb.cpp
+SRCS =	_ibpp.cpp
+SRCS += _dpb.cpp
 SRCS +=	_ibs.cpp
 SRCS +=	_rb.cpp
 SRCS +=	_spb.cpp
@@ -83,12 +83,10 @@ SRCS +=	blob.cpp
 SRCS +=	database.cpp
 SRCS +=	dbkey.cpp
 SRCS +=	exception.cpp
-SRCS +=	ibpp.cpp
 SRCS +=	service.cpp
 SRCS += row.cpp
 SRCS +=	statement.cpp
 SRCS +=	transaction.cpp
-
 SRCS +=	date.cpp
 SRCS +=	time.cpp
 
