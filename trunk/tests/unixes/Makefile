@@ -28,28 +28,23 @@
 ###############################################################################
 
 #
-#	Select Compiler and Platform
-#	This section works in conjunction with the 'checks' target to verify
-#	the automatic detection of the platform and the manual selection of the
-#	compiler.
+#	Detect Platform
 #
 
 ifeq ($(shell uname),Darwin)
 	#	Darwin (OS X) Target Platform
 	PLATFORM=darwin
-	COMPILER=IBPP_GCC
 else
 ifeq ($(shell uname),Linux)
 	#	Linux Target Platform
 	PLATFORM=linux
-	COMPILER=IBPP_GCC	# The only compiler supported on linux anyway
 else
 	#	Win32 Target Platform
 	ifeq ($(findstring mingw32,$(shell gcc -v 2>&1)),mingw32)
-		PLATFORM=win32_mingw
+		PLATFORM=windows_mingw
 	else	
 	ifeq ($(findstring cygwin,$(shell gcc -v 2>&1)),cygwin)
-		PLATFORM=win32_cygwin
+		PLATFORM=windows_cygwin
 	endif
 	endif
 endif	
@@ -105,7 +100,6 @@ SRCS +=	time.cpp
 ifeq ($(PLATFORM),darwin)
 	CXXOUTPUT =	-o
 	CXXFLAGS =-DIBPP_DARWIN
-	CXXFLAGS+=-DIBPP_GCC
 	CXXFLAGS+=-Wall -fPIC
 	CXXFLAGS+=-I./ -I./fbheaders
 	#
@@ -124,7 +118,6 @@ endif
 ifeq ($(PLATFORM),linux)
 	CXXOUTPUT =	-o
 	CXXFLAGS =-DIBPP_LINUX
-	CXXFLAGS+=-DIBPP_GCC
 	CXXFLAGS+=-Wall -fPIC
 	CXXFLAGS+=-I./ -I./fbheaders
 	#
@@ -145,10 +138,9 @@ ifeq ($(PLATFORM),linux)
 endif
 
 # building with mingw (MinGW 3.0)
-ifeq ($(PLATFORM),win32_mingw)
+ifeq ($(PLATFORM),windows_mingw)
 	CXXOUTPUT =	-o
 	CXXFLAGS =-DIBPP_WINDOWS
-	CXXFLAGS+=-DIBPP_GCC
 	CXXFLAGS+=-mthreads -D_MT -DWIN32_LEAN_AND_MEAN -I./ -I./fbheaders
 	ifeq ($(TARGETDIR),release)
 		CXXFLAGS+= -O3
@@ -161,10 +153,9 @@ ifeq ($(PLATFORM),win32_mingw)
 endif
 
 # building with cygwin
-ifeq ($(PLATFORM),win32_cygwin)
+ifeq ($(PLATFORM),windows_cygwin)
 	CXXOUTPUT =	-o
 	CXXFLAGS =-DIBPP_WINDOWS
-	CXXFLAGS+=-DIBPP_GCC
 	CXXFLAGS+=-D_MT -DWIN32_LEAN_AND_MEAN -I./ -I./fbheaders
 	ifeq ($(TARGETDIR),release)
 		CXXFLAGS+= -O3
@@ -200,14 +191,9 @@ ifeq ($(PLATFORM),)
 	$(warning Unsupported or unrecognized platform.)
 	$(error Please read the howtobuild.txt file)
 endif
-ifeq ($(COMPILER),)
-	$(warning Unspecified compiler choice.)
-	$(error Please read the howtobuild.txt file)
-endif
 	@if [ ! -d $(TARGETDIR)/$(PLATFORM) ]; then mkdir -p $(TARGETDIR)/$(PLATFORM); fi
 	@echo ""
 	@echo "Platform : $(PLATFORM)"
-	@echo "Compiler : $(COMPILER)"
 	@echo "Target   : $(TARGETDIR)"
 	@echo ""
 
@@ -226,7 +212,7 @@ $(TARGETDIR)/$(PLATFORM)/%.o: %.cpp $(HDRS)
 #	PRODUCTION RULES : SHARED BETWEEN LINUX, MINGW, CYGWIN
 #
 
-ifeq ($(findstring $(PLATFORM),linux darwin win32_mingw win32_cygwin),$(PLATFORM))
+ifeq ($(findstring $(PLATFORM),linux darwin windows_mingw windows_cygwin),$(PLATFORM))
 $(TARGETDIR)/$(PLATFORM)/libibpp$(DS).a: $(OBJS)
 	@rm -f $@
 	@ar rv $@ $^
@@ -258,7 +244,7 @@ endif
 #	PRODUCTION RULES : SHARED BETWEEN MINGW, CYGWIN
 #
 
-ifeq ($(findstring $(PLATFORM),win32_mingw win32_cygwin),$(PLATFORM))
+ifeq ($(findstring $(PLATFORM),windows_mingw windows_cygwin),$(PLATFORM))
 $(TARGETDIR)/$(PLATFORM)/tests.exe : $(TARGETDIR)/$(PLATFORM)/libibpp$(DS).a tests/tests.cpp
 	cd $(TARGETDIR)/$(PLATFORM);\
 		$(CXX) $(CXXFLAGS) -I../../ -o tests.exe ../../tests/tests.cpp -L./ -libpp$(DS)
