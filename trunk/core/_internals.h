@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	File    : $Id: _internals.h,v 1.70.2.9 2005/11/09 10:28:38 epocman Exp $
+//	File    : $Id: $
 //	Subject : IBPP internal declarations
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,6 +28,8 @@
 //	* Tabulations should be set every four characters when editing this file.
 //
 ///////////////////////////////////////////////////////////////////////////////
+
+#include "ibpp.h"
 
 #if defined(__BCPLUSPLUS__) || defined(_MSC_VER) || defined(__DMC__)
 #define HAS_HDRSTOP
