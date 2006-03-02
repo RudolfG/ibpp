@@ -25,7 +25,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef IBPP_MSVC
+#ifdef _MSC_VER
 #pragma warning(disable: 4786 4996)
 #ifndef _DEBUG
 #pragma warning(disable: 4702)
@@ -48,7 +48,7 @@ using namespace ibpp_internals;
 /*
 // Fix to famous MSVC 6 variable scope bug
 // This fix will trigger warning C4127 at level 4 with MSVC 7.1 at least
-#ifdef IBPP_MSVC
+#ifdef _MSC_VER
 #define for if(true)for
 #endif
 */
@@ -67,7 +67,7 @@ namespace ibpp_internals
 #undef min
 #undef max
 
-#ifdef IBPP_DMC // Needs to break-down the declaration else compiler crash
+#ifdef __DMC__ // Needs to break-down the declaration else compiler crash
 	const std::numeric_limits<short> short_limits;
 	const std::numeric_limits<long> long_limits;
 	const short minshort = short_limits.min();

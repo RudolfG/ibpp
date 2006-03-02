@@ -25,7 +25,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef IBPP_MSVC
+#ifdef _MSC_VER
 #pragma warning(disable: 4786 4996)
 #ifndef _DEBUG
 #pragma warning(disable: 4702)
@@ -59,7 +59,7 @@ namespace ibpp_internals
 #undef min
 #undef max
 
-#ifdef IBPP_DMC // Needs to break-down the declaration else compiler crash (!)
+#ifdef __DMC__ // Needs to break-down the declaration else compiler crash (!)
 	const std::numeric_limits<int16_t> i16_limits;
 	const std::numeric_limits<int32_t> i32_limits;
 	const int16_t min16 = i16_limits.min();
@@ -674,7 +674,7 @@ int RowImpl::ColumnNum(const std::string& name)
 	}
 
 	throw LogicExceptionImpl("Row::ColumnNum", _("Could not find matching column."));
-#ifdef IBPP_DMC
+#ifdef __DMC__
 	return 0;	// DMC errronously warns here about a missing return
 #endif
 }

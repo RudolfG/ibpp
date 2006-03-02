@@ -1,2 +1,2 @@
 @MKDIR bin
-@bcc32 -DIBPP_WINDOWS -DIBPP_BCC -w -I..\..\core -nbin ..\tests.cpp ..\..\core\*.cpp
+@bcc32 -DIBPP_WINDOWS -w -I..\..\core -nbin ..\tests.cpp ..\..\core\*.cpp

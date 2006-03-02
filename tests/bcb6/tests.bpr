@@ -27,7 +27,7 @@
     <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
     <RELEASELIBPATH value="$(BCB)\lib\release"/>
     <LINKER value="ilink32"/>
-    <USERDEFINES value="IBPP_WINDOWS;IBPP_BCC"/>
+    <USERDEFINES value="IBPP_WINDOWS;_DEBUG"/>
     <SYSDEFINES value="NO_STRICT;_NO_VCL;_RTLDLL;USEPACKAGES"/>
     <MAINSOURCE value="tests.bpf"/>
     <INCLUDEPATH value="..\;..;$(BCB)\include;$(BCB)\include\vcl;..\..\core"/>
@@ -37,12 +37,13 @@
   </MACROS>
   <OPTIONS>
     <IDLCFLAGS value="-I..\. -I.. -I$(BCB)\include -I$(BCB)\include\vcl -I..\..\core -src_suffix 
-      cpp -DIBPP_WINDOWS -DIBPP_BCC -boa"/>
-    <CFLAG1 value="-O2 -H=$(BCB)\lib\vcl60.csm -Hc -w -Vx -Ve -X- -a8 -b- -k- -vi -tWC -tWM -c"/>
-    <PFLAGS value="-N2bin -N0bin -$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
+      cpp -DIBPP_WINDOWS -D_DEBUG -boa"/>
+    <CFLAG1 value="-Od -H=$(BCB)\lib\vcl60.csm -Hc -w -Vx -Ve -X- -r- -a8 -b- -k -y -v -vi- 
+      -tWC -tWM -c"/>
+    <PFLAGS value="-N2bin -N0bin -$Y+ -$W -$O- -$A8 -v -JPHNE -M"/>
     <RFLAGS value=""/>
-    <AFLAGS value="/mx /w2 /zn"/>
-    <LFLAGS value="-Ibin -D&quot;&quot; -ap -Tpe -x -Gn"/>
+    <AFLAGS value="/mx /w2 /zi"/>
+    <LFLAGS value="-Ibin -D&quot;&quot; -ap -Tpe -x -Gn -v"/>
     <OTHERFILES value=""/>
   </OPTIONS>
   <LINKER>
@@ -127,11 +128,13 @@ Count=1
 Item0=$(BCB)\source\vcl
 
 [HistoryLists\hlConditionals]
-Count=4
-Item0=IBPP_WINDOWS;IBPP_BCC
-Item1=_DEBUG;IBPP_WINDOWS;IBPP_BCC
-Item2=_DEBUG;IBPP_WINDOWS;IBPP_BCB
-Item3=_DEBUG
+Count=6
+Item0=IBPP_WINDOWS;_DEBUG
+Item1=IBPP_WINDOWS
+Item2=IBPP_WINDOWS;IBPP_BCC
+Item3=_DEBUG;IBPP_WINDOWS;IBPP_BCC
+Item4=_DEBUG;IBPP_WINDOWS;IBPP_BCB
+Item5=_DEBUG
 
 [HistoryLists\hlIntOutputDir]
 Count=4

@@ -48,7 +48,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef IBPP_MSVC
+#ifdef _MSC_VER
 #pragma warning(disable: 4786 4996)
 #ifndef _DEBUG
 #pragma warning(disable: 4702)
