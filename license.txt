@@ -1,30 +1,3 @@
-(*) PREAMBLE
-
-The IBPP previous versions up to and including versions 2.4.x were licensed
-under the Mozilla Public License, Version 1.0.
-
-Starting with versions 2.5 and above, IBPP is now licensed under new terms,
-which don't remove any previous rights, but are considerably easier to
-understand, live and work with.
-
-People might argue that the previous IBPP license had these terms in paragraph
-number 6.2:	"No one other than Netscape has the right to modify the terms
-applicable to Covered Code created under this License" and that these terms
-should deny T.I.P. Group S.A. to replace the licensing model of IBPP with
-another license.  This is non-sense, in each and every way you can consider it
-and only comes from mistakenly having forgotten to remove and update "Netscape"
-references in the original license attached to the code.  It is evident for
-anybody who would review the history of IBPP code, from its initial publication
-on SourceForge in year 2000 up to now, that the full initial code came solely
-from T.I.P. Group S.A. and is in no way related to 'Netscape', nor are any
-contribution made to the code since its initial release related to 'Netscape'.
-
-Legal advice was seeked on this matter and it is under complete assurance that
-T.I.P. Group S.A. proudly republishes IBPP source code under the following new
-license terms, for the increased benefit of all existing IBPP users and those
-to come.
-
-
 -------------------------------------------------------------------------------
    IBPP LICENSE, Version 1.0   >>> STARTS HERE <<<
 -------------------------------------------------------------------------------
@@ -112,7 +85,7 @@ entity (hereafter "You"):
    to the extent that, should the IBPP code be found to infringe on the
    copyright or patent of any third-party entity, you assume the entire
    responsability regarding your own programming works which use IBPP.  You
-   always a least have the final solution not to use anymore IBPP in your
+   always a least have the final solution not to use IBPP anymore in your
    programming works.
    
 
@@ -142,7 +115,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
    IBPP LICENSE, Version 1.0   >>> ENDS HERE <<<
 -------------------------------------------------------------------------------
 
-(*) Questions and Answers
+
+  FREQUENTLY ASKED QUESTIONS
 
 o Can I use IBPP in any kind of closed-source programming work?
   
@@ -184,5 +158,29 @@ o I have made enhancements to IBPP but these are tightely coupled to closed-
   extensions while at the same time contributing some useful generic extensions
   mechanisms to IBPP.
 
+o The IBPP previous versions up to and including versions 2.4.x were licensed
+  under the Mozilla Public License, Version 1.0.  How does it come that this
+  version uses a new licence?
+
+  This new license doesn't remove any previous rights but is considerably
+  easier to understand, live and work with.
+
+  People might argue that the previous IBPP license had these terms in
+  paragraph number 6.2: "No one other than Netscape has the right to modify the
+  terms applicable to Covered Code created under this License" and that these
+  terms should deny T.I.P. Group S.A. to replace the licensing model of IBPP
+  with another license.  This is non-sense, in each and every way you can
+  consider it and only comes from mistakenly having forgotten to remove and
+  update "Netscape" references in the original license attached to the code.
+  It is evident for anybody who would review the history of IBPP code, from its
+  initial publication on SourceForge in year 2000 up to now, that the full
+  initial code came solely from T.I.P. Group S.A. and is in no way related to
+  'Netscape', nor are any contribution made to the code since its initial
+  release related to 'Netscape'.
+
+  Legal advice was seeked on this matter and it is under complete assurance
+  that T.I.P. Group S.A. proudly republished IBPP source code under the above
+  new license terms, for the increased benefit of all existing IBPP users and
+  those to come.
 
 // EOF //
