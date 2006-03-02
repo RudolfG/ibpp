@@ -55,7 +55,7 @@
 #endif
 #endif
 
-#include "_internals.h"
+#include "_ibpp.h"
 
 #ifdef HAS_HDRSTOP
 #pragma hdrstop
