@@ -33,7 +33,6 @@
 #endif
 #endif
 
-#include "ibpp.h"
 #include "_internals.h"
 
 #ifdef HAS_HDRSTOP

@@ -566,10 +566,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\core\_msvcwarnings.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\core\ibpp.h"
 					>
 				</File>
