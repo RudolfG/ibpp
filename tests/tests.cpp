@@ -887,15 +887,28 @@ void Test::Test6(void)
 
 	printf(_("           Manage users\n"));
 	svc->RemoveUser("EPOCMAN");
-	svc->AddUser("EPOCMAN", "test", "Olivier", "Gilles", "Mascia");
-	svc->ModifyUser("EPOCMAN", "", "Benoit", "", "");
+	IBPP::User user;
+	user.username = "EPOCMAN";
+	user.password = "test";
+	user.firstname = "Olivier";
+	user.middlename = "Gilles";
+	user.lastname = "Mascia";
+	user.userid = 100;
+	user.groupid = 200;
+	svc->AddUser(user);
+
+	user.clear();
+	user.username = "EPOCMAN";
+	user.firstname = "Benoit";
+	svc->ModifyUser(user);
 	printf("               \r");
-	std::vector<std::string> users;
-	svc->ListUsers(users);
+
+	std::vector<IBPP::User> users;
+	svc->ListUsers("", users);
 	printf("           All users : ");
 	for (unsigned int i = 0; i < users.size(); i++)
 	{
-		printf("%s", users[i].c_str());
+		printf("%s", users[i].username.c_str());
 		if (i < users.size()-1) printf(", ");
 	}
 	printf("\n");
@@ -907,17 +920,18 @@ void Test::Test6(void)
 	db2->Connect();
 
 	// Checking their names
-	db1->Users(users);
-	if (users.size() != 2)
+	std::vector<std::string> usernames;
+	db1->Users(usernames);
+	if (usernames.size() != 2)
 	{
 		_Success = false;
-		printf(_("           Expected 2 users connected, found %d.\n"), (int)users.size());
+		printf(_("           Expected 2 users connected, found %d.\n"), (int)usernames.size());
 	}
 	printf("           Connected users : ");
-	for (unsigned int i = 0; i < users.size(); i++)
+	for (unsigned int i = 0; i < usernames.size(); i++)
 	{
-		printf("%s", users[i].c_str());
-		if (i < users.size()-1) printf(", ");
+		printf("%s", usernames[i].c_str());
+		if (i < usernames.size()-1) printf(", ");
 	}
 	printf("\n");
 }

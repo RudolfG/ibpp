@@ -66,15 +66,20 @@ More background information on http://www.ibpp.org website.
 There is no 'installation' per se because IBPP Project does not release
 binaries. It is much better / safer that you adjust your own programs build
 procedures to integrate the 'core' files of IBPP straight into your own
-productions.
-Please refer to the file howtobuild.txt from this distribution for more
-complete instructions on how to do so.
+productions.  Please refer to the file howtobuild.txt from this distribution
+for more complete instructions on how to do so.
 
 
 3/ New or Updated Features since Version 2.4
 
-[ TO BE WRITTEN ]
+- Completely revamped the concepts of how to build IBPP : embed it in your
+own code and build procedure.  See howtobuild.txt for details.
 
+- Changed and enhanced the Service::AddUser, Service::ModifyUser and
+Service::ListUsers to use the new IBPP::User helper class. This breaks the
+backward compatibility of these 3 APIs. Though not the best thing to do, it was
+considered an acceptable mistake because these APIs are typically not called
+much from user code. The required update is easy and should not be too big.
 
 4/ Comments, Acknowledgments
 

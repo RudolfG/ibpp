@@ -128,24 +128,30 @@ void ServiceImpl::GetVersion(std::string& version)
 	result.GetString(isc_info_svc_server_version, version);
 }
 
-void ServiceImpl::AddUser(const std::string& username, const std::string& password,
-			const std::string& first, const std::string& middle, const std::string& last)
+void ServiceImpl::AddUser(const IBPP::User& user)
 {
 	if (gds.Call()->mGDSVersion >= 60 && mHandle == 0)
 		throw LogicExceptionImpl("Service::AddUser", _("Service is not connected."));
-	if (username.empty())
+	if (user.username.empty())
 		throw LogicExceptionImpl("Service::AddUser", _("Username required."));
-	if (password.empty())
+	if (user.password.empty())
 		throw LogicExceptionImpl("Service::AddUser", _("Password required."));
 
 	IBS status;
 	SPB spb;
 	spb.Insert(isc_action_svc_add_user);
-	spb.InsertString(isc_spb_sec_username, 2, username.c_str());
-	spb.InsertString(isc_spb_sec_password, 2, password.c_str());
-	if (! first.empty()) spb.InsertString(isc_spb_sec_firstname, 2, first.c_str());
-	if (! middle.empty()) spb.InsertString(isc_spb_sec_middlename, 2, middle.c_str());
-	if (! last.empty()) spb.InsertString(isc_spb_sec_lastname, 2, last.c_str());
+	spb.InsertString(isc_spb_sec_username, 2, user.username.c_str());
+	spb.InsertString(isc_spb_sec_password, 2, user.password.c_str());
+	if (! user.firstname.empty())
+			spb.InsertString(isc_spb_sec_firstname, 2, user.firstname.c_str());
+	if (! user.middlename.empty())
+			spb.InsertString(isc_spb_sec_middlename, 2, user.middlename.c_str());
+	if (! user.lastname.empty())
+			spb.InsertString(isc_spb_sec_lastname, 2, user.lastname.c_str());
+	if (user.userid != 0)
+			spb.InsertQuad(isc_spb_sec_userid, (int32_t)user.userid);
+	if (user.groupid != 0)
+			spb.InsertQuad(isc_spb_sec_groupid, (int32_t)user.groupid);
 
 	(*gds.Call()->m_service_start)(status.Self(), &mHandle, 0, spb.Size(), spb.Self());
 	if (status.Errors())
@@ -154,23 +160,30 @@ void ServiceImpl::AddUser(const std::string& username, const std::string& passwo
 	Wait();
 }
 
-void ServiceImpl::ModifyUser(const std::string& username, const std::string& password,
-			const std::string& first, const std::string& middle, const std::string& last)
+void ServiceImpl::ModifyUser(const IBPP::User& user)
 {
 	if (gds.Call()->mGDSVersion >= 60 && mHandle == 0)
 		throw LogicExceptionImpl("Service::ModifyUser", _("Service is not connected."));
-	if (username.empty())
+	if (user.username.empty())
 		throw LogicExceptionImpl("Service::ModifyUser", _("Username required."));
 
 	IBS status;
 	SPB spb;
 
 	spb.Insert(isc_action_svc_modify_user);
-	spb.InsertString(isc_spb_sec_username, 2, username.c_str());
-	if (! password.empty()) spb.InsertString(isc_spb_sec_password, 2, password.c_str());
-	if (! first.empty()) spb.InsertString(isc_spb_sec_firstname, 2, first.c_str());
-	if (! middle.empty()) spb.InsertString(isc_spb_sec_middlename, 2, middle.c_str());
-	if (! last.empty()) spb.InsertString(isc_spb_sec_lastname, 2, last.c_str());
+	spb.InsertString(isc_spb_sec_username, 2, user.username.c_str());
+	if (! user.password.empty())
+			spb.InsertString(isc_spb_sec_password, 2, user.password.c_str());
+	if (! user.firstname.empty())
+			spb.InsertString(isc_spb_sec_firstname, 2, user.firstname.c_str());
+	if (! user.middlename.empty())
+			spb.InsertString(isc_spb_sec_middlename, 2, user.middlename.c_str());
+	if (! user.lastname.empty())
+			spb.InsertString(isc_spb_sec_lastname, 2, user.lastname.c_str());
+	if (user.userid != 0)
+			spb.InsertQuad(isc_spb_sec_userid, (int32_t)user.userid);
+	if (user.groupid != 0)
+			spb.InsertQuad(isc_spb_sec_groupid, (int32_t)user.groupid);
 
 	(*gds.Call()->m_service_start)(status.Self(), &mHandle, 0, spb.Size(), spb.Self());
 	if (status.Errors())
@@ -200,7 +213,8 @@ void ServiceImpl::RemoveUser(const std::string& username)
 	Wait();
 }
 
-void ServiceImpl::ListUsers(std::vector<std::string>& users)
+void ServiceImpl::ListUsers(const std::string& username,
+							std::vector<IBPP::User>& users)
 {
 	if (gds.Call()->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
@@ -209,6 +223,9 @@ void ServiceImpl::ListUsers(std::vector<std::string>& users)
 
 	SPB spb;
 	spb.Insert(isc_action_svc_display_user);
+	if (! username.empty())
+			spb.InsertString(isc_spb_sec_username, 2, username.c_str());
+
 	IBS status;
 	(*gds.Call()->m_service_start)(status.Self(), &mHandle, 0, spb.Size(), spb.Self());
 	if (status.Errors())
@@ -228,19 +245,47 @@ void ServiceImpl::ListUsers(std::vector<std::string>& users)
 		throw SQLExceptionImpl(status, "Service::ListUsers", _("isc_service_query returned unexpected answer"));
 
 	p += 3;	// Skips the 'isc_info_svc_get_users' and its total length
+	IBPP::User user;
 	while (*p != isc_info_end)
 	{
-		if (*p == isc_spb_sec_userid || *p == isc_spb_sec_groupid) p = p + 5;
+		if (*p == isc_spb_sec_userid)
+		{
+			user.userid = (uint32_t)(*gds.Call()->m_vax_integer)(p+1, 4);
+			p += 5;
+		}
+		else if (*p == isc_spb_sec_groupid)
+		{
+			user.groupid = (uint32_t)(*gds.Call()->m_vax_integer)(p+1, 4);
+			p += 5;
+		}
 		else
 		{
 			unsigned short len = (unsigned short)(*gds.Call()->m_vax_integer)(p+1, 2);
-			if (*p == isc_spb_sec_username)
+			switch (*p)
 			{
-				if (len != 0) users.push_back(std::string().append(p+3, len));
+			case isc_spb_sec_username :
+				// For each user, this is the first element returned
+				if (! user.username.empty()) users.push_back(user);	// Flush previous user
+				user.clear();
+				if (len != 0) user.username.assign(p+3, len);
+				break;
+			case isc_spb_sec_password :
+				if (len != 0) user.password.assign(p+3, len);
+				break;
+			case isc_spb_sec_firstname :
+				if (len != 0) user.firstname.assign(p+3, len);
+				break;
+			case isc_spb_sec_middlename :
+				if (len != 0) user.middlename.assign(p+3, len);
+				break;
+			case isc_spb_sec_lastname :
+				if (len != 0) user.lastname.assign(p+3, len);
+				break;
 			}
-			p = p + 3 + len;
+			p += (3 + len);
 		}
     }
+	if (! user.username.empty()) users.push_back(user);	// Flush last user
 }
 
 void ServiceImpl::SetPageBuffers(const std::string& dbfile, int buffers)
