@@ -68,26 +68,31 @@ endif
 # *************************************************
 
 HDRS =	../../core/ibpp.h
-HDRS +=	../../core/_ibpp.h
 
-SRCS =	_ibpp.cpp
-SRCS += _dpb.cpp
-SRCS +=	_ibs.cpp
-SRCS +=	_rb.cpp
-SRCS +=	_spb.cpp
-SRCS +=	_tpb.cpp
-SRCS +=	_epb.cpp
-SRCS +=	array.cpp
-SRCS +=	blob.cpp
-SRCS +=	database.cpp
-SRCS +=	dbkey.cpp
-SRCS +=	exception.cpp
-SRCS +=	service.cpp
-SRCS += row.cpp
-SRCS +=	statement.cpp
-SRCS +=	transaction.cpp
-SRCS +=	date.cpp
-SRCS +=	time.cpp
+HDRS +=	../../core/_ibpp.h
+HDRS +=	../../core/ibase.h
+HDRS +=	../../core/iberror.h
+
+APP_SRCS =		tests.cpp
+
+CORE_SRCS =		_ibpp.cpp
+CORE_SRCS +=	_dpb.cpp
+CORE_SRCS +=	_ibs.cpp
+CORE_SRCS +=	_rb.cpp
+CORE_SRCS +=	_spb.cpp
+CORE_SRCS +=	_tpb.cpp
+CORE_SRCS +=	_epb.cpp
+CORE_SRCS +=	array.cpp
+CORE_SRCS +=	blob.cpp
+CORE_SRCS +=	database.cpp
+CORE_SRCS +=	dbkey.cpp
+CORE_SRCS +=	exception.cpp
+CORE_SRCS +=	service.cpp
+CORE_SRCS +=	row.cpp
+CORE_SRCS +=	statement.cpp
+CORE_SRCS +=	transaction.cpp
+CORE_SRCS +=	date.cpp
+CORE_SRCS +=	time.cpp
 
 # *************************************************
 # Conditional Compile Options
@@ -106,8 +111,7 @@ ifeq ($(PLATFORM),darwin)
 		CXXFLAGS+= -g -DDEBUG
 	endif
 	#
-	TARGETS =	$(TARGETDIR)/$(PLATFORM)/libibpp$(DS).a \
-				$(TARGETDIR)/$(PLATFORM)/tests
+	TARGETS =	$(TARGETDIR)/tests
 endif
 
 # building on linux (any flavour, I suppose)
@@ -127,9 +131,7 @@ ifeq ($(PLATFORM),linux)
 		CXXFLAGS+= -g -DDEBUG
 	endif
 	#
-	TARGETS =	$(TARGETDIR)/$(PLATFORM)/libibpp$(DS).a \
-				$(TARGETDIR)/$(PLATFORM)/libibpp$(DS).so \
-				$(TARGETDIR)/$(PLATFORM)/tests
+	TARGETS =	$(TARGETDIR)/tests
 endif
 
 # building with mingw (MinGW 3.0)
@@ -143,8 +145,7 @@ ifeq ($(PLATFORM),windows_mingw)
 		CXXFLAGS+= -ggdb -DDEBUG -Wall
 	endif
 	#
-	TARGETS =	$(TARGETDIR)/$(PLATFORM)/libibpp$(DS).a \
-				$(TARGETDIR)/$(PLATFORM)/tests.exe
+	TARGETS =	$(TARGETDIR)/tests.exe
 endif
 
 # building with cygwin
@@ -158,8 +159,7 @@ ifeq ($(PLATFORM),windows_cygwin)
 		CXXFLAGS+= -ggdb -DDEBUG -Wall
 	endif
 	#
-	TARGETS =	$(TARGETDIR)/$(PLATFORM)/libibpp$(DS).a
-				$(TARGETDIR)/$(PLATFORM)/tests.exe
+	TARGETS =	$(TARGETDIR)/tests.exe
 endif
 
 # *************************************************
@@ -167,7 +167,8 @@ endif
 # *************************************************
 
 # make an object from each source file
-OBJS:=$(addprefix $(TARGETDIR)/$(PLATFORM)/,$(addsuffix .o,$(basename $(SRCS))))
+APP_OBJS:=$(addprefix $(TARGETDIR)/,$(addsuffix .o,$(basename $(APP_SRCS))))
+CORE_OBJS:=$(addprefix $(TARGETDIR)/core/,$(addsuffix .o,$(basename $(CORE_SRCS))))
 
 # *************************************************
 # Build Rules
@@ -177,7 +178,7 @@ OBJS:=$(addprefix $(TARGETDIR)/$(PLATFORM)/,$(addsuffix .o,$(basename $(SRCS))))
 .PHONY: checks tests clean reallyclean runtests
 
 #don't delete when generated indirectly
-.SECONDARY: $(HDRS) $(SRCS)
+.SECONDARY: $(HDRS) $(APP_SRCS) $(CORE_SRCS)
 
 all: checks $(TARGETS)
 
@@ -186,7 +187,8 @@ ifeq ($(PLATFORM),)
 	$(warning Unsupported or unrecognized platform.)
 	$(error Please read the howtobuild.txt file)
 endif
-	@if [ ! -d $(TARGETDIR)/$(PLATFORM) ]; then mkdir -p $(TARGETDIR)/$(PLATFORM); fi
+	@if [ ! -d $(TARGETDIR) ]; then mkdir -p $(TARGETDIR); fi
+	@if [ ! -d $(TARGETDIR)/core ]; then mkdir -p $(TARGETDIR)/core; fi
 	@echo ""
 	@echo "Platform : $(PLATFORM)"
 	@echo "Target   : $(TARGETDIR)"
@@ -200,39 +202,19 @@ endif
 %.o: %.cpp
 
 # our own specific compilation rule
-$(TARGETDIR)/$(PLATFORM)/%.o: ../../core/%.cpp $(HDRS)
+$(TARGETDIR)/core/%.o: ../../core/%.cpp $(HDRS)
+		$(CXX) $(CXXFLAGS) $(CXXOUTPUT)$@ -c $<
+
+$(TARGETDIR)/%.o: ../%.cpp $(HDRS)
 	$(CXX) $(CXXFLAGS) $(CXXOUTPUT)$@ -c $<
-
-#
-#	PRODUCTION RULES : SHARED BETWEEN LINUX, MINGW, CYGWIN
-#
-
-ifeq ($(findstring $(PLATFORM),linux darwin windows_mingw windows_cygwin),$(PLATFORM))
-$(TARGETDIR)/$(PLATFORM)/libibpp$(DS).a: $(OBJS)
-	@rm -f $@
-	@ar rv $@ $^
-	@ranlib $@
-
-	@echo ""
-	@echo "$@ *** Build Successful ***"
-	@echo ""
-endif
 
 #
 #	PRODUCTION RULES : SHARED BETWEEN LINUX, DARWIN
 #
 
 ifeq ($(findstring $(PLATFORM),linux darwin),$(PLATFORM))
-$(TARGETDIR)/$(PLATFORM)/libibpp$(DS).so: $(OBJS)
-	$(CXX) $^ $(LDFLAGS) -shared -o $@ $(LIBS)
-
-	@echo ""
-	@echo "$@ *** Build Successful ***"
-	@echo ""
-
-$(TARGETDIR)/$(PLATFORM)/tests : $(TARGETDIR)/$(PLATFORM)/libibpp$(DS).a tests/tests.cpp
-	cd $(TARGETDIR)/$(PLATFORM);\
-		$(CXX) $(CXXFLAGS) -I../../ -o tests ../../tests/tests.cpp -L./ -libpp$(DS) $(LIBS)
+$(TARGETDIR)/tests : $(APP_OBJS) $(CORE_OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $(APP_OBJS) $(CORE_OBJS) $(LIBS)
 endif
 
 #
@@ -240,9 +222,8 @@ endif
 #
 
 ifeq ($(findstring $(PLATFORM),windows_mingw windows_cygwin),$(PLATFORM))
-$(TARGETDIR)/$(PLATFORM)/tests.exe : $(TARGETDIR)/$(PLATFORM)/libibpp$(DS).a tests/tests.cpp
-	cd $(TARGETDIR)/$(PLATFORM);\
-		$(CXX) $(CXXFLAGS) -I../../ -o tests.exe ../../tests/tests.cpp -L./ -libpp$(DS)
+$(TARGETDIR)/tests.exe : $(APP_OBJS) $(CORE_OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ_SRCS) $(CORE_OBJS)
 endif
 
 #
@@ -250,8 +231,8 @@ endif
 #
 
 clean: checks
-	@rm -rf $(TARGETDIR)/$(PLATFORM)
-	@echo "CLEANED ./$(TARGETDIR)/$(PLATFORM)"
+	@rm -rf $(TARGETDIR)
+	@echo "CLEANED ./$(TARGETDIR)"
 
 reallyclean:
 	@rm -rf debug 
@@ -261,7 +242,7 @@ reallyclean:
 runtests: checks $(TARGETS)
 	@echo ""
 	@echo "Now running tests programs..."
-	@cd $(TARGETDIR)/$(PLATFORM); ./tests
+	@cd $(TARGETDIR); ./tests
 
 #
 #	EOF
