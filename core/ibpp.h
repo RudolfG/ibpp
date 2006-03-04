@@ -88,7 +88,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (0<<8) + 32; // Version == 2.5.0.32
+	const uint32_t Version = (2<<24) + (5<<16) + (0<<8) + 33; // Version == 2.5.0.33
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
@@ -166,6 +166,8 @@ namespace IBPP
 	 *                   IBPP::Exception
 	 *                 /                 \
 	 *    IBPP::LogicException    IBPP::SQLException
+	 *             |
+	 *      IBPP::WrongType
 	 */
 
 	class Exception : public std::exception
@@ -192,6 +194,12 @@ namespace IBPP
 		virtual ~SQLException() throw();
 	};
 
+	class WrongType : public LogicException
+	{
+	public:
+		virtual ~WrongType() throw();
+	};
+	
 	/* Classes Date, Time, Timestamp and DBKey are 'helper' classes.  They help
 	 * in retrieving or setting some special SQL types. Dates, times and dbkeys
 	 * are often read and written as strings in SQL scripts. When programming

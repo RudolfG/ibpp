@@ -26,12 +26,19 @@ item number.
 
 4. March 5, 2006
 
-Added std::string& Statement::Sql() to return the last sql statement prepared/executed.
+- Added std::string& Statement::Sql() to return the last sql statement prepared/executed.
+
+- When Statement Get() and Set() face an incompatible type situation, the exception report has
+been enhanced to give the two conflicting types (the SQL column type and the variable data type).
+
+- Added exception class 'WrongType' derived from 'LogicException' to support the above.
+
 
 3. March 2, 2006
 
 Changed AddUser/ModifyUser/ListUsers (not backward compatible but easy to
 upgrade) to use the new IBPP::User helper class.
+
 
 2. March 1, 2006
 
@@ -41,6 +48,7 @@ IBPP project didn't required the added facilities of Subversion compared to CVS.
 But, I, needed them. All my other projects (business projects) are hosted on
 Subversion. So as the main contributor to the code, I egoistically opted to
 simplify my developer's life. (O. Mascia).
+
 
 1. November 17, 2005
 
