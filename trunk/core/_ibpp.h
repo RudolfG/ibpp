@@ -1128,6 +1128,7 @@ public:
 	bool Fetch(IBPP::Row&);
 	int AffectedRows(void);
 	void Close(void);	// Free resources, attachments maintained
+	std::string& Sql() { return mSql; }
 	IBPP::STT Type(void) { return mType; }
 
 	void SetNull(int);

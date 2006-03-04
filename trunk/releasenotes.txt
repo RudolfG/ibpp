@@ -81,6 +81,8 @@ backward compatibility of these 3 APIs. Though not the best thing to do, it was
 considered an acceptable mistake because these APIs are typically not called
 much from user code. The required update is easy and should not be too big.
 
+- Added std::string& Statement::Sql() to return the last prepared/executed SQL statement.
+
 4/ Comments, Acknowledgments
 
 This 2.5 version is considered the best IBPP version available to date and we

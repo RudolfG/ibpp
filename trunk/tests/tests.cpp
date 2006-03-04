@@ -122,7 +122,7 @@ void Test::RunTests(void)
 {
 	int NextTest = 1;
 
-	printf(_("\nIBPP Test Suite (library version %d.%d.%d.%d)\n\n"),
+	printf(_("\nIBPP Test Suite (Version %d.%d.%d.%d)\n\n"),
 		(IBPP::Version & 0xFF000000) >> 24,
 		(IBPP::Version & 0x00FF0000) >> 16,
 		(IBPP::Version & 0x0000FF00) >> 8,
@@ -427,6 +427,12 @@ void Test::Test4(void)
 		"values('2004-02-29', '10:11:12.1314', '1858-11-18 10:11:12.1314')");
 
 	st1->Execute("select D, T, TS from test");
+	if (st1->Sql().compare("select D, T, TS from test") != 0)
+	{
+		_Success = false;
+		printf("Statement::Sql() failed.");
+		return;
+	}
 	st1->Fetch();
 	IBPP::Date dt;
 	IBPP::Time tm;
@@ -473,7 +479,7 @@ void Test::Test4(void)
 	}
 	else
 	{
-		if (st1->ParameterType(13) != IBPP::sdString ||
+		if (st1->ParameterSubtype(13) != IBPP::sdString ||
 			st1->ParameterSubtype(5) != 1 ||
 			st1->ParameterSize(13) != 30)
 		{
@@ -1113,7 +1119,7 @@ int main(int argc, char* argv[])
 
 	if (! IBPP::CheckVersion(IBPP::Version))
 	{
-		printf(_("\nThis program got linked to an incompatible version of the library.\n"
+		printf(_("\nThis program got linked to an incompatible version of the IBPP source code.\n"
 			"Can't execute safely.\n"));
 		return 2;
 	}

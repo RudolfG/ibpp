@@ -88,7 +88,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = 0x02050000; // Version == 2.5.0.0
+	const uint32_t Version = (2<<24) + (5<<16) + (0<<8) + 32; // Version == 2.5.0.32
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
@@ -699,6 +699,7 @@ namespace IBPP
 		virtual bool Fetch(Row&) = 0;
 		virtual int AffectedRows(void) = 0;
 		virtual void Close(void) = 0;
+		virtual std::string& Sql() = 0;
 		virtual STT Type(void) = 0;
 
 		virtual void SetNull(int) = 0;
