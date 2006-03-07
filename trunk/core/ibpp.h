@@ -295,8 +295,8 @@ namespace IBPP
 		Timestamp(int y, int mo, int d, int h, int mi, int s, int t = 0)
 	  		{ Date::SetDate(y, mo, d); Time::SetTime(h, mi, s, t); }
 
-		Timestamp(const Timestamp& rv)				// Copy Constructor
-			{ mDate = rv.mDate; mTime = rv.mTime; }
+		Timestamp(const Timestamp& rv)
+			: Date(rv.mDate), Time(rv.mTime) {}	// Copy Constructor
 
 		Timestamp(const Date& rv)
 			{ mDate = rv.GetDate(); mTime = 0; }

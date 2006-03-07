@@ -1676,7 +1676,7 @@ RowImpl& RowImpl::operator=(const RowImpl& copied)
 }
 
 RowImpl::RowImpl(const RowImpl& copied)
-	: mRefCount(0), mDescrArea(0)
+	: IBPP::IRow(), mRefCount(0), mDescrArea(0)
 {
 	// mRefCount and mDescrArea are set to 0 before using the assignment operator
 	*this = copied;		// The assignment operator does the real copy

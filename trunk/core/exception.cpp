@@ -158,7 +158,7 @@ LogicExceptionImpl::LogicExceptionImpl() throw()
 }
 
 LogicExceptionImpl::LogicExceptionImpl(const LogicExceptionImpl& copied) throw()
-	: ExceptionBase(copied)
+	: IBPP::LogicException(), ExceptionBase(copied)
 {
 }
 
@@ -205,7 +205,7 @@ SQLExceptionImpl::SQLExceptionImpl() throw()
 }
 
 SQLExceptionImpl::SQLExceptionImpl(const SQLExceptionImpl& copied) throw()
-	: ExceptionBase(copied), mSqlCode(copied.mSqlCode),
+	: IBPP::SQLException(), ExceptionBase(copied), mSqlCode(copied.mSqlCode),
 		mEngineCode(copied.mEngineCode)
 {
 }
@@ -272,7 +272,7 @@ WrongTypeImpl::WrongTypeImpl() throw()
 }
 
 WrongTypeImpl::WrongTypeImpl(const WrongTypeImpl& copied) throw()
-	: LogicExceptionImpl(copied)
+	: IBPP::WrongType(), LogicExceptionImpl(copied)
 {
 }
 
