@@ -80,7 +80,7 @@ namespace ibpp_internals
 	const long maxlong = std::numeric_limits<long>::max();
 #endif
 
-};
+}
 
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 

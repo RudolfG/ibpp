@@ -43,7 +43,7 @@ using namespace ibpp_internals;
 
 namespace {
 	const int BUFFERINCR = 128;
-};
+}
 
 void DPB::Grow(int needed)
 {

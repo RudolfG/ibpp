@@ -88,7 +88,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (0<<8) + 33; // Version == 2.5.0.33
+	const uint32_t Version = (2<<24) + (5<<16) + (0<<8) + 36; // Version == 2.5.0.36
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
@@ -242,7 +242,7 @@ namespace IBPP
 		bool operator==(const Date& rv)	{ return mDate == rv.GetDate(); }
 		bool operator<(const Date& rv) { return mDate < rv.GetDate(); }
 
-		~Date() { };
+		virtual ~Date() { };
 	};
 
 	/* Class Time represent purely a Time. It is usefull in interactions
@@ -272,7 +272,7 @@ namespace IBPP
 		bool operator==(const Time& rv)	{ return mTime == rv.GetTime(); }
 		bool operator<(const Time& rv) { return mTime < rv.GetTime(); }
 
-		~Time() { };
+		virtual ~Time() { };
 	};
 
 	/* Class Timestamp represent a date AND a time. It is usefull in
@@ -410,8 +410,8 @@ namespace IBPP
 			if (mObject != 0) mObject->Release(mObject);
 			mObject = tmp; return *this;
 		}
-		Ptr(T* p)			{ mObject = (p == 0 ? 0 : p->AddRef()); }
-		Ptr(const Ptr& r)	{ mObject = (r.intf() == 0 ? 0 : r->AddRef()); }
+		Ptr(T* p) : mObject(p == 0 ? 0 : p->AddRef()) { }
+		Ptr(const Ptr& r) : mObject(r.intf() == 0 ? 0 : r->AddRef()) {  }
 
 		Ptr() : mObject(0) { }
 		~Ptr() { clear(); }
@@ -907,7 +907,7 @@ namespace IBPP
 	void ttoi(int itime, int* phour, int* pminute, int* psecond, int* ptt);
 	void itot(int* ptime, int hour, int minute, int second = 0, int tenthousandths = 0);
 
-};
+}
 
 #endif
 
