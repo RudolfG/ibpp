@@ -88,7 +88,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (0<<8) + 36; // Version == 2.5.0.36
+	const uint32_t Version = (2<<24) + (5<<16) + (0<<8) + 37; // Version == 2.5.0.37
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001

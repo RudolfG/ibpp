@@ -669,12 +669,12 @@ public:
                        /                 \
                       /                   \
   IBPP::LogicException    ExceptionBase    IBPP::SQLException
-        |        \            /      \       /
-        |      LogicExceptionImpl    SQLExceptionImpl
-        |               |
-    IBPP::WrongType     |
-            \           |
-          IBPP::WrongTypeImpl
+        |        \         /   |     \     /
+        |   LogicExceptionImpl |   SQLExceptionImpl
+        |                      |
+    IBPP::WrongType            |
+               \               |
+              IBPP::WrongTypeImpl
 */
 
 class ExceptionBase
@@ -768,7 +768,7 @@ public:
 	virtual int EngineCode(void) const throw();
 };
 
-class WrongTypeImpl : public IBPP::WrongType, public LogicExceptionImpl
+class WrongTypeImpl : public IBPP::WrongType, public ExceptionBase
 {
 	//	(((((((( OBJECT INTERNALS ))))))))
 
