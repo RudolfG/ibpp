@@ -102,7 +102,7 @@ CORE_SRCS +=	time.cpp
 ifeq ($(PLATFORM),darwin)
 	CXXOUTPUT =	-o
 	CXXFLAGS =-DIBPP_DARWIN
-	CXXFLAGS+=-W -Wall -fPIC
+	CXXFLAGS+=-W -Wall -ansi -pedantic -fPIC
 	#
 	LIBS+=-framework Firebird -lm -ldl -lpthread
 	ifeq ($(TARGETDIR),release)

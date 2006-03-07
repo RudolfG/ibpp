@@ -173,7 +173,7 @@ void decodeTimestamp(IBPP::Timestamp& ts, const ISC_TIMESTAMP& isc_ts)
 	decodeTime(ts, isc_ts.timestamp_time);
 }
 
-};
+}
 
 //
 //	EOF

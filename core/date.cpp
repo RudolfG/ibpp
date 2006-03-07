@@ -130,7 +130,7 @@ IBPP::Date& IBPP::Date::operator=(const IBPP::Date& assigned)
 namespace
 {
 	const int Dec31_1899 = 693595;
-};
+}
 
 //	Take a date, in its integer format as used in IBPP internals and splits
 //	it in year (4 digits), month (1-12), day (1-31)

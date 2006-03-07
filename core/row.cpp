@@ -72,7 +72,7 @@ namespace ibpp_internals
 	const int32_t max32 = std::numeric_limits<int32_t>::max();
 #endif
 
-};
+}
 
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 

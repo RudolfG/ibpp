@@ -584,7 +584,7 @@ class EPB
 	Buffer mEventBuffer;
 	Buffer mResultsBuffer;
 
-	EPB& operator = (const EPB&);
+	EPB& operator= (const EPB&);
 	EPB(const EPB&);
 
 public:
@@ -595,7 +595,6 @@ public:
 	char* EventsBuffer(void) { return &mEventBuffer[0]; }
 	char* ResultsBuffer(void) { return &mResultsBuffer[0]; }
 	short Size(void) const { return (short)mEventBuffer.size(); }
-
 	EPB() {}
 };
 
@@ -1031,7 +1030,7 @@ public:
 	XSQLDA* Self(void) { return mDescrArea; }
 	void Release(RowImpl*&);
 
-	RowImpl& RowImpl::operator=(const RowImpl& copied);
+	RowImpl& operator=(const RowImpl& copied);
 	RowImpl(const RowImpl& copied);
 	RowImpl(int dialect, int size, DatabaseImpl* db, TransactionImpl* tr);
     ~RowImpl();
