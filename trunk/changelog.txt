@@ -24,6 +24,11 @@ Contributor(s):
 The most recent addition to this file is always on top and has the highest
 item number.
 
+5. March 7, 2006
+
+- Some warning fixups using -W -Wall -pedantic with gcc.
+- Fixup to the derivation of WrongTypeImpl exception.
+
 4. March 5, 2006
 
 - Added std::string& Statement::Sql() to return the last sql statement prepared/executed.
