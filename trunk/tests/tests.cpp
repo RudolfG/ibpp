@@ -479,7 +479,7 @@ void Test::Test4(void)
 	}
 	else
 	{
-		if (st1->ParameterSubtype(13) != IBPP::sdString ||
+		if (st1->ParameterType(13) != IBPP::sdString ||
 			st1->ParameterSubtype(5) != 1 ||
 			st1->ParameterSize(13) != 30)
 		{
@@ -909,8 +909,15 @@ void Test::Test6(void)
 	svc->ModifyUser(user);
 	printf("               \r");
 
+	svc->GetUser(user);
+	if (user.username.compare("EPOCMAN") != 0 ||
+		user.firstname.compare("Benoit") != 0)
+	{
+		_Success = false;
+		printf(_("           GetUser() returned wrong info\n"));
+	}
 	std::vector<IBPP::User> users;
-	svc->ListUsers("", users);
+	svc->GetUsers(users);
 	printf("           All users : ");
 	for (unsigned int i = 0; i < users.size(); i++)
 	{

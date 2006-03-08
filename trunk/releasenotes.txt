@@ -76,17 +76,20 @@ for more complete instructions on how to do so.
 own code and build procedure.  See howtobuild.txt for details.
 
 - Changed and enhanced the Service::AddUser, Service::ModifyUser and
-Service::ListUsers to use the new IBPP::User helper class. This breaks the
+Service::GetUsers to use the new IBPP::User helper class. This breaks the
 backward compatibility of these 3 APIs. Though not the best thing to do, it was
 considered an acceptable mistake because these APIs are typically not called
 much from user code. The required update is easy and should not be too big.
 
-- Added std::string& Statement::Sql() to return the last prepared/executed SQL statement.
+- Added std::string& Statement::Sql() to return the last prepared/executed SQL
+statement.
 
-- When Statement Get() and Set() face an incompatible type situation, the exception report has
-been enhanced to show the two conflicting types (the SQL column type and the variable data type).
+- When Statement Get() and Set() face an incompatible type situation, the
+exception report has been enhanced to show the two conflicting types (the SQL
+column type and the variable data type).
 
-- Added exception class 'WrongType' derived from 'LogicException' to support the above.
+- Added exception class 'WrongType' derived from 'LogicException' to support
+the above.
 
 
 4/ Comments, Acknowledgments
