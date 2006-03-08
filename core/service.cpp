@@ -213,23 +213,23 @@ void ServiceImpl::RemoveUser(const std::string& username)
 	Wait();
 }
 
-void ServiceImpl::ListUsers(const std::string& username,
-							std::vector<IBPP::User>& users)
+void ServiceImpl::GetUser(IBPP::User& user)
 {
 	if (gds.Call()->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle == 0)
-		throw LogicExceptionImpl("Service::GetVersion", _("Service is not connected."));
+		throw LogicExceptionImpl("Service::GetUser", _("Service is not connected."));
+	if (user.username.empty())
+		throw LogicExceptionImpl("Service::GetUser", _("Username required."));
 
 	SPB spb;
 	spb.Insert(isc_action_svc_display_user);
-	if (! username.empty())
-			spb.InsertString(isc_spb_sec_username, 2, username.c_str());
+	spb.InsertString(isc_spb_sec_username, 2, user.username.c_str());
 
 	IBS status;
 	(*gds.Call()->m_service_start)(status.Self(), &mHandle, 0, spb.Size(), spb.Self());
 	if (status.Errors())
-		throw SQLExceptionImpl(status, "Service::ListUsers", _("isc_service_start failed"));
+		throw SQLExceptionImpl(status, "Service::GetUser", _("isc_service_start failed"));
 
 	RB result(8000);
 	char request[] = {isc_info_svc_get_users};
@@ -237,12 +237,80 @@ void ServiceImpl::ListUsers(const std::string& username,
 	(*gds.Call()->m_service_query)(status.Self(), &mHandle, 0, 0, 0,
 		sizeof(request), request, result.Size(), result.Self());
 	if (status.Errors())
-		throw SQLExceptionImpl(status, "Service::ListUsers", _("isc_service_query failed"));
+		throw SQLExceptionImpl(status, "Service::GetUser", _("isc_service_query failed"));
+
+	char* p = result.Self();
+	if (*p != isc_info_svc_get_users)
+		throw SQLExceptionImpl(status, "Service::GetUser", _("isc_service_query returned unexpected answer"));
+
+	p += 3;	// Skips the 'isc_info_svc_get_users' and its total length
+	user.clear();
+	while (*p != isc_info_end)
+	{
+		if (*p == isc_spb_sec_userid)
+		{
+			user.userid = (uint32_t)(*gds.Call()->m_vax_integer)(p+1, 4);
+			p += 5;
+		}
+		else if (*p == isc_spb_sec_groupid)
+		{
+			user.groupid = (uint32_t)(*gds.Call()->m_vax_integer)(p+1, 4);
+			p += 5;
+		}
+		else
+		{
+			unsigned short len = (unsigned short)(*gds.Call()->m_vax_integer)(p+1, 2);
+			switch (*p)
+			{
+			case isc_spb_sec_username :
+				// For each user, this is the first element returned
+				if (len != 0) user.username.assign(p+3, len);
+				break;
+			case isc_spb_sec_password :
+				if (len != 0) user.password.assign(p+3, len);
+				break;
+			case isc_spb_sec_firstname :
+				if (len != 0) user.firstname.assign(p+3, len);
+				break;
+			case isc_spb_sec_middlename :
+				if (len != 0) user.middlename.assign(p+3, len);
+				break;
+			case isc_spb_sec_lastname :
+				if (len != 0) user.lastname.assign(p+3, len);
+				break;
+			}
+			p += (3 + len);
+		}
+    }
+}
+
+void ServiceImpl::GetUsers(std::vector<IBPP::User>& users)
+{
+	if (gds.Call()->mGDSVersion < 60)
+		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
+	if (mHandle == 0)
+		throw LogicExceptionImpl("Service::GetUsers", _("Service is not connected."));
+
+	SPB spb;
+	spb.Insert(isc_action_svc_display_user);
+
+	IBS status;
+	(*gds.Call()->m_service_start)(status.Self(), &mHandle, 0, spb.Size(), spb.Self());
+	if (status.Errors())
+		throw SQLExceptionImpl(status, "Service::GetUsers", _("isc_service_start failed"));
+
+	RB result(8000);
+	char request[] = {isc_info_svc_get_users};
+	status.Reset();
+	(*gds.Call()->m_service_query)(status.Self(), &mHandle, 0, 0, 0,
+		sizeof(request), request, result.Size(), result.Self());
+	if (status.Errors())
+		throw SQLExceptionImpl(status, "Service::GetUsers", _("isc_service_query failed"));
 
 	users.clear();
 	char* p = result.Self();
 	if (*p != isc_info_svc_get_users)
-		throw SQLExceptionImpl(status, "Service::ListUsers", _("isc_service_query returned unexpected answer"));
+		throw SQLExceptionImpl(status, "Service::GetUsers", _("isc_service_query returned unexpected answer"));
 
 	p += 3;	// Skips the 'isc_info_svc_get_users' and its total length
 	IBPP::User user;

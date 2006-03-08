@@ -829,11 +829,11 @@ public:
 
 	void GetVersion(std::string& version);
 
-	void AddUser(const IBPP::User& user);
-	void ModifyUser(const IBPP::User& user);
+	void AddUser(const IBPP::User&);
+	void GetUser(IBPP::User&);
+	void GetUsers(std::vector<IBPP::User>&);
+	void ModifyUser(const IBPP::User&);
 	void RemoveUser(const std::string& username);
-	void ListUsers(const std::string& username,
-		std::vector<IBPP::User>& users); // Leave username "" to list all users
 
 	void SetPageBuffers(const std::string& dbfile, int buffers);
 	void SetSweepInterval(const std::string& dbfile, int sweep);

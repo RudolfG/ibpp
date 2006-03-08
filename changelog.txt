@@ -24,6 +24,15 @@ Contributor(s):
 The most recent addition to this file is always on top and has the highest
 item number.
 
+6. March 8, 2006
+
+- Decided to rework the Service methods to manage users. ListUsers() becomes
+GetUsers() taking a single vector<User>& as parameter : cleaner. And added
+GetUser() taking User& as parameter to get a single user infos.
+
+- Fixed a bug in tests.cpp (ParameterType instead of ParameterSubtype). I
+thought I fixed this one earlier. Missed commit, I guess.
+
 5. March 7, 2006
 
 - Some warning fixups using -W -Wall -pedantic with gcc.

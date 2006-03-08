@@ -88,7 +88,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (0<<8) + 39; // Version == 2.5.0.39
+	const uint32_t Version = (2<<24) + (5<<16) + (0<<8) + 40; // Version == 2.5.0.40
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
@@ -498,11 +498,11 @@ namespace IBPP
 
 		virtual void GetVersion(std::string& version) = 0;
 
-		virtual void AddUser(const User& user) = 0;
-		virtual void ModifyUser(const User& user) = 0;
+		virtual void AddUser(const User&) = 0;
+		virtual void GetUser(User&) = 0;
+		virtual void GetUsers(std::vector<User>&) = 0;
+		virtual void ModifyUser(const User&) = 0;
 		virtual void RemoveUser(const std::string& username) = 0;
-		virtual void ListUsers(const std::string& username,
-			std::vector<User>& users) = 0; // Leave username "" to list all users
 
 		virtual void SetPageBuffers(const std::string& dbfile, int buffers) = 0;
 		virtual void SetSweepInterval(const std::string& dbfile, int sweep) = 0;
