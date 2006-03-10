@@ -95,30 +95,30 @@ class Test
 	bool _Success;				// if true after all tests, everything succeeded
 	int _WriteMode;				// 0 == default, 1 == speed, 2 == safety
 
-	void Test1(void);
-	void Test2(void); 
-	void Test3(void);
-	void Test4(void);
-	void Test5(void);
-	void Test6(void);
-	void Test7(void);
-	void Test8(void);
+	void Test1();
+	void Test2(); 
+	void Test3();
+	void Test4();
+	void Test5();
+	void Test6();
+	void Test7();
+	void Test8();
 
 public:
-	void RunTests(void);
-	int PrintResult(void);
+	void RunTests();
+	int PrintResult();
 	Test(int argc, char* argv[]);
 	~Test();
 };
 
-int Test::PrintResult(void)
+int Test::PrintResult()
 {
 	if (_Success) printf(_("\n*** SUCCESS ***\nAll tests were 100%% successfull.\n"));
 	else printf(_("\n*** FAILED ***\nSome tests failed, as indicated above.\n"));
 	return _Success ? 0 : 1;
 }
 
-void Test::RunTests(void)
+void Test::RunTests()
 {
 	int NextTest = 1;
 
@@ -175,7 +175,7 @@ void Test::RunTests(void)
 	}
 }
 
-void Test::Test1(void)
+void Test::Test1()
 {
 	printf(_("Test 1 --- Checking Date/Time (no DB involved)\n"));
 
@@ -278,7 +278,7 @@ void Test::Test1(void)
 	}
 }
 
-void Test::Test2(void)
+void Test::Test2()
 {
 	printf(_("Test 2 --- Exercise empty database creation & connection\n"));
 
@@ -335,7 +335,7 @@ void Test::Test2(void)
     db1->Disconnect();
 }
 
-void Test::Test3(void)
+void Test::Test3()
 {
 	printf(_("Test 3 --- Exercise basic DDL operations and IBPP::Exceptions\n"));
 
@@ -399,7 +399,7 @@ void Test::Test3(void)
 	// The auto-release mechanisms will have to Rollback and terminate everything cleanly.
 }
 
-void Test::Test4(void)
+void Test::Test4()
 {
 	printf(_("Test 4 --- Populate database and exercise Blobs and Arrays (100 rows)\n"));
 
@@ -688,7 +688,7 @@ void Test::Test4(void)
 	db1->Disconnect();
 }
 
-void Test::Test5(void)
+void Test::Test5()
 {
 	printf(_("Test 5 --- Cocktail of DML statements (100 rows)\n"));
 
@@ -835,7 +835,7 @@ void Test::Test5(void)
 	tr1->Commit();
 }
 
-void Test::Test6(void)
+void Test::Test6()
 {
 	printf(_("Test 6 --- Service APIs\n"));
 
@@ -949,7 +949,7 @@ void Test::Test6(void)
 	printf("\n");
 }
 
-void Test::Test7(void)
+void Test::Test7()
 {
 	printf(_("Test 7 --- Mass delete, AffectedRows() Statistics() and Counts()\n"));
 
@@ -999,7 +999,7 @@ class EventCatch : public IBPP::EventInterface
 	}
 };
 
-void Test::Test8(void)
+void Test::Test8()
 {
 	printf(_("Test 8 --- Events interface\n"));
 

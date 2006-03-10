@@ -42,7 +42,7 @@
 
 using namespace ibpp_internals;
 
-void IBPP::Time::Now(void)
+void IBPP::Time::Now()
 {
 	time_t systime = time(0);
 	tm* loctime = localtime(&systime);

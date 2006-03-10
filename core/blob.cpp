@@ -62,7 +62,7 @@ void BlobImpl::AttachTransaction(IBPP::ITransaction* transaction)
 	mTransaction->AttachBlob(this);
 }
 
-void BlobImpl::DetachDatabase(void)
+void BlobImpl::DetachDatabase()
 {
 	if (mDatabase == 0) return;
 
@@ -70,7 +70,7 @@ void BlobImpl::DetachDatabase(void)
 	mDatabase = 0;
 }
 
-void BlobImpl::DetachTransaction(void)
+void BlobImpl::DetachTransaction()
 {
 	if (mTransaction == 0) return;
 
@@ -78,21 +78,21 @@ void BlobImpl::DetachTransaction(void)
 	mTransaction = 0;
 }
 
-IBPP::IDatabase* BlobImpl::Database(void) const
+IBPP::IDatabase* BlobImpl::Database() const
 {
 	if (mDatabase == 0) throw LogicExceptionImpl("Blob::GetDatabase",
 			_("No Database is attached."));
 	return mDatabase;
 }
 
-IBPP::ITransaction* BlobImpl::Transaction(void) const
+IBPP::ITransaction* BlobImpl::Transaction() const
 {
 	if (mTransaction == 0) throw LogicExceptionImpl("Blob::GetTransaction",
 			_("No Transaction is attached."));
 	return mTransaction;
 }
 
-void BlobImpl::Open(void)
+void BlobImpl::Open()
 {
 	if (mHandle != 0)
 		throw LogicExceptionImpl("Blob::Open", _("Blob already opened."));
@@ -111,7 +111,7 @@ void BlobImpl::Open(void)
 	mWriteMode = false;
 }
 
-void BlobImpl::Create(void)
+void BlobImpl::Create()
 {
 	if (mHandle != 0)
 		throw LogicExceptionImpl("Blob::Create", _("Blob already opened."));
@@ -130,7 +130,7 @@ void BlobImpl::Create(void)
 	mWriteMode = true;
 }
 
-void BlobImpl::Close(void)
+void BlobImpl::Close()
 {
 	if (mHandle == 0) return;	// Not opened anyway
 
@@ -141,7 +141,7 @@ void BlobImpl::Close(void)
 	mHandle = 0;
 }
 
-void BlobImpl::Cancel(void)
+void BlobImpl::Cancel()
 {
 	if (mHandle == 0) return;	// Not opened anyway
 
@@ -299,24 +299,25 @@ void BlobImpl::Load(std::string& data)
 	mHandle = 0;
 }
 
-IBPP::IBlob* BlobImpl::AddRef(void)
+IBPP::IBlob* BlobImpl::AddRef()
 {
 	ASSERTION(mRefCount >= 0);
 	++mRefCount;
 	return this;
 }
 
-void BlobImpl::Release(IBPP::IBlob*& Self)
+void BlobImpl::Release()
 {
+	// Release cannot throw, except in DEBUG builds on assertion
 	ASSERTION(mRefCount >= 0);
 	--mRefCount;
-	if (mRefCount <= 0) delete this;
-	Self = 0;
+	try { if (mRefCount <= 0) delete this; }
+		catch (...) { }
 }
 
 //	(((((((( OBJECT INTERNAL METHODS ))))))))
 
-void BlobImpl::Init(void)
+void BlobImpl::Init()
 {
 	mIdAssigned = false;
 	mWriteMode = false;

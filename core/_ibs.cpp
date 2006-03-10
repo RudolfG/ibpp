@@ -40,12 +40,12 @@
 
 using namespace ibpp_internals;
 
-int IBS::SqlCode(void) const
+int IBS::SqlCode() const
 {
 	return (int)(*gds.Call()->m_sqlcode)(&mVector[0]);
 }
 
-const char* IBS::ErrorMessage(void) const
+const char* IBS::ErrorMessage() const
 {
 	char msg[1024];
 	ISC_LONG sqlcode;
@@ -80,7 +80,7 @@ const char* IBS::ErrorMessage(void) const
 	return mMessage.c_str();
 }
 
-void IBS::Reset(void)
+void IBS::Reset()
 {
 	for (int i = 0; i < 20; i++) mVector[i] = 0;
 	mMessage.erase();

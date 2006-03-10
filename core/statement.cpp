@@ -42,12 +42,12 @@ using namespace ibpp_internals;
 
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 
-IBPP::IDatabase* StatementImpl::Database(void) const
+IBPP::IDatabase* StatementImpl::Database() const
 {
 	return mDatabase;
 }
 
-IBPP::ITransaction* StatementImpl::Transaction(void) const
+IBPP::ITransaction* StatementImpl::Transaction() const
 {
 	return mTransaction;
 }
@@ -150,7 +150,8 @@ void StatementImpl::Prepare(const std::string& sql)
 	if (mOutRow->Columns() == 0)
 	{
 		// Get rid of the output descriptor, if it wasn't required (no output)
-		mOutRow->Release(mOutRow);
+		mOutRow->Release();
+		mOutRow = 0;
 		DebugStream()<< _("Dropped output descriptor which was not required")<< fds;
 	}
 	else if (mOutRow->Columns() > mOutRow->AllocatedSize())
@@ -191,7 +192,8 @@ void StatementImpl::Prepare(const std::string& sql)
 		if (mInRow->Columns() == 0)
 		{
 			// Get rid of the input descriptor, if it wasn't required (no parameters)
-			mInRow->Release(mInRow);
+			mInRow->Release();
+			mInRow = 0;
 			DebugStream()<< _("Dropped input descriptor which was not required")<< fds;
 		}
 		else if (mInRow->Columns() > mInRow->AllocatedSize())
@@ -365,7 +367,7 @@ void StatementImpl::ExecuteImmediate(const std::string& sql)
 	}
 }
 
-int StatementImpl::AffectedRows(void)
+int StatementImpl::AffectedRows()
 {
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Statement::AffectedRows", _("No statement has been prepared."));
@@ -397,7 +399,7 @@ int StatementImpl::AffectedRows(void)
 	return count;
 }
 
-bool StatementImpl::Fetch(void)
+bool StatementImpl::Fetch()
 {
 	if (! mResultSetAvailable)
 		throw LogicExceptionImpl("Statement::Fetch",
@@ -449,13 +451,13 @@ bool StatementImpl::Fetch(IBPP::Row& row)
 	return true;
 }
 
-void StatementImpl::Close(void)
+void StatementImpl::Close()
 {
 	// Free all statement resources.
 	// Used before preparing a new statement or from destructor.
 
-	if (mInRow != 0) mInRow->Release(mInRow);
-	if (mOutRow != 0) mOutRow->Release(mOutRow);
+	if (mInRow != 0) { mInRow->Release(); mInRow = 0; }
+	if (mOutRow != 0) { mOutRow->Release(); mOutRow = 0; }
 
 	mResultSetAvailable = false;
 	mType = IBPP::stUnknown;
@@ -1039,7 +1041,7 @@ const IBPP::Value StatementImpl::Get(const std::string& name)
 }
 */
 
-int StatementImpl::Columns(void)
+int StatementImpl::Columns()
 {
 	if (mOutRow == 0)
 		throw LogicExceptionImpl("Statement::Columns", _("The row is not initialized."));
@@ -1119,7 +1121,7 @@ int StatementImpl::ColumnScale(int varnum)
 	return mOutRow->ColumnScale(varnum);
 }
 
-int StatementImpl::Parameters(void)
+int StatementImpl::Parameters()
 {
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Statement::Parameters", _("No statement has been prepared."));
@@ -1169,7 +1171,7 @@ int StatementImpl::ParameterScale(int varnum)
 	return mInRow->ColumnScale(varnum);
 }
 
-IBPP::IStatement* StatementImpl::AddRef(void)
+IBPP::IStatement* StatementImpl::AddRef()
 {
 	ASSERTION(mRefCount >= 0);
 	++mRefCount;
@@ -1177,12 +1179,13 @@ IBPP::IStatement* StatementImpl::AddRef(void)
 	return this;
 }
 
-void StatementImpl::Release(IBPP::IStatement*& Self)
+void StatementImpl::Release()
 {
+	// Release cannot throw, except in DEBUG builds on assertion
 	ASSERTION(mRefCount >= 0);
 	--mRefCount;
-	if (mRefCount <= 0) delete this;
-	Self = 0;
+	try { if (mRefCount <= 0) delete this; }
+		catch (...) { }
 }
 
 //	(((((((( OBJECT INTERNAL METHODS ))))))))
@@ -1198,7 +1201,7 @@ void StatementImpl::AttachDatabase(DatabaseImpl* database)
 	mDatabase->AttachStatement(this);
 }
 
-void StatementImpl::DetachDatabase(void)
+void StatementImpl::DetachDatabase()
 {
 	if (mDatabase == 0) return;
 
@@ -1218,7 +1221,7 @@ void StatementImpl::AttachTransaction(TransactionImpl* transaction)
 	mTransaction->AttachStatement(this);
 }
 
-void StatementImpl::DetachTransaction(void)
+void StatementImpl::DetachTransaction()
 {
 	if (mTransaction == 0) return;
 
@@ -1227,7 +1230,7 @@ void StatementImpl::DetachTransaction(void)
 	mTransaction = 0;
 }
 
-void StatementImpl::CursorFree(void)
+void StatementImpl::CursorFree()
 {
 	if (mResultSetAvailable)
 	{

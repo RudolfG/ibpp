@@ -76,12 +76,12 @@ namespace ibpp_internals
 
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 
-IBPP::IDatabase* RowImpl::Database(void) const
+IBPP::IDatabase* RowImpl::Database() const
 {
 	return mDatabase;
 }
 
-IBPP::ITransaction* RowImpl::Transaction(void) const
+IBPP::ITransaction* RowImpl::Transaction() const
 {
 	return mTransaction;
 }
@@ -619,7 +619,7 @@ const IBPP::Value RowImpl::Get(const std::string& name)
 }
 */
 
-int RowImpl::Columns(void)
+int RowImpl::Columns()
 {
 	if (mDescrArea == 0)
 		throw LogicExceptionImpl("Row::Columns", _("The row is not initialized."));
@@ -809,7 +809,7 @@ bool RowImpl::Updated()
 	return false;
 }
 
-IBPP::IRow* RowImpl::AddRef(void)
+IBPP::IRow* RowImpl::AddRef()
 {
 	ASSERTION(mRefCount >= 0);
 	++mRefCount;
@@ -824,22 +824,15 @@ IBPP::IRow* RowImpl::Clone()
 	return clone;
 }
 
-void RowImpl::Release(IBPP::IRow*& Self)
-{
-	ASSERTION(mRefCount >= 0);
-	--mRefCount;
-	if (mRefCount <= 0) delete this;
-	Self = 0;
-}
-
 //	(((((((( OBJECT INTERNAL METHODS ))))))))
 
-void RowImpl::Release(RowImpl*& Self)
+void RowImpl::Release()
 {
+	// Release cannot throw, except in DEBUG builds on assertion
 	ASSERTION(mRefCount >= 0);
 	--mRefCount;
-	if (mRefCount <= 0) delete this;
-	Self = 0;
+	try { if (mRefCount <= 0) delete this; }
+		catch (...) { }
 }
 
 void RowImpl::SetValue(int varnum, IITYPE ivType, const void* value, int userlen)
@@ -1477,7 +1470,7 @@ void* RowImpl::GetValue(int varnum, IITYPE ivType, void* retvalue)
 	return value;
 }
 
-void RowImpl::Free(void)
+void RowImpl::Free()
 {
 	if (mDescrArea != 0)
 	{
@@ -1556,7 +1549,7 @@ void RowImpl::Resize(int n)
 	mDescrArea->sqln = (int16_t)n;
 }
 
-void RowImpl::AllocVariables(void)
+void RowImpl::AllocVariables()
 {
 	int i;
 	for (i = 0; i < mDescrArea->sqld; i++)
@@ -1598,7 +1591,7 @@ void RowImpl::AllocVariables(void)
 	}
 }
 
-bool RowImpl::MissingValues(void)
+bool RowImpl::MissingValues()
 {
 	for (int i = 0; i < mDescrArea->sqld; i++)
 		if (! mUpdated[i]) return true;

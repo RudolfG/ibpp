@@ -48,7 +48,7 @@ using namespace ibpp_internals;
 
 //	Public implementation
 
-void IBPP::DBKey::Clear(void)
+void IBPP::DBKey::Clear()
 {
 	mDBKey.clear();
 	mString.clear();

@@ -66,7 +66,7 @@ namespace ibpp_internals
 
 using namespace ibpp_internals;
 
-GDS* GDS::Call(void)
+GDS* GDS::Call()
 {
 	// Let's load the CLIENT library, if it is not already loaded.
 	// The load is guaranteed to be done only once per application.
@@ -253,7 +253,7 @@ namespace IBPP
 				(IBPP::Version & 0xFFFFFF00) ? true : false;
 	}
 
-	int GDSVersion(void)
+	int GDSVersion()
 	{
 		return gds.Call()->mGDSVersion;
 	}
