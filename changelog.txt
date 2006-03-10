@@ -24,6 +24,10 @@ Contributor(s):
 The most recent addition to this file is always on top and has the highest
 item number.
 
+7. March 10, 2006
+
+- Confining exceptions within destructors
+
 6. March 8, 2006
 
 - Decided to rework the Service methods to manage users. ListUsers() becomes

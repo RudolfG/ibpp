@@ -826,9 +826,6 @@ IBPP::IRow* RowImpl::Clone()
 
 void RowImpl::Release(IBPP::IRow*& Self)
 {
-	if (this != dynamic_cast<RowImpl*>(Self))
-		throw LogicExceptionImpl("Row::Release", _("Invalid Release()"));
-
 	ASSERTION(mRefCount >= 0);
 	--mRefCount;
 	if (mRefCount <= 0) delete this;
@@ -839,9 +836,6 @@ void RowImpl::Release(IBPP::IRow*& Self)
 
 void RowImpl::Release(RowImpl*& Self)
 {
-	if (this != Self)
-		throw LogicExceptionImpl("RowImpl::Release", _("Invalid Release()"));
-
 	ASSERTION(mRefCount >= 0);
 	--mRefCount;
 	if (mRefCount <= 0) delete this;
@@ -1693,7 +1687,8 @@ RowImpl::RowImpl(int dialect, int n, DatabaseImpl* db, TransactionImpl* tr)
 
 RowImpl::~RowImpl()
 {
-	Free();
+	try { Free(); }
+		catch (...) { }
 }
 
 //

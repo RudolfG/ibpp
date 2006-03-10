@@ -195,7 +195,8 @@ RB::RB(int Size)
 
 RB::~RB()
 {
-	delete [] mBuffer;
+	try { delete [] mBuffer; }
+		catch (...) { }
 }
 
 //

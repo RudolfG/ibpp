@@ -1179,13 +1179,8 @@ IBPP::IStatement* StatementImpl::AddRef(void)
 
 void StatementImpl::Release(IBPP::IStatement*& Self)
 {
-	if (this != dynamic_cast<StatementImpl*>(Self))
-		throw LogicExceptionImpl("Statement::Release", _("Invalid Release()"));
-
 	ASSERTION(mRefCount >= 0);
-
 	--mRefCount;
-
 	if (mRefCount <= 0) delete this;
 	Self = 0;
 }
@@ -1261,9 +1256,12 @@ StatementImpl::StatementImpl(DatabaseImpl* database, TransactionImpl* transactio
 
 StatementImpl::~StatementImpl()
 {
-	Close();
-	if (mTransaction != 0) mTransaction->DetachStatement(this);
-	if (mDatabase != 0) mDatabase->DetachStatement(this);
+	try { Close(); }
+		catch (...) { }
+	try { if (mTransaction != 0) mTransaction->DetachStatement(this); }
+		catch (...) { }
+	try { if (mDatabase != 0) mDatabase->DetachStatement(this); }
+		catch (...) { }
 }
 
 //

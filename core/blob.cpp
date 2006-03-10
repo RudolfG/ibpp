@@ -308,11 +308,7 @@ IBPP::IBlob* BlobImpl::AddRef(void)
 
 void BlobImpl::Release(IBPP::IBlob*& Self)
 {
-	if (this != dynamic_cast<BlobImpl*>(Self))
-		throw LogicExceptionImpl("Blob::Release", _("Invalid Release()"));
-
 	ASSERTION(mRefCount >= 0);
-
 	--mRefCount;
 	if (mRefCount <= 0) delete this;
 	Self = 0;
@@ -369,10 +365,13 @@ BlobImpl::~BlobImpl()
 			if (mWriteMode) Cancel();
 			else Close();
 		}
-		if (mTransaction != 0) mTransaction->DetachBlob(this);
-		if (mDatabase != 0) mDatabase->DetachBlob(this);
 	}
-	catch (IBPP::Exception&) {}
+	catch (...) { }
+	
+	try { if (mTransaction != 0) mTransaction->DetachBlob(this); }
+		catch (...) { }
+	try { if (mDatabase != 0) mDatabase->DetachBlob(this); }
+		catch (...) { }
 }
 
 //
