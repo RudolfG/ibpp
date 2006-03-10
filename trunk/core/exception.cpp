@@ -250,12 +250,12 @@ const char* SQLExceptionImpl::what() const throw()
 	return ExceptionBase::what();
 }
 
-int SQLExceptionImpl::SqlCode(void) const throw()
+int SQLExceptionImpl::SqlCode() const throw()
 {
 	return mSqlCode;
 }
 
-int SQLExceptionImpl::EngineCode(void) const throw()
+int SQLExceptionImpl::EngineCode() const throw()
 {
 	return mEngineCode;
 }

@@ -390,7 +390,7 @@ struct GDS
 	std::string mSearchPaths;	// Optional additional search paths
 #endif	
 
-	GDS* Call(void);
+	GDS* Call();
 
 	// GDS32 Entry Points
 	proto_create_database*			m_create_database;
@@ -478,9 +478,9 @@ public:
 	void InsertString(char, int, const char*);	// Insert a string, len can be defined as 1 or 2 bytes
 	void InsertByte(char type, char data);
 	void InsertQuad(char type, int32_t data);
-	void Reset(void);			// Clears the SPB
-	char* Self(void) { return mBuffer; }
-	short Size(void) { return (short)mSize; }
+	void Reset();			// Clears the SPB
+	char* Self() { return mBuffer; }
+	short Size() { return (short)mSize; }
 
 	SPB() : mBuffer(0), mSize(0), mAlloc(0) { }
 	~SPB() { Reset(); }
@@ -504,9 +504,9 @@ public:
 	void Insert(char, int16_t);		// Insert a new int16_t 'cluster'
 	void Insert(char, bool);   		// Insert a new bool 'cluster'
 	void Insert(char, char);   		// Insert a new byte 'cluster'
-	void Reset(void);				// Clears the DPB
-	char* Self(void) { return mBuffer; }
-	short Size(void) { return (short)mSize; }
+	void Reset();				// Clears the DPB
+	char* Self() { return mBuffer; }
+	short Size() { return (short)mSize; }
 
 	DPB() : mBuffer(0), mSize(0), mAlloc(0) { }
 	~DPB() { Reset(); }
@@ -527,9 +527,9 @@ class TPB
 public:
 	void Insert(char);				// Insert a flag item
 	void Insert(const std::string& data); // Insert a string (typically table name)
-	void Reset(void);				// Clears the TPB
-	char* Self(void) { return mBuffer; }
-	int Size(void) { return mSize; }
+	void Reset();				// Clears the TPB
+	char* Self() { return mBuffer; }
+	int Size() { return mSize; }
 
 	TPB() : mBuffer(0), mSize(0), mAlloc(0) { }
 	~TPB() { Reset(); }
@@ -592,9 +592,9 @@ public:
 	void Define(const std::string&, IBPP::EventInterface*);
 	void Drop(const std::string&);
 	void FireActions(IBPP::IDatabase *);
-	char* EventsBuffer(void) { return &mEventBuffer[0]; }
-	char* ResultsBuffer(void) { return &mResultsBuffer[0]; }
-	short Size(void) const { return (short)mEventBuffer.size(); }
+	char* EventsBuffer() { return &mEventBuffer[0]; }
+	char* ResultsBuffer() { return &mResultsBuffer[0]; }
+	short Size() const { return (short)mEventBuffer.size(); }
 	EPB() {}
 };
 
@@ -611,15 +611,15 @@ class RB
 	char* FindToken(char token, char subtoken);
 
 public:
-	void Reset(void);
+	void Reset();
 	int GetValue(char token);
 	int GetCountValue(char token);
 	int GetValue(char token, char subtoken);
 	bool GetBool(char token);
 	int GetString(char token, std::string& data);
 
-	char* Self(void) { return mBuffer; }
-	short Size(void) { return (short)mSize; }
+	char* Self() { return mBuffer; }
+	short Size() { return (short)mSize; }
 
 	RB();
 	RB(int Size);
@@ -636,12 +636,12 @@ class IBS
 	mutable std::string mMessage;
 
 public:
-	ISC_STATUS* Self(void) { return mVector; }
-	bool Errors(void) { return (mVector[0] == 1 && mVector[1] > 0) ? true : false; }
-	const char* ErrorMessage(void) const;
-	int SqlCode(void) const;
-	int EngineCode(void) const { return (mVector[0] == 1) ? (int)mVector[1] : 0; }
-	void Reset(void);
+	ISC_STATUS* Self() { return mVector; }
+	bool Errors() { return (mVector[0] == 1 && mVector[1] > 0) ? true : false; }
+	const char* ErrorMessage() const;
+	int SqlCode() const;
+	int EngineCode() const { return (mVector[0] == 1) ? (int)mVector[1] : 0; }
+	void Reset();
 
 	IBS();
 	IBS(IBS&);	// Copy Constructor
@@ -764,8 +764,8 @@ public:
     virtual const char* Origin() const throw();
     virtual const char* ErrorMessage() const throw();
 	virtual const char* what() const throw();
-	virtual int SqlCode(void) const throw();
-	virtual int EngineCode(void) const throw();
+	virtual int SqlCode() const throw();
+	virtual int EngineCode() const throw();
 };
 
 class WrongTypeImpl : public IBPP::WrongType, public ExceptionBase
@@ -808,13 +808,13 @@ private:
     std::string mUserPassword;	// Mot de passe de l'utilisateur
 	std::string mWaitMessage;	// Progress message returned by WaitMsg()
 
-	isc_svc_handle* GetHandlePtr(void) { return &mHandle; }
+	isc_svc_handle* GetHandlePtr() { return &mHandle; }
 	void SetServerName(const char*);
 	void SetUserName(const char*);
 	void SetUserPassword(const char*);
 
 public:
-	isc_svc_handle GetHandle(void) { return mHandle; }
+	isc_svc_handle GetHandle() { return mHandle; }
 
 	ServiceImpl(const std::string& ServerName, const std::string& UserName,
 					const std::string& UserPassword);
@@ -823,9 +823,9 @@ public:
 	//	(((((((( OBJECT INTERFACE ))))))))
 
 public:
-    void Connect(void);
-	bool Connected(void) { return mHandle == 0 ? false : true; }
-	void Disconnect(void);
+    void Connect();
+	bool Connected() { return mHandle == 0 ? false : true; }
+	void Disconnect();
 
 	void GetVersion(std::string& version);
 
@@ -851,11 +851,11 @@ public:
 	void StartRestore(const std::string& bkfile, const std::string& dbfile,
 		int pagesize, IBPP::BRF flags = IBPP::BRF(0));
 
-	const char* WaitMsg(void);
-	void Wait(void);
+	const char* WaitMsg();
+	void Wait();
 	
 	IBPP::IService* AddRef();
-	void Release(IBPP::IService*&);
+	void Release();
 };
 
 class DatabaseImpl : public IBPP::IDatabase
@@ -884,15 +884,15 @@ class DatabaseImpl : public IBPP::IDatabase
 	bool mEventsTrapped;			// Trapped Events ?
 	bool mEventsThrew;				// EventHandler() detected an error condition
 
-	void QueueEvents(void);
-	void CancelEvents(void);
+	void QueueEvents();
+	void CancelEvents();
 	void EventUpdateCounts(int size, const char* tmpbuffer);
 
 	static void EventHandler(const char*, short, const char*);
 
 public:
-	isc_db_handle* GetHandlePtr(void) { return &mHandle; }
-	isc_db_handle GetHandle(void) { return mHandle; }
+	isc_db_handle* GetHandlePtr() { return &mHandle; }
+	isc_db_handle GetHandle() { return mHandle; }
 
 	void AttachTransaction(TransactionImpl*);
 	void DetachTransaction(TransactionImpl*);
@@ -912,13 +912,13 @@ public:
 	//	(((((((( OBJECT INTERFACE ))))))))
 
 public:
-	const char* ServerName(void) const		{ return mServerName.c_str(); }
-	const char* DatabaseName(void) const	{ return mDatabaseName.c_str(); }
-	const char* Username(void) const		{ return mUserName.c_str(); }
-	const char* UserPassword(void) const	{ return mUserPassword.c_str(); }
-	const char* RoleName(void) const		{ return mRoleName.c_str(); }
-	const char* CharSet(void) const			{ return mCharSet.c_str(); }
-	const char* CreateParams(void) const	{ return mCreateParams.c_str(); }
+	const char* ServerName() const		{ return mServerName.c_str(); }
+	const char* DatabaseName() const	{ return mDatabaseName.c_str(); }
+	const char* Username() const		{ return mUserName.c_str(); }
+	const char* UserPassword() const	{ return mUserPassword.c_str(); }
+	const char* RoleName() const		{ return mRoleName.c_str(); }
+	const char* CharSet() const			{ return mCharSet.c_str(); }
+	const char* CreateParams() const	{ return mCreateParams.c_str(); }
 
 	void Info(int* ODSMajor, int* ODSMinor,
 		int* PageSize, int* Pages, int* Buffers, int* Sweep,
@@ -927,22 +927,22 @@ public:
 	void Counts(int* Insert, int* Update, int* Delete, 
 		int* ReadIdx, int* ReadSeq);
 	void Users(std::vector<std::string>& users);
-	int Dialect(void) { return mDialect; }
+	int Dialect() { return mDialect; }
 
     void Create(int dialect);
-	void Connect(void);
-	bool Connected(void) { return mHandle == 0 ? false : true; }
-	void Inactivate(void);
-	void Disconnect(void);
-    void Drop(void);
+	void Connect();
+	bool Connected() { return mHandle == 0 ? false : true; }
+	void Inactivate();
+	void Disconnect();
+    void Drop();
 
 	void DefineEvent(const std::string&, IBPP::EventInterface*);
 	void DropEvent(const std::string&);
-	void ClearEvents(void);
-	void DispatchEvents(void);
+	void ClearEvents();
+	void DispatchEvents();
 
-	IBPP::IDatabase* AddRef(void);
-	void Release(IBPP::IDatabase*&);
+	IBPP::IDatabase* AddRef();
+	void Release();
 };
 
 class TransactionImpl : public IBPP::ITransaction
@@ -959,11 +959,11 @@ private:
 	std::vector<ArrayImpl*> mArrays;			// Tableau de Array*
 	std::vector<TPB*> mTPBs;					// Tableau de TPB
 
-	void Init(void);			// A usage exclusif des constructeurs
+	void Init();			// A usage exclusif des constructeurs
 
 public:
-	isc_tr_handle* GetHandlePtr(void) { return &mHandle; }
-	isc_tr_handle GetHandle(void) { return mHandle; }
+	isc_tr_handle* GetHandlePtr() { return &mHandle; }
+	isc_tr_handle GetHandle() { return mHandle; }
 	void AttachStatement(StatementImpl*);
 	void DetachStatement(StatementImpl*);
 	void AttachBlob(BlobImpl*);
@@ -986,15 +986,15 @@ public:
 	void AddReservation(IBPP::IDatabase* db,
 			const std::string& table, IBPP::TTR tr);
 
-    void Start(void);
-	bool Started(void) { return mHandle == 0 ? false : true; }
-    void Commit(void);
-    void Rollback(void);
-    void CommitRetain(void);
-	void RollbackRetain(void);
+    void Start();
+	bool Started() { return mHandle == 0 ? false : true; }
+    void Commit();
+    void Rollback();
+    void CommitRetain();
+	void RollbackRetain();
 
-	IBPP::ITransaction* AddRef(void);
-	void Release(IBPP::ITransaction*&);
+	IBPP::ITransaction* AddRef();
+	void Release();
 };
 
 class RowImpl : public IBPP::IRow
@@ -1022,13 +1022,12 @@ private:
 	void* GetValue(int, IITYPE, void* = 0);
 
 public:
-	void Free(void);
-	short AllocatedSize(void) { return mDescrArea->sqln; }
+	void Free();
+	short AllocatedSize() { return mDescrArea->sqln; }
 	void Resize(int n);
-	void AllocVariables(void);
-	bool MissingValues(void);		// Returns wether one of the mMissing[] is true
-	XSQLDA* Self(void) { return mDescrArea; }
-	void Release(RowImpl*&);
+	void AllocVariables();
+	bool MissingValues();		// Returns wether one of the mMissing[] is true
+	XSQLDA* Self() { return mDescrArea; }
 
 	RowImpl& operator=(const RowImpl& copied);
 	RowImpl(const RowImpl& copied);
@@ -1038,8 +1037,8 @@ public:
 	//	(((((((( OBJECT INTERFACE ))))))))
 
 public:
-	IBPP::IDatabase* Database(void) const;
-	IBPP::ITransaction* Transaction(void) const;
+	IBPP::IDatabase* Database() const;
+	IBPP::ITransaction* Transaction() const;
 
 	void SetNull(int);
 	void Set(int, bool);
@@ -1100,14 +1099,14 @@ public:
 	int ColumnSubtype(int);
 	int ColumnSize(int);
 	int ColumnScale(int);
-	int Columns(void);
+	int Columns();
 
 	bool ColumnUpdated(int);
 	bool Updated();
 
 	IBPP::IRow* Clone();
 	IBPP::IRow* AddRef();
-	void Release(IBPP::IRow*&);
+	void Release();
 };
 
 class StatementImpl : public IBPP::IStatement
@@ -1130,16 +1129,16 @@ private:
 	std::string mSql;			// Last SQL statement prepared or executed
 
 	// Internal Methods
-	void CursorFree(void);
+	void CursorFree();
 
 public:
 	// Properties and Attributes Access Methods
-	isc_stmt_handle GetHandle(void) { return mHandle; }
+	isc_stmt_handle GetHandle() { return mHandle; }
 
 	void AttachDatabase(DatabaseImpl*);
-	void DetachDatabase(void);
+	void DetachDatabase();
 	void AttachTransaction(TransactionImpl*);
-	void DetachTransaction(void);
+	void DetachTransaction();
 
 	StatementImpl(DatabaseImpl*, TransactionImpl*, const std::string&);
     ~StatementImpl();
@@ -1147,20 +1146,20 @@ public:
 	//	(((((((( OBJECT INTERFACE ))))))))
 
 public:
-	IBPP::IDatabase* Database(void) const;
-	IBPP::ITransaction* Transaction(void) const;
+	IBPP::IDatabase* Database() const;
+	IBPP::ITransaction* Transaction() const;
 	void Prepare(const std::string& sql);
 	void Execute(const std::string& sql);
-	inline void Execute(void)	{ Execute(std::string()); }
+	inline void Execute()	{ Execute(std::string()); }
 	void ExecuteImmediate(const std::string&);
 	void CursorExecute(const std::string& cursor, const std::string& sql);
 	inline void CursorExecute(const std::string& cursor)	{ CursorExecute(cursor, std::string()); }
-	bool Fetch(void);
+	bool Fetch();
 	bool Fetch(IBPP::Row&);
-	int AffectedRows(void);
-	void Close(void);	// Free resources, attachments maintained
+	int AffectedRows();
+	void Close();	// Free resources, attachments maintained
 	std::string& Sql() { return mSql; }
-	IBPP::STT Type(void) { return mType; }
+	IBPP::STT Type() { return mType; }
 
 	void SetNull(int);
 	void Set(int, bool);
@@ -1234,18 +1233,18 @@ public:
 	int ColumnSubtype(int);
 	int ColumnSize(int);
 	int ColumnScale(int);
-	int Columns(void);
+	int Columns();
 
 	IBPP::SDT ParameterType(int);
 	int ParameterSubtype(int);
 	int ParameterSize(int);
 	int ParameterScale(int);
-	int Parameters(void);
+	int Parameters();
 
 	void Plan(std::string&);
 	
-	IBPP::IStatement* AddRef(void);
-	void Release(IBPP::IStatement*&);
+	IBPP::IStatement* AddRef();
+	void Release();
 };
 
 class BlobImpl : public IBPP::IBlob
@@ -1263,7 +1262,7 @@ private:
 	DatabaseImpl*  			mDatabase;		// Belongs to this database
 	TransactionImpl*		mTransaction;	// Belongs to this transaction
 
-	void Init(void);
+	void Init();
 	void SetId(ISC_QUAD*);
 	void GetId(ISC_QUAD*);
 
@@ -1276,15 +1275,15 @@ public:
 
 public:
 	void AttachDatabase(IBPP::IDatabase*);
-	IBPP::IDatabase* Database(void) const;
-	void DetachDatabase(void);
+	IBPP::IDatabase* Database() const;
+	void DetachDatabase();
 	void AttachTransaction(IBPP::ITransaction*);
-	IBPP::ITransaction* Transaction(void) const;
-	void DetachTransaction(void);
-	void Create(void);
-	void Open(void);
-	void Close(void);
-	void Cancel(void);
+	IBPP::ITransaction* Transaction() const;
+	void DetachTransaction();
+	void Create();
+	void Open();
+	void Close();
+	void Cancel();
 	int Read(void*, int size);
 	void Write(const void*, int size);
 	void Info(int* Size, int* Largest, int* Segments);
@@ -1292,8 +1291,8 @@ public:
 	void Save(const std::string& data);
 	void Load(std::string& data);
 
-	IBPP::IBlob* AddRef(void);
-	void Release(IBPP::IBlob*&);
+	IBPP::IBlob* AddRef();
+	void Release();
 };
 
 class ArrayImpl : public IBPP::IArray
@@ -1315,11 +1314,11 @@ private:
 	int					mElemCount;		// Count of elements in this array
 	int					mElemSize;		// Size of an element in the buffer
 
-	void Init(void);
+	void Init();
 	void SetId(ISC_QUAD*);
 	void GetId(ISC_QUAD*);
-	void ResetId(void);
-	void AllocArrayBuffer(void);
+	void ResetId();
+	void AllocArrayBuffer();
 
 public:
 	ArrayImpl(const ArrayImpl&);
@@ -1330,23 +1329,23 @@ public:
 
 public:
 	void AttachDatabase(IBPP::IDatabase*);
-	IBPP::IDatabase* Database(void) const;
-	void DetachDatabase(void);
+	IBPP::IDatabase* Database() const;
+	void DetachDatabase();
 	void AttachTransaction(IBPP::ITransaction*);
-	IBPP::ITransaction* Transaction(void) const;
-	void DetachTransaction(void);
+	IBPP::ITransaction* Transaction() const;
+	void DetachTransaction();
 	void Describe(const std::string& table, const std::string& column);
 	void ReadTo(IBPP::ADT, void*, int);
 	void WriteFrom(IBPP::ADT, const void*, int);
-	IBPP::SDT ElementType(void);
-	int ElementSize(void);
-	int ElementScale(void);
-	int Dimensions(void);
+	IBPP::SDT ElementType();
+	int ElementSize();
+	int ElementScale();
+	int Dimensions();
 	void Bounds(int dim, int* low, int* high);
 	void SetBounds(int dim, int low, int high);
 
-	IBPP::IArray* AddRef(void);
-	void Release(IBPP::IArray*&);
+	IBPP::IArray* AddRef();
+	void Release();
 };
 
 void encodeDate(ISC_DATE& isc_dt, const IBPP::Date& dt);

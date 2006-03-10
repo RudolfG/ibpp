@@ -188,8 +188,8 @@ namespace IBPP
 	class SQLException : public Exception
 	{
 	public:
-		virtual int SqlCode(void) const throw() = 0;
-		virtual int EngineCode(void) const throw() = 0;
+		virtual int SqlCode() const throw() = 0;
+		virtual int EngineCode() const throw() = 0;
 		
 		virtual ~SQLException() throw();
 	};
@@ -393,21 +393,24 @@ namespace IBPP
 		T* mObject;
 
 	public:
-		void clear()			{ if (mObject != 0) mObject->Release(mObject); }
+		void clear()
+		{
+			if (mObject != 0) { mObject->Release(); mObject = 0; }
+		}
 		T* intf() const			{ return mObject; }
 		T* operator->() const	{ return mObject; }
 		Ptr& operator=(T* p)
 		{
 			// AddRef _before_ Release gives correct behaviour on self-assigns
 			T* tmp = (p == 0 ? 0 : p->AddRef());	// Take care of 0
-			if (mObject != 0) mObject->Release(mObject);
+			if (mObject != 0) mObject->Release();
 			mObject = tmp; return *this;
 		}
 		Ptr& operator=(const Ptr& r)
 		{
 			// AddRef _before_ Release gives correct behaviour on self-assigns
 			T* tmp = (r.intf() == 0 ? 0 : r->AddRef());// Take care of 0
-			if (mObject != 0) mObject->Release(mObject);
+			if (mObject != 0) mObject->Release();
 			mObject = tmp; return *this;
 		}
 		Ptr(T* p) : mObject(p == 0 ? 0 : p->AddRef()) { }
@@ -438,12 +441,12 @@ namespace IBPP
 	class IBlob
 	{
 	public:
-		virtual IDatabase* Database(void) const = 0;
-		virtual ITransaction* Transaction(void) const = 0;
-		virtual void Create(void) = 0;
-		virtual void Open(void) = 0;
-		virtual void Close(void) = 0;
-		virtual void Cancel(void) = 0;
+		virtual IDatabase* Database() const = 0;
+		virtual ITransaction* Transaction() const = 0;
+		virtual void Create() = 0;
+		virtual void Open() = 0;
+		virtual void Close() = 0;
+		virtual void Cancel() = 0;
 		virtual int Read(void*, int size) = 0;
 		virtual void Write(const void*, int size) = 0;
 		virtual void Info(int* Size, int* Largest, int* Segments) = 0;
@@ -451,8 +454,8 @@ namespace IBPP
 		virtual void Save(const std::string& data) = 0;
 		virtual void Load(std::string& data) = 0;
 
-		virtual IBlob* AddRef(void) = 0;
-		virtual void Release(IBlob*&) = 0;
+		virtual IBlob* AddRef() = 0;
+		virtual void Release() = 0;
 
 		virtual ~IBlob() { };
 	};
@@ -465,20 +468,20 @@ namespace IBPP
 	class IArray
 	{
 	public:
-		virtual IDatabase* Database(void) const = 0;
-		virtual ITransaction* Transaction(void) const = 0;
+		virtual IDatabase* Database() const = 0;
+		virtual ITransaction* Transaction() const = 0;
 		virtual void Describe(const std::string& table, const std::string& column) = 0;
 		virtual void ReadTo(ADT, void* buffer, int elemcount) = 0;
 		virtual void WriteFrom(ADT, const void* buffer, int elemcount) = 0;
-		virtual SDT ElementType(void) = 0;
-		virtual int ElementSize(void) = 0;
-		virtual int ElementScale(void) = 0;
-		virtual int Dimensions(void) = 0;
+		virtual SDT ElementType() = 0;
+		virtual int ElementSize() = 0;
+		virtual int ElementScale() = 0;
+		virtual int Dimensions() = 0;
 		virtual void Bounds(int dim, int* low, int* high) = 0;
 		virtual void SetBounds(int dim, int low, int high) = 0;
 
-		virtual IArray* AddRef(void) = 0;
-		virtual void Release(IArray*&) = 0;
+		virtual IArray* AddRef() = 0;
+		virtual void Release() = 0;
 
 		virtual ~IArray() { };
 	};
@@ -492,9 +495,9 @@ namespace IBPP
 	class IService
 	{
 	public:
-	    virtual void Connect(void) = 0;
-		virtual bool Connected(void) = 0;
-		virtual void Disconnect(void) = 0;
+	    virtual void Connect() = 0;
+		virtual bool Connected() = 0;
+		virtual void Disconnect() = 0;
 
 		virtual void GetVersion(std::string& version) = 0;
 
@@ -520,11 +523,11 @@ namespace IBPP
 		virtual void StartRestore(const std::string& bkfile, const std::string& dbfile,
 			int pagesize = 0, BRF flags = BRF(0)) = 0;
 
-		virtual const char* WaitMsg(void) = 0;	// With reporting (does not block)
-		virtual void Wait(void) = 0;			// Without reporting (does block)
+		virtual const char* WaitMsg() = 0;	// With reporting (does not block)
+		virtual void Wait() = 0;			// Without reporting (does block)
 
 		virtual IService* AddRef() = 0;
-		virtual void Release(IService*&) = 0;
+		virtual void Release() = 0;
 
 		virtual ~IService() { };
 	};
@@ -537,13 +540,13 @@ namespace IBPP
 	class IDatabase
 	{
 	public:
-		virtual const char* ServerName(void) const = 0;
-		virtual const char* DatabaseName(void) const = 0;
-		virtual const char* Username(void) const = 0;
-		virtual const char* UserPassword(void) const = 0;
-		virtual const char* RoleName(void) const = 0;
-		virtual const char* CharSet(void) const = 0;
-		virtual const char* CreateParams(void) const = 0;
+		virtual const char* ServerName() const = 0;
+		virtual const char* DatabaseName() const = 0;
+		virtual const char* Username() const = 0;
+		virtual const char* UserPassword() const = 0;
+		virtual const char* RoleName() const = 0;
+		virtual const char* CharSet() const = 0;
+		virtual const char* CreateParams() const = 0;
 
 		virtual void Info(int* ODS, int* ODSMinor, int* PageSize,
 			int* Pages,	int* Buffers, int* Sweep, bool* Sync,
@@ -553,22 +556,22 @@ namespace IBPP
 		virtual void Counts(int* Insert, int* Update, int* Delete, 
 			int* ReadIdx, int* ReadSeq) = 0;
 		virtual void Users(std::vector<std::string>& users) = 0;
-		virtual int Dialect(void) = 0;
+		virtual int Dialect() = 0;
 
 		virtual void Create(int dialect) = 0;
-		virtual void Connect(void) = 0;
-		virtual bool Connected(void) = 0;
-		virtual void Inactivate(void) = 0;
-		virtual void Disconnect(void) = 0;
-		virtual void Drop(void) = 0;
+		virtual void Connect() = 0;
+		virtual bool Connected() = 0;
+		virtual void Inactivate() = 0;
+		virtual void Disconnect() = 0;
+		virtual void Drop() = 0;
 
 		virtual void DefineEvent(const std::string&, EventInterface*) = 0;
 		virtual void DropEvent(const std::string&) = 0;
-		virtual void ClearEvents(void) = 0;		// Drop all events
-		virtual void DispatchEvents(void) = 0;
+		virtual void ClearEvents() = 0;		// Drop all events
+		virtual void DispatchEvents() = 0;
 
-		virtual IDatabase* AddRef(void) = 0;
-		virtual void Release(IDatabase*&) = 0;
+		virtual IDatabase* AddRef() = 0;
+		virtual void Release() = 0;
 
 	    virtual ~IDatabase() { };
 	};
@@ -591,15 +594,15 @@ namespace IBPP
 	 	virtual void AddReservation(IDatabase* db,
 	 			const std::string& table, TTR tr) = 0;
 
-		virtual void Start(void) = 0;
-		virtual bool Started(void) = 0;
-	    virtual void Commit(void) = 0;
-	    virtual void Rollback(void) = 0;
-	    virtual void CommitRetain(void) = 0;
-		virtual void RollbackRetain(void) = 0;
+		virtual void Start() = 0;
+		virtual bool Started() = 0;
+	    virtual void Commit() = 0;
+	    virtual void Rollback() = 0;
+	    virtual void CommitRetain() = 0;
+		virtual void RollbackRetain() = 0;
 
-		virtual ITransaction* AddRef(void) = 0;
-		virtual void Release(ITransaction*&) = 0;
+		virtual ITransaction* AddRef() = 0;
+		virtual void Release() = 0;
 
 	    virtual ~ITransaction() { };
 	};
@@ -612,8 +615,8 @@ namespace IBPP
 	class IRow
 	{
 	public:
-		virtual	IDatabase* Database(void) const = 0;
-		virtual ITransaction* Transaction(void) const = 0;
+		virtual	IDatabase* Database() const = 0;
+		virtual ITransaction* Transaction() const = 0;
 
 		virtual void SetNull(int) = 0;
 		virtual void Set(int, bool) = 0;
@@ -672,14 +675,14 @@ namespace IBPP
 		virtual int ColumnSubtype(int) = 0;
 		virtual int ColumnSize(int) = 0;
 		virtual int ColumnScale(int) = 0;
-		virtual int Columns(void) = 0;
+		virtual int Columns() = 0;
 		
 		virtual bool ColumnUpdated(int) = 0;
 		virtual bool Updated() = 0;
 
 		virtual IRow* Clone() = 0;
 		virtual IRow* AddRef() = 0;
-		virtual void Release(IRow*&) = 0;
+		virtual void Release() = 0;
 
 	    virtual ~IRow() {};
 	};
@@ -695,20 +698,20 @@ namespace IBPP
 	class IStatement
 	{
 	public:
-		virtual	IDatabase* Database(void) const = 0;
-		virtual ITransaction* Transaction(void) const = 0;
+		virtual	IDatabase* Database() const = 0;
+		virtual ITransaction* Transaction() const = 0;
 		virtual void Prepare(const std::string&) = 0;
-		virtual void Execute(void) = 0;
+		virtual void Execute() = 0;
 		virtual void Execute(const std::string&) = 0;
 		virtual void ExecuteImmediate(const std::string&) = 0;
 		virtual void CursorExecute(const std::string& cursor) = 0;
 		virtual void CursorExecute(const std::string& cursor, const std::string&) = 0;
-		virtual bool Fetch(void) = 0;
+		virtual bool Fetch() = 0;
 		virtual bool Fetch(Row&) = 0;
-		virtual int AffectedRows(void) = 0;
-		virtual void Close(void) = 0;
+		virtual int AffectedRows() = 0;
+		virtual void Close() = 0;
 		virtual std::string& Sql() = 0;
-		virtual STT Type(void) = 0;
+		virtual STT Type() = 0;
 
 		virtual void SetNull(int) = 0;
 		virtual void Set(int, bool) = 0;
@@ -767,18 +770,18 @@ namespace IBPP
 		virtual int ColumnSubtype(int) = 0;
 		virtual int ColumnSize(int) = 0;
 		virtual int ColumnScale(int) = 0;
-		virtual int Columns(void) = 0;
+		virtual int Columns() = 0;
 
 		virtual SDT ParameterType(int) = 0;
 		virtual int ParameterSubtype(int) = 0;
 		virtual int ParameterSize(int) = 0;
 		virtual int ParameterScale(int) = 0;
-		virtual int Parameters(void) = 0;
+		virtual int Parameters() = 0;
 
 		virtual void Plan(std::string&) = 0;
 
-		virtual IStatement* AddRef(void) = 0;
-		virtual void Release(IStatement*&) = 0;
+		virtual IStatement* AddRef() = 0;
+		virtual void Release() = 0;
 
 	    virtual ~IStatement() { };
 
@@ -883,7 +886,7 @@ namespace IBPP
 	 * against a compatible version of the library. */
 
 	bool CheckVersion(uint32_t);
-	int GDSVersion(void);
+	int GDSVersion();
 	
 	/* On Win32 platform, ClientLibSearchPaths() allows to setup
 	 * one or multiple additional paths (separated with a ';') where IBPP

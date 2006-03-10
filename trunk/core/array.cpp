@@ -104,7 +104,7 @@ void ArrayImpl::AttachTransaction(IBPP::ITransaction* transaction)
 	mTransaction->AttachArray(this);
 }
 
-void ArrayImpl::DetachDatabase(void)
+void ArrayImpl::DetachDatabase()
 {
 	if (mDatabase == 0) return;
 
@@ -112,7 +112,7 @@ void ArrayImpl::DetachDatabase(void)
 	mDatabase = 0;
 }
 
-void ArrayImpl::DetachTransaction(void)
+void ArrayImpl::DetachTransaction()
 {
 	if (mTransaction == 0) return;
 
@@ -120,14 +120,14 @@ void ArrayImpl::DetachTransaction(void)
 	mTransaction = 0;
 }
 
-IBPP::IDatabase* ArrayImpl::Database(void) const
+IBPP::IDatabase* ArrayImpl::Database() const
 {
 	if (mDatabase == 0) throw LogicExceptionImpl("Array::Database",
 			_("No Database is attached."));
 	return mDatabase;
 }
 
-IBPP::ITransaction* ArrayImpl::Transaction(void) const
+IBPP::ITransaction* ArrayImpl::Transaction() const
 {
 	if (mTransaction == 0) throw LogicExceptionImpl("Array::Transaction",
 			_("No Transaction is attached."));
@@ -182,7 +182,7 @@ void ArrayImpl::SetBounds(int dim, int low, int high)
 	AllocArrayBuffer();
 }
 
-IBPP::SDT ArrayImpl::ElementType(void)
+IBPP::SDT ArrayImpl::ElementType()
 {
 	if (! mDescribed)
 		throw LogicExceptionImpl("Array::ElementType",
@@ -209,7 +209,7 @@ IBPP::SDT ArrayImpl::ElementType(void)
 	return value;
 }
 
-int ArrayImpl::ElementSize(void)
+int ArrayImpl::ElementSize()
 {
 	if (! mDescribed)
 		throw LogicExceptionImpl("Array::ElementSize",
@@ -218,7 +218,7 @@ int ArrayImpl::ElementSize(void)
 	return mDesc.array_desc_length;
 }
 
-int ArrayImpl::ElementScale(void)
+int ArrayImpl::ElementScale()
 {
 	if (! mDescribed)
 		throw LogicExceptionImpl("Array::ElementScale",
@@ -227,7 +227,7 @@ int ArrayImpl::ElementScale(void)
 	return mDesc.array_desc_scale;
 }
 
-int ArrayImpl::Dimensions(void)
+int ArrayImpl::Dimensions()
 {
 	if (! mDescribed)
 		throw LogicExceptionImpl("Array::Dimensions",
@@ -1061,24 +1061,25 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 		throw SQLExceptionImpl(status, "Array::WriteFrom", _("Internal buffer size discrepancy."));
 }
 
-IBPP::IArray* ArrayImpl::AddRef(void)
+IBPP::IArray* ArrayImpl::AddRef()
 {
 	ASSERTION(mRefCount >= 0);
 	++mRefCount;
 	return this;
 }
 
-void ArrayImpl::Release(IBPP::IArray*& Self)
+void ArrayImpl::Release()
 {
+	// Release cannot throw, except in DEBUG builds on assertion
 	ASSERTION(mRefCount >= 0);
 	--mRefCount;
-	if (mRefCount <= 0) delete this;
-	Self = 0;
+	try { if (mRefCount <= 0) delete this; }
+		catch (...) { }
 }
 
 //	(((((((( OBJECT INTERNAL METHODS ))))))))
 
-void ArrayImpl::Init(void)
+void ArrayImpl::Init()
 {
 	ResetId();
 	mDescribed = false;
@@ -1105,13 +1106,13 @@ void ArrayImpl::GetId(ISC_QUAD* quad)
 	memcpy(quad, &mId, sizeof(mId));
 }
 
-void ArrayImpl::ResetId(void)
+void ArrayImpl::ResetId()
 {
 	memset(&mId, 0, sizeof(mId));
 	mIdAssigned = false;
 }
 
-void ArrayImpl::AllocArrayBuffer(void)
+void ArrayImpl::AllocArrayBuffer()
 {
 	// Clean previous buffer if any
 	if (mBuffer != 0) delete [] (char*)mBuffer;

@@ -78,7 +78,7 @@ void DatabaseImpl::Create(int dialect)
 	Disconnect();
 }
 
-void DatabaseImpl::Connect(void)
+void DatabaseImpl::Connect()
 {
 	if (mHandle != 0) return;	// Already connected
 
@@ -158,7 +158,7 @@ void DatabaseImpl::Connect(void)
 	}
 }
 
-void DatabaseImpl::Inactivate(void)
+void DatabaseImpl::Inactivate()
 {
 	if (mHandle == 0) return;	// Not connected anyway
 
@@ -191,7 +191,7 @@ void DatabaseImpl::Inactivate(void)
 		mTransactions.back()->DetachDatabase(this);
 }
 
-void DatabaseImpl::Disconnect(void)
+void DatabaseImpl::Disconnect()
 {
 	if (mHandle == 0) return;	// Not connected anyway
 
@@ -209,7 +209,7 @@ void DatabaseImpl::Disconnect(void)
 		throw SQLExceptionImpl(status, "Database::Disconnect", _("isc_detach_database failed"));
 }
 
-void DatabaseImpl::Drop(void)
+void DatabaseImpl::Drop()
 {
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Database::Drop", _("Database must be connected."));
@@ -257,7 +257,7 @@ void DatabaseImpl::DropEvent(const std::string& eventname)
 	QueueEvents();
 }
 
-void DatabaseImpl::ClearEvents(void)
+void DatabaseImpl::ClearEvents()
 {
 	CancelEvents();
 
@@ -269,7 +269,7 @@ void DatabaseImpl::ClearEvents(void)
 	}
 }
 
-void DatabaseImpl::DispatchEvents(void)
+void DatabaseImpl::DispatchEvents()
 {
 	// If no events registered, nothing to do of course.
 	// If we are still waiting for some events to fire, nothing to do, too.
@@ -411,19 +411,20 @@ void DatabaseImpl::Users(std::vector<std::string>& users)
 	return;
 }
 
-IBPP::IDatabase* DatabaseImpl::AddRef(void)
+IBPP::IDatabase* DatabaseImpl::AddRef()
 {
 	ASSERTION(mRefCount >= 0);
 	++mRefCount;
 	return this;
 }
 
-void DatabaseImpl::Release(IBPP::IDatabase*& Self)
+void DatabaseImpl::Release()
 {
+	// Release cannot throw, except in DEBUG builds on assertion
 	ASSERTION(mRefCount >= 0);
 	--mRefCount;
-	if (mRefCount <= 0) delete this;
-	Self = 0;
+	try { if (mRefCount <= 0) delete this; }
+		catch (...) { }
 }
 
 //	(((((((( OBJECT INTERNAL METHODS ))))))))
@@ -500,7 +501,7 @@ void DatabaseImpl::DetachArray(ArrayImpl* ar)
 	mArrays.erase(std::find(mArrays.begin(), mArrays.end(), ar));
 }
 
-void DatabaseImpl::QueueEvents(void)
+void DatabaseImpl::QueueEvents()
 {
 	if (mEvents != 0 && (!mEventsQueued))
 	{
@@ -525,7 +526,7 @@ void DatabaseImpl::QueueEvents(void)
 	}
 }
 
-void DatabaseImpl::CancelEvents(void)
+void DatabaseImpl::CancelEvents()
 {
 	if (mEvents != 0 && mEventsQueued)
 	{

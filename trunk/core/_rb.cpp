@@ -172,7 +172,7 @@ int RB::GetString(char token, std::string& data)
 	return len;
 }
 
-void RB::Reset(void)
+void RB::Reset()
 {
 	delete [] mBuffer;
 	mBuffer = new char [mSize];

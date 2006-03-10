@@ -42,7 +42,7 @@
 
 using namespace ibpp_internals;
 
-void IBPP::Date::Today(void)
+void IBPP::Date::Today()
 {
 	time_t systime = time(0);
 	tm* loctime = localtime(&systime);
@@ -79,7 +79,7 @@ void IBPP::Date::Add(int days)
 	mDate = newdate;
 }
 
-void IBPP::Date::StartOfMonth(void)
+void IBPP::Date::StartOfMonth()
 {
 	int year, month;
 	if (! IBPP::dtoi(mDate, &year, &month, 0))
@@ -88,7 +88,7 @@ void IBPP::Date::StartOfMonth(void)
 		throw LogicExceptionImpl("Date::StartOfMonth()", _("Out of range date"));
 }
 
-void IBPP::Date::EndOfMonth(void)
+void IBPP::Date::EndOfMonth()
 {
 	int year, month;
 	if (! IBPP::dtoi(mDate, &year, &month, 0))

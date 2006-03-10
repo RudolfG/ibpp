@@ -47,7 +47,7 @@ using namespace ibpp_internals;
 
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 
-void ServiceImpl::Connect(void)
+void ServiceImpl::Connect()
 {
 	if (mHandle	!= 0) return;	// Already connected
 	
@@ -86,7 +86,7 @@ void ServiceImpl::Connect(void)
 	}
 }
 
-void ServiceImpl::Disconnect(void)
+void ServiceImpl::Disconnect()
 {
 	if (mHandle	== 0) return; // Already disconnected
 	
@@ -660,7 +660,7 @@ void ServiceImpl::StartRestore(const std::string& bkfile, const std::string& dbf
 		throw SQLExceptionImpl(status, "Service::Restore", _("isc_service_start failed"));
 }
 
-const char* ServiceImpl::WaitMsg(void)
+const char* ServiceImpl::WaitMsg()
 {
 	IBS status;
 	SPB req;
@@ -685,7 +685,7 @@ const char* ServiceImpl::WaitMsg(void)
 	return mWaitMessage.c_str();
 }
 
-void ServiceImpl::Wait(void)
+void ServiceImpl::Wait()
 {
 	IBS status;
 	SPB spb;
@@ -721,19 +721,20 @@ void ServiceImpl::Wait(void)
 	}
 }
 
-IBPP::IService* ServiceImpl::AddRef(void)
+IBPP::IService* ServiceImpl::AddRef()
 {
 	ASSERTION(mRefCount >= 0);
 	++mRefCount;
 	return this;
 }
 
-void ServiceImpl::Release(IBPP::IService*& Self)
+void ServiceImpl::Release()
 {
+	// Release cannot throw, except in DEBUG builds on assertion
 	ASSERTION(mRefCount >= 0);
 	--mRefCount;
-	if (mRefCount <= 0) delete this;
-	Self = 0;
+	try { if (mRefCount <= 0) delete this; }
+		catch (...) { }
 }
 
 //	(((((((( OBJECT INTERNAL METHODS ))))))))

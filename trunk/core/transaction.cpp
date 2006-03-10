@@ -168,7 +168,7 @@ void TransactionImpl::AddReservation(IBPP::IDatabase* db,
 			_("The database connection you specified is not attached to this transaction."));
 }
 
-void TransactionImpl::Start(void)
+void TransactionImpl::Start()
 {
 	if (mHandle != 0) return;	// Already started anyway
 
@@ -207,7 +207,7 @@ void TransactionImpl::Start(void)
 	}
 }
 
-void TransactionImpl::Commit(void)
+void TransactionImpl::Commit()
 {
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Transaction::Commit", _("Transaction is not started."));
@@ -225,7 +225,7 @@ void TransactionImpl::Commit(void)
 			catch (IBPP::Exception&) { }
 }
 
-void TransactionImpl::CommitRetain(void)
+void TransactionImpl::CommitRetain()
 {
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Transaction::CommitRetain", _("Transaction is not started."));
@@ -237,7 +237,7 @@ void TransactionImpl::CommitRetain(void)
 		throw SQLExceptionImpl(status, "Transaction::CommitRetain");
 }
 
-void TransactionImpl::Rollback(void)
+void TransactionImpl::Rollback()
 {
 	if (mHandle == 0) return;	// Transaction not started anyway
 
@@ -254,7 +254,7 @@ void TransactionImpl::Rollback(void)
 			catch (IBPP::Exception&) { }
 }
 
-void TransactionImpl::RollbackRetain(void)
+void TransactionImpl::RollbackRetain()
 {
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Transaction::RollbackRetain", _("Transaction is not started."));
@@ -266,24 +266,25 @@ void TransactionImpl::RollbackRetain(void)
 		throw SQLExceptionImpl(status, "Transaction::RollbackRetain");
 }
 
-IBPP::ITransaction* TransactionImpl::AddRef(void)
+IBPP::ITransaction* TransactionImpl::AddRef()
 {
 	ASSERTION(mRefCount >= 0);
 	++mRefCount;
 	return this;
 }
 
-void TransactionImpl::Release(IBPP::ITransaction*& Self)
+void TransactionImpl::Release()
 {
+	// Release cannot throw, except in DEBUG builds on assertion
 	ASSERTION(mRefCount >= 0);
 	--mRefCount;
-	if (mRefCount <= 0) delete this;
-	Self = 0;
+	try { if (mRefCount <= 0) delete this; }
+		catch (...) { }
 }
 
 //	(((((((( OBJECT INTERNAL METHODS ))))))))
 
-void TransactionImpl::Init(void)
+void TransactionImpl::Init()
 {
 	mHandle = 0;
 	mDatabases.clear();
