@@ -420,11 +420,7 @@ IBPP::IDatabase* DatabaseImpl::AddRef(void)
 
 void DatabaseImpl::Release(IBPP::IDatabase*& Self)
 {
-	if (this != dynamic_cast<DatabaseImpl*>(Self))
-		throw LogicExceptionImpl("Database::Release", _("Invalid Release()"));
-
 	ASSERTION(mRefCount >= 0);
-
 	--mRefCount;
 	if (mRefCount <= 0) delete this;
 	Self = 0;
@@ -604,8 +600,8 @@ DatabaseImpl::DatabaseImpl(const std::string& ServerName, const std::string& Dat
 
 DatabaseImpl::~DatabaseImpl()
 {
-	if (Connected())
-		try { Disconnect(); } catch(IBPP::Exception&) { }
+	try { if (Connected()) Disconnect(); }
+		catch(...) { }
 }
 
 //

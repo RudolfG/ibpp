@@ -1070,11 +1070,7 @@ IBPP::IArray* ArrayImpl::AddRef(void)
 
 void ArrayImpl::Release(IBPP::IArray*& Self)
 {
-	if (this != dynamic_cast<ArrayImpl*>(Self))
-		throw LogicExceptionImpl("Array::Release", _("Invalid Release()"));
-
 	ASSERTION(mRefCount >= 0);
-
 	--mRefCount;
 	if (mRefCount <= 0) delete this;
 	Self = 0;
@@ -1148,9 +1144,12 @@ ArrayImpl::ArrayImpl(DatabaseImpl* database, TransactionImpl* transaction)
 
 ArrayImpl::~ArrayImpl()
 {
-	if (mTransaction != 0) mTransaction->DetachArray(this);
-	if (mDatabase != 0) mDatabase->DetachArray(this);
-	if (mBuffer != 0) delete [] (char*)mBuffer;
+	try { if (mTransaction != 0) mTransaction->DetachArray(this); }
+		catch (...) {}
+	try { if (mDatabase != 0) mDatabase->DetachArray(this); }
+		catch (...) {}
+	try { if (mBuffer != 0) delete [] (char*)mBuffer; }
+		catch (...) {}
 }
 
 //

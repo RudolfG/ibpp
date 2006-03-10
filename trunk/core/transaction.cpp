@@ -275,11 +275,7 @@ IBPP::ITransaction* TransactionImpl::AddRef(void)
 
 void TransactionImpl::Release(IBPP::ITransaction*& Self)
 {
-	if (this != dynamic_cast<TransactionImpl*>(Self))
-		throw LogicExceptionImpl("Transaction::Release", _("Invalid Release()"));
-
 	ASSERTION(mRefCount >= 0);
-
 	--mRefCount;
 	if (mRefCount <= 0) delete this;
 	Self = 0;
@@ -367,7 +363,8 @@ TransactionImpl::TransactionImpl(DatabaseImpl* db,
 TransactionImpl::~TransactionImpl()
 {
 	// Rollback the transaction if it was Started
-	if (Started()) Rollback();
+	try { if (Started()) Rollback(); }
+		catch (...) { }
 
 	// Let's detach cleanly all Blobs from this Transaction.
 	// No Blob object can still maintain pointers to this
@@ -377,32 +374,40 @@ TransactionImpl::~TransactionImpl()
 	// The array shrinks on each loop (mBbCount decreases).
 	// And during the deletion, there is a packing of the array through a
 	// copy of elements from the end to the beginning of the array.
-	while (mBlobs.size() > 0)
-		mBlobs.back()->DetachTransaction();
+	try {
+		while (mBlobs.size() > 0)
+			mBlobs.back()->DetachTransaction();
+	} catch (...) { }
 
 	// Let's detach cleanly all Arrays from this Transaction.
 	// No Array object can still maintain pointers to this
 	// Transaction which is disappearing.
-	while (mArrays.size() > 0)
-		mArrays.back()->DetachTransaction();
+	try {
+		while (mArrays.size() > 0)
+			mArrays.back()->DetachTransaction();
+	} catch (...) { }
 
 	// Let's detach cleanly all Statements from this Transaction.
 	// No Statement object can still maintain pointers to this
 	// Transaction which is disappearing.
-	while (mStatements.size() > 0)
-		mStatements.back()->DetachTransaction();
+	try {
+		while (mStatements.size() > 0)
+			mStatements.back()->DetachTransaction();
+	} catch (...) { }
 
 	// Very important : let's detach cleanly all Databases from this
 	// Transaction. No Database object can still maintain pointers to this
 	// Transaction which is disappearing.
-	while (mDatabases.size() > 0)
-	{
-		size_t i = mDatabases.size()-1;
-		DetachDatabase(mDatabases[i]);	// <-- remove link to database from mTPBs
-										// array and destroy TPB object
-										// Fixed : Maxim Abrashkin on 12 Jun 2002
-		//mDatabases.back()->DetachTransaction(this);
-	}
+	try {
+		while (mDatabases.size() > 0)
+		{
+			size_t i = mDatabases.size()-1;
+			DetachDatabase(mDatabases[i]);	// <-- remove link to database from mTPBs
+											// array and destroy TPB object
+											// Fixed : Maxim Abrashkin on 12 Jun 2002
+			//mDatabases.back()->DetachTransaction(this);
+		}
+	} catch (...) { }
 }
 
 //

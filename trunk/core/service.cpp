@@ -730,11 +730,7 @@ IBPP::IService* ServiceImpl::AddRef(void)
 
 void ServiceImpl::Release(IBPP::IService*& Self)
 {
-	if (this != dynamic_cast<ServiceImpl*>(Self))
-		throw LogicExceptionImpl("Service::Release", _("Invalid Release()"));
-
 	ASSERTION(mRefCount >= 0);
-
 	--mRefCount;
 	if (mRefCount <= 0) delete this;
 	Self = 0;
@@ -769,8 +765,8 @@ ServiceImpl::ServiceImpl(const std::string& ServerName,
 
 ServiceImpl::~ServiceImpl()
 {
-	if (Connected())
-		try	{ Disconnect();	} catch (IBPP::Exception&) { }
+	try { if (Connected()) Disconnect(); }
+		catch (...) { }
 }
 
 //
