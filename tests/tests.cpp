@@ -470,6 +470,23 @@ void Test::Test4()
 	}
 	st1->ExecuteImmediate("delete from test");
 
+	// Now simulating (more or less) a connection loss, and a re-connection using
+	// the same host variables. Let's consider the db1 "lost" and re-use it.
+
+	db1 = IBPP::DatabaseFactory(ServerName, DbName, UserName, Password);
+	db1->Connect();
+	tr1 = IBPP::TransactionFactory(db1,
+							IBPP::amWrite, IBPP::ilConcurrency, IBPP::lrWait);
+	tr1->Start();
+
+	st1 = IBPP::StatementFactory(db1, tr1);
+	b1 = IBPP::BlobFactory(db1, tr1);
+	bb = IBPP::BlobFactory(db1, tr1);
+	ar1 = IBPP::ArrayFactory(db1, tr1);
+	ar2 = IBPP::ArrayFactory(db1, tr1);
+	da = IBPP::ArrayFactory(db1, tr1);
+
+	// Continue on to other tests...
 	st1->Prepare("insert into test(N2,N6,N5,D,B,BB,TF,ID,A1,A2,DA,TX,VX,TB,VB) "
 					"values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 	if (st1->Parameters() != 15)

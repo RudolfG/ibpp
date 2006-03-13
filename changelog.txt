@@ -24,6 +24,12 @@ Contributor(s):
 The most recent addition to this file is always on top and has the highest
 item number.
 
+8. March 13, 2006
+
+- Added some code in tests.cpp to better exercise cases where a Database
+pointer if recycled (while still connected) for a new connection. This better
+exercise the destructors and lifetime management of the interface pointers.
+
 7. March 10, 2006
 
 - Confining exceptions within destructors
