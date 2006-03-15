@@ -38,49 +38,9 @@
 #pragma hdrstop
 #endif
 
-#include <limits>
-
 #include <math.h>
 
 using namespace ibpp_internals;
-
-/*
-// Fix to famous MSVC 6 variable scope bug
-// This fix will trigger warning C4127 at level 4 with MSVC 7.1 at least
-#ifdef _MSC_VER
-#define for if(true)for
-#endif
-*/
-
-namespace ibpp_internals
-{
-
-	const double dscales[19] =
-	{
-		1, 1E1, 1E2, 1E3, 1E4, 1E5, 1E6, 1E7, 1E8,
-		1E9, 1E10, 1E11, 1E12, 1E13, 1E14, 1E15,
-		1E16, 1E17, 1E18
-	};
-
-// Many compilers confuses those following min/max with macros min and max !
-#undef min
-#undef max
-
-#ifdef __DMC__ // Needs to break-down the declaration else compiler crash
-	const std::numeric_limits<short> short_limits;
-	const std::numeric_limits<long> long_limits;
-	const short minshort = short_limits.min();
-	const short maxshort = short_limits.max();
-	const long minlong = long_limits.min();
-	const long maxlong = long_limits.max();
-#else
-	const short minshort = std::numeric_limits<short>::min();
-	const short maxshort = std::numeric_limits<short>::max();
-	const long minlong = std::numeric_limits<long>::min();
-	const long maxlong = std::numeric_limits<long>::max();
-#endif
-
-}
 
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 
@@ -414,7 +374,7 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			else if (adtype == IBPP::adFloat)
 			{
 				// This SQL_SHORT is a NUMERIC(x,y), scale it !
-				double divisor = dscales[-mDesc.array_desc_scale];
+				double divisor = consts::dscales[-mDesc.array_desc_scale];
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(float*)dst = (float)(*(short*)src / divisor);
@@ -425,7 +385,7 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			else if (adtype == IBPP::adDouble)
 			{
 				// This SQL_SHORT is a NUMERIC(x,y), scale it !
-				double divisor = dscales[-mDesc.array_desc_scale];
+				double divisor = consts::dscales[-mDesc.array_desc_scale];
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(double*)dst = (double)(*(short*)src / divisor);
@@ -456,7 +416,7 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
-					if (*(long*)src < minshort || *(long*)src > maxshort)
+					if (*(long*)src < consts::min16 || *(long*)src > consts::max16)
 						throw LogicExceptionImpl("Array::ReadTo",
 							_("Out of range numeric conversion !"));
 					*(short*)dst = short(*(long*)src);
@@ -491,7 +451,7 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			else if (adtype == IBPP::adFloat)
 			{
 				// This SQL_SHORT is a NUMERIC(x,y), scale it !
-				double divisor = dscales[-mDesc.array_desc_scale];
+				double divisor = consts::dscales[-mDesc.array_desc_scale];
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(float*)dst = (float)(*(long*)src / divisor);
@@ -502,7 +462,7 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			else if (adtype == IBPP::adDouble)
 			{
 				// This SQL_SHORT is a NUMERIC(x,y), scale it !
-				double divisor = dscales[-mDesc.array_desc_scale];
+				double divisor = consts::dscales[-mDesc.array_desc_scale];
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(double*)dst = (double)(*(long*)src / divisor);
@@ -533,7 +493,7 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
-					if (*(int64_t*)src < minshort || *(int64_t*)src > maxshort)
+					if (*(int64_t*)src < consts::min16 || *(int64_t*)src > consts::max16)
 						throw LogicExceptionImpl("Array::ReadTo",
 							_("Out of range numeric conversion !"));
 					*(short*)dst = short(*(int64_t*)src);
@@ -548,7 +508,7 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
-					if (*(int64_t*)src < minlong || *(int64_t*)src > maxlong)
+					if (*(int64_t*)src < consts::min32 || *(int64_t*)src > consts::max32)
 						throw LogicExceptionImpl("Array::ReadTo",
 							_("Out of range numeric conversion !"));
 					*(long*)dst = (long)*(int64_t*)src;
@@ -571,7 +531,7 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			else if (adtype == IBPP::adFloat)
 			{
 				// This SQL_SHORT is a NUMERIC(x,y), scale it !
-				double divisor = dscales[-mDesc.array_desc_scale];
+				double divisor = consts::dscales[-mDesc.array_desc_scale];
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(float*)dst = (float)(*(int64_t*)src / divisor);
@@ -582,7 +542,7 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			else if (adtype == IBPP::adDouble)
 			{
 				// This SQL_SHORT is a NUMERIC(x,y), scale it !
-				double divisor = dscales[-mDesc.array_desc_scale];
+				double divisor = consts::dscales[-mDesc.array_desc_scale];
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(double*)dst = (double)(*(int64_t*)src / divisor);
@@ -610,7 +570,7 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			if (mDesc.array_desc_scale != 0)
 			{
 				// Round to scale of NUMERIC(x,y)
-				double divisor = dscales[-mDesc.array_desc_scale];
+				double divisor = consts::dscales[-mDesc.array_desc_scale];
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(double*)dst =	(double)(*(double*)src / divisor);
@@ -770,7 +730,7 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
-					if (*(long*)src < minshort || *(long*)src > maxshort)
+					if (*(long*)src < consts::min16 || *(long*)src > consts::max16)
 						throw LogicExceptionImpl("Array::WriteFrom",
 							_("Out of range numeric conversion !"));
 					*(short*)dst = (short)*(int*)src;
@@ -785,7 +745,7 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
-					if (*(int64_t*)src < minshort || *(int64_t*)src > maxshort)
+					if (*(int64_t*)src < consts::min16 || *(int64_t*)src > consts::max16)
 						throw LogicExceptionImpl("Array::WriteFrom",
 							_("Out of range numeric conversion !"));
 					*(short*)dst = (short)*(int64_t*)src;
@@ -796,7 +756,7 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			else if (adtype == IBPP::adFloat)
 			{
 				// This SQL_SHORT is a NUMERIC(x,y), scale it !
-				double multiplier = dscales[-mDesc.array_desc_scale];
+				double multiplier = consts::dscales[-mDesc.array_desc_scale];
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(short*)dst =
@@ -808,7 +768,7 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			else if (adtype == IBPP::adDouble)
 			{
 				// This SQL_SHORT is a NUMERIC(x,y), scale it !
-				double multiplier = dscales[-mDesc.array_desc_scale];
+				double multiplier = consts::dscales[-mDesc.array_desc_scale];
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(short*)dst =
@@ -864,7 +824,7 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
-					if (*(int64_t*)src < minlong || *(int64_t*)src > maxlong)
+					if (*(int64_t*)src < consts::min32 || *(int64_t*)src > consts::max32)
 						throw LogicExceptionImpl("Array::WriteFrom",
 							_("Out of range numeric conversion !"));
 					*(long*)dst = (long)*(int64_t*)src;
@@ -875,7 +835,7 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			else if (adtype == IBPP::adFloat)
 			{
 				// This SQL_INT is a NUMERIC(x,y), scale it !
-				double multiplier = dscales[-mDesc.array_desc_scale];
+				double multiplier = consts::dscales[-mDesc.array_desc_scale];
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(long*)dst =
@@ -887,7 +847,7 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			else if (adtype == IBPP::adDouble)
 			{
 				// This SQL_INT is a NUMERIC(x,y), scale it !
-				double multiplier = dscales[-mDesc.array_desc_scale];
+				double multiplier = consts::dscales[-mDesc.array_desc_scale];
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(long*)dst =
@@ -951,7 +911,7 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			else if (adtype == IBPP::adFloat)
 			{
 				// This SQL_INT is a NUMERIC(x,y), scale it !
-				double multiplier = dscales[-mDesc.array_desc_scale];
+				double multiplier = consts::dscales[-mDesc.array_desc_scale];
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(int64_t*)dst =
@@ -963,7 +923,7 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			else if (adtype == IBPP::adDouble)
 			{
 				// This SQL_INT is a NUMERIC(x,y), scale it !
-				double multiplier = dscales[-mDesc.array_desc_scale];
+				double multiplier = consts::dscales[-mDesc.array_desc_scale];
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(int64_t*)dst =
@@ -994,7 +954,7 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			if (mDesc.array_desc_scale != 0)
 			{
 				// Round to scale of NUMERIC(x,y)
-				double multiplier = dscales[-mDesc.array_desc_scale];
+				double multiplier = consts::dscales[-mDesc.array_desc_scale];
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(double*)dst =

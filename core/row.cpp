@@ -38,41 +38,10 @@
 #pragma hdrstop
 #endif
 
-#include <limits>
-
 #include <math.h>
 #include <time.h>
 
 using namespace ibpp_internals;
-
-namespace ibpp_internals
-{
-	const double dscales[19] =
-	{
-		1, 1E1, 1E2, 1E3, 1E4,	1E5, 1E6, 1E7, 1E8,
-		1E9, 1E10, 1E11, 1E12, 1E13, 1E14, 1E15,
-		1E16, 1E17, 1E18
-	};
-
-// Many compilers confuses those following min/max with macros min and max !
-#undef min
-#undef max
-
-#ifdef __DMC__ // Needs to break-down the declaration else compiler crash (!)
-	const std::numeric_limits<int16_t> i16_limits;
-	const std::numeric_limits<int32_t> i32_limits;
-	const int16_t min16 = i16_limits.min();
-	const int16_t max16 = i16_limits.max();
-	const int32_t min32 = i32_limits.min();
-	const int32_t max32 = i32_limits.max();
-#else
-	const int16_t min16 = std::numeric_limits<int16_t>::min();
-	const int16_t max16 = std::numeric_limits<int16_t>::max();
-	const int32_t min32 = std::numeric_limits<int32_t>::min();
-	const int32_t max32 = std::numeric_limits<int32_t>::max();
-#endif
-
-}
 
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 
@@ -920,7 +889,7 @@ void RowImpl::SetValue(int varnum, IITYPE ivType, const void* value, int userlen
 				if (var->sqlscale != 0)
 					throw LogicExceptionImpl("RowImpl::SetValue",
 						_("NUM/DEC with scale : use SetDouble()"));
-				if (*(int32_t*)value < min16 || *(int32_t*)value > max16)
+				if (*(int32_t*)value < consts::min16 || *(int32_t*)value > consts::max16)
 					throw LogicExceptionImpl("RowImpl::SetValue",
 						_("Out of range numeric conversion !"));
 				*(int16_t*)var->sqldata = (int16_t)*(int32_t*)value;
@@ -930,7 +899,7 @@ void RowImpl::SetValue(int varnum, IITYPE ivType, const void* value, int userlen
 				if (var->sqlscale != 0)
 					throw LogicExceptionImpl("RowImpl::SetValue",
 						_("NUM/DEC with scale : use SetDouble()"));
-				if (*(int64_t*)value < min16 || *(int64_t*)value > max16)
+				if (*(int64_t*)value < consts::min16 || *(int64_t*)value > consts::max16)
 					throw LogicExceptionImpl("RowImpl::SetValue",
 						_("Out of range numeric conversion !"));
 				*(int16_t*)var->sqldata = (int16_t)*(int64_t*)value;
@@ -938,14 +907,14 @@ void RowImpl::SetValue(int varnum, IITYPE ivType, const void* value, int userlen
 			else if (ivType == ivFloat)
 			{
 				// This SQL_SHORT is a NUMERIC(x,y), scale it !
-				double multiplier = dscales[-var->sqlscale];
+				double multiplier = consts::dscales[-var->sqlscale];
 				*(int16_t*)var->sqldata =
 					(int16_t)floor(*(float*)value * multiplier + 0.5);
 			}
 			else if (ivType == ivDouble)
 			{
 				// This SQL_SHORT is a NUMERIC(x,y), scale it !
-				double multiplier = dscales[-var->sqlscale];
+				double multiplier = consts::dscales[-var->sqlscale];
 				*(int16_t*)var->sqldata =
 					(int16_t)floor(*(double*)value * multiplier + 0.5);
 			}
@@ -980,7 +949,7 @@ void RowImpl::SetValue(int varnum, IITYPE ivType, const void* value, int userlen
 				if (var->sqlscale != 0)
 					throw LogicExceptionImpl("RowImpl::SetValue",
 						_("NUM/DEC with scale : use SetDouble()"));
-				if (*(int64_t*)value < min32 || *(int64_t*)value > max32)
+				if (*(int64_t*)value < consts::min32 || *(int64_t*)value > consts::max32)
 					throw LogicExceptionImpl("RowImpl::SetValue",
 						_("Out of range numeric conversion !"));
 				*(ISC_LONG*)var->sqldata = (ISC_LONG)*(int64_t*)value;
@@ -988,14 +957,14 @@ void RowImpl::SetValue(int varnum, IITYPE ivType, const void* value, int userlen
 			else if (ivType == ivFloat)
 			{
 				// This SQL_LONG is a NUMERIC(x,y), scale it !
-				double multiplier = dscales[-var->sqlscale];
+				double multiplier = consts::dscales[-var->sqlscale];
 				*(ISC_LONG*)var->sqldata =
 					(ISC_LONG)floor(*(float*)value * multiplier + 0.5);
 			}
 			else if (ivType == ivDouble)
 			{
 				// This SQL_LONG is a NUMERIC(x,y), scale it !
-				double multiplier = dscales[-var->sqlscale];
+				double multiplier = consts::dscales[-var->sqlscale];
 				*(ISC_LONG*)var->sqldata =
 					(ISC_LONG)floor(*(double*)value * multiplier + 0.5);
 			}
@@ -1035,14 +1004,14 @@ void RowImpl::SetValue(int varnum, IITYPE ivType, const void* value, int userlen
 			else if (ivType == ivFloat)
 			{
 				// This SQL_INT64 is a NUMERIC(x,y), scale it !
-				double multiplier = dscales[-var->sqlscale];
+				double multiplier = consts::dscales[-var->sqlscale];
 				*(int64_t*)var->sqldata =
 					(int64_t)floor(*(float*)value * multiplier + 0.5);
 			}
 			else if (ivType == ivDouble)
 			{
 				// This SQL_INT64 is a NUMERIC(x,y), scale it !
-				double multiplier = dscales[-var->sqlscale];
+				double multiplier = consts::dscales[-var->sqlscale];
 				*(int64_t*)var->sqldata =
 					(int64_t)floor(*(double*)value * multiplier + 0.5);
 			}
@@ -1064,7 +1033,7 @@ void RowImpl::SetValue(int varnum, IITYPE ivType, const void* value, int userlen
 			if (var->sqlscale != 0)
 			{
 				// Round to scale of NUMERIC(x,y)
-				double multiplier = dscales[-var->sqlscale];
+				double multiplier = consts::dscales[-var->sqlscale];
 				*(double*)var->sqldata =
 					floor(*(double*)value * multiplier + 0.5) / multiplier;
 			}
@@ -1252,7 +1221,7 @@ void* RowImpl::GetValue(int varnum, IITYPE ivType, void* retvalue)
 			else if (ivType == ivFloat)
 			{
 				// This SQL_SHORT is a NUMERIC(x,y), scale it !
-				double divisor = dscales[-var->sqlscale];
+				double divisor = consts::dscales[-var->sqlscale];
 				mFloats[varnum-1] = (float)(*(int16_t*)var->sqldata / divisor);
 
 				value = &mFloats[varnum-1];
@@ -1260,7 +1229,7 @@ void* RowImpl::GetValue(int varnum, IITYPE ivType, void* retvalue)
 			else if (ivType == ivDouble)
 			{
 				// This SQL_SHORT is a NUMERIC(x,y), scale it !
-				double divisor = dscales[-var->sqlscale];
+				double divisor = consts::dscales[-var->sqlscale];
 				mNumerics[varnum-1] = *(int16_t*)var->sqldata / divisor;
 				value = &mNumerics[varnum-1];
 			}
@@ -1293,7 +1262,7 @@ void* RowImpl::GetValue(int varnum, IITYPE ivType, void* retvalue)
 					throw LogicExceptionImpl("RowImpl::GetValue",
 						_("NUM/DEC with scale : use GetDouble()"));
 				tmp = *(int32_t*)var->sqldata;
-				if (tmp < min16 || tmp > max16)
+				if (tmp < consts::min16 || tmp > consts::max16)
 					throw LogicExceptionImpl("RowImpl::GetValue",
 						_("Out of range numeric conversion !"));
 				mInt16s[varnum-1] = (int16_t)tmp;
@@ -1310,14 +1279,14 @@ void* RowImpl::GetValue(int varnum, IITYPE ivType, void* retvalue)
 			else if (ivType == ivFloat)
 			{
 				// This SQL_LONG is a NUMERIC(x,y), scale it !
-				double divisor = dscales[-var->sqlscale];
+				double divisor = consts::dscales[-var->sqlscale];
 				mFloats[varnum-1] = (float)(*(int32_t*)var->sqldata / divisor);
 				value = &mFloats[varnum-1];
 			}
 			else if (ivType == ivDouble)
 			{
 				// This SQL_LONG is a NUMERIC(x,y), scale it !
-				double divisor = dscales[-var->sqlscale];
+				double divisor = consts::dscales[-var->sqlscale];
 				mNumerics[varnum-1] = *(int32_t*)var->sqldata / divisor;
 				value = &mNumerics[varnum-1];
 			}
@@ -1350,7 +1319,7 @@ void* RowImpl::GetValue(int varnum, IITYPE ivType, void* retvalue)
 					throw LogicExceptionImpl("RowImpl::GetValue",
 						_("NUM/DEC with scale : use GetDouble()"));
 				tmp = *(int64_t*)var->sqldata;
-				if (tmp < min16 || tmp > max16)
+				if (tmp < consts::min16 || tmp > consts::max16)
 					throw LogicExceptionImpl("RowImpl::GetValue",
 						_("Out of range numeric conversion !"));
 				mInt16s[varnum-1] = (int16_t)tmp;
@@ -1363,7 +1332,7 @@ void* RowImpl::GetValue(int varnum, IITYPE ivType, void* retvalue)
 					throw LogicExceptionImpl("RowImpl::GetValue",
 						_("NUM/DEC with scale : use GetDouble()"));
 				tmp = *(int64_t*)var->sqldata;
-				if (tmp < min32 || tmp > max32)
+				if (tmp < consts::min32 || tmp > consts::max32)
 					throw LogicExceptionImpl("RowImpl::GetValue",
 						_("Out of range numeric conversion !"));
 				mInt32s[varnum-1] = (int32_t)tmp;
@@ -1372,14 +1341,14 @@ void* RowImpl::GetValue(int varnum, IITYPE ivType, void* retvalue)
 			else if (ivType == ivFloat)
 			{
 				// This SQL_INT64 is a NUMERIC(x,y), scale it !
-				double divisor = dscales[-var->sqlscale];
+				double divisor = consts::dscales[-var->sqlscale];
 				mFloats[varnum-1] = (float)(*(int64_t*)var->sqldata / divisor);
 				value = &mFloats[varnum-1];
 			}
 			else if (ivType == ivDouble)
 			{
 				// This SQL_INT64 is a NUMERIC(x,y), scale it !
-				double divisor = dscales[-var->sqlscale];
+				double divisor = consts::dscales[-var->sqlscale];
 				mNumerics[varnum-1] = *(int64_t*)var->sqldata / divisor;
 				value = &mNumerics[varnum-1];
 			}
@@ -1401,7 +1370,7 @@ void* RowImpl::GetValue(int varnum, IITYPE ivType, void* retvalue)
 			if (var->sqlscale != 0)
 			{
 				// Round to scale y of NUMERIC(x,y)
-				double multiplier = dscales[-var->sqlscale];
+				double multiplier = consts::dscales[-var->sqlscale];
 				mNumerics[varnum-1] =
 					floor(*(double*)var->sqldata * multiplier + 0.5) / multiplier;
 				value = &mNumerics[varnum-1];

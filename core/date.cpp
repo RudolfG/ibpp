@@ -127,11 +127,6 @@ IBPP::Date& IBPP::Date::operator=(const IBPP::Date& assigned)
 // Please, understand that Peter Baum is not related to this IBPP project.
 // So __please__, do not contact him regarding IBPP matters.
 
-namespace
-{
-	const int Dec31_1899 = 693595;
-}
-
 //	Take a date, in its integer format as used in IBPP internals and splits
 //	it in year (4 digits), month (1-12), day (1-31)
 
@@ -147,7 +142,7 @@ bool IBPP::dtoi (int date, int *y, int *m, int *d)
 	// The "Rata Die" is the date specified as the number of days elapsed since
 	// 31 Dec of year 0. So 1 Jan 0001 is 1.
 
-    RataDie = date + Dec31_1899;	// Because IBPP sets the '0' on 31 Dec 1899.
+	RataDie = date + ibpp_internals::consts::Dec31_1899;	// Because IBPP sets the '0' on 31 Dec 1899.
 
     Z = RataDie + 306;
     H = 100*Z - 25;
@@ -178,7 +173,7 @@ bool IBPP::itod (int *pdate, int year, int month, int day)
     if (m < 3) { m += 12; y -= 1; }
     RataDie = d + (153*m - 457) / 5 + 365*y + y/4 - y/100 + y/400 - 306;
 
-    result = RataDie - Dec31_1899;   // Because IBPP sets the '0' on 31 Dec 1899
+	result = RataDie - ibpp_internals::consts::Dec31_1899;   // Because IBPP sets the '0' on 31 Dec 1899
 
 	// Validity control
 	if (result < IBPP::MinDate || result > IBPP::MaxDate)

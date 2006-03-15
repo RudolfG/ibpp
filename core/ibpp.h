@@ -88,7 +88,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (0<<8) + 40; // Version == 2.5.0.40
+	const uint32_t Version = (2<<24) + (5<<16) + (0<<8) + 45; // Version == 2.5.0.45
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
@@ -361,24 +361,10 @@ namespace IBPP
 		uint32_t groupid;		// Only relevant on unixes
 
 	private:
-		void copyfrom(const User& r)
-		{
-			username = r.username;
-			password = r.password;
-			firstname = r.firstname;
-			middlename = r.middlename;
-			lastname = r.lastname;
-			userid = r.userid;
-			groupid = r.groupid;
-		}
+		void copyfrom(const User& r);
 
 	public:
-		void clear()
-		{
-			username.clear(); password.clear();
-			firstname.clear(); middlename.clear(); lastname.clear();
-			userid = groupid = 0;
-		}
+		void clear();
 		User& operator=(const User& r)	{ copyfrom(r); return *this; }
 		User(const User& r)				{ copyfrom(r); }
 		User() : userid(0), groupid(0)	{ }

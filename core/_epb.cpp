@@ -63,8 +63,6 @@
 
 using namespace ibpp_internals;
 
-namespace { const size_t MAXEVENTNAMELEN = 127; }
-
 void EPB::Define(const std::string& eventname, IBPP::EventInterface* objref)
 {
 	if (eventname.size() == 0)

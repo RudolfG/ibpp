@@ -7,7 +7,8 @@
     <OBJFILES value="bin\tests.obj bin\_dpb.obj bin\_epb.obj bin\_ibs.obj bin\_rb.obj 
       bin\_spb.obj bin\_tpb.obj bin\array.obj bin\blob.obj bin\database.obj 
       bin\date.obj bin\dbkey.obj bin\exception.obj bin\row.obj bin\service.obj 
-      bin\statement.obj bin\time.obj bin\transaction.obj bin\_ibpp.obj"/>
+      bin\statement.obj bin\time.obj bin\transaction.obj bin\_ibpp.obj 
+      bin\user.obj"/>
     <RESFILES value="tests.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
@@ -74,6 +75,7 @@
       <FILE FILENAME="..\..\core\time.cpp" FORMNAME="" UNITNAME="time.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="..\..\core\transaction.cpp" FORMNAME="" UNITNAME="transaction.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="..\..\core\_ibpp.cpp" FORMNAME="" UNITNAME="_ibpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\core\user.cpp" FORMNAME="" UNITNAME="user" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>

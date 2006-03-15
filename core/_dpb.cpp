@@ -41,10 +41,6 @@
 
 using namespace ibpp_internals;
 
-namespace {
-	const int BUFFERINCR = 128;
-}
-
 void DPB::Grow(int needed)
 {
 	if (mBuffer == 0) ++needed;	// Initial alloc will require one more byte

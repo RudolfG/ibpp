@@ -29,6 +29,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef __INTERNAL_IBPP_H__
+#define __INTERNAL_IBPP_H__
+
 #include "ibpp.h"
 
 #if defined(__BCPLUSPLUS__) || defined(_MSC_VER) || defined(__DMC__)
@@ -38,7 +41,7 @@
 #if (defined(__GNUC__) && defined(IBPP_WINDOWS))
 //	Setting flags for ibase.h -- using GCC/Cygwin/MinGW on Win32
 #ifndef _MSC_VER
-#define _MSC_VER 1
+#define _MSC_VER 1299
 #endif
 #ifndef _WIN32
 #define _WIN32   1
@@ -57,6 +60,7 @@
 #include <windows.h>
 #endif
 
+#include <limits>
 #include <string>
 #include <vector>
 #include <sstream>
@@ -68,6 +72,11 @@
 								__FILE__, __LINE__);}}
 #else
 #define ASSERTION(x)	/* x */
+#endif
+
+// Fix to famous MSVC 6 variable scope bug
+#if defined(_MSC_VER) && (_MSC_VER < 1300)	// MSVC 6 should be < 1300
+#define for if(true)for
 #endif
 
 namespace ibpp_internals
@@ -467,6 +476,8 @@ extern GDS gds;
 
 class SPB
 {
+	static const int BUFFERINCR = 128;
+
 	char* mBuffer;				// Dynamically allocated SPB structure
 	int mSize;  				// Its used size in bytes
 	int mAlloc;					// Its allocated size in bytes
@@ -492,6 +503,8 @@ public:
 
 class DPB
 {
+	static const int BUFFERINCR = 128;
+
 	char* mBuffer;				// Dynamically allocated DPB structure
 	int mSize;  				// Its used size in bytes
 	int mAlloc;					// Its allocated size in bytes
@@ -518,6 +531,8 @@ public:
 
 class TPB
 {
+	static const int BUFFERINCR = 128;
+
 	char* mBuffer;					// Dynamically allocated TPB structure
 	int mSize;						// Its used size in bytes
 	int mAlloc;						// Its allocated size
@@ -577,6 +592,8 @@ public:
 
 class EPB
 {
+	static const size_t MAXEVENTNAMELEN = 127;
+
 	typedef std::vector<IBPP::EventInterface*> ObjRefs;
 	ObjRefs mObjectReferences;
 
@@ -1357,7 +1374,19 @@ void decodeTime(IBPP::Time& tm, const ISC_TIME& isc_tm);
 void encodeTimestamp(ISC_TIMESTAMP& isc_ts, const IBPP::Timestamp& ts);
 void decodeTimestamp(IBPP::Timestamp& ts, const ISC_TIMESTAMP& isc_ts);
 
+struct consts	// See _ibpp.cpp for initializations of these constants
+{
+	static const double dscales[19];
+	static const int Dec31_1899;
+	static const int16_t min16;
+	static const int16_t max16;
+	static const int32_t min32;
+	static const int32_t max32;
+};
+
 }	// namespace ibpp_internal
+
+#endif // __INTERNAL_IBPP_H__
 
 //
 //	Eof
