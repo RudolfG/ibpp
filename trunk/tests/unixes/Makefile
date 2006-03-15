@@ -93,6 +93,7 @@ CORE_SRCS +=	statement.cpp
 CORE_SRCS +=	transaction.cpp
 CORE_SRCS +=	date.cpp
 CORE_SRCS +=	time.cpp
+CORE_SRCS +=	user.cpp
 
 # *************************************************
 # Conditional Compile Options

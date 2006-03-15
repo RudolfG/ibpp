@@ -38,6 +38,8 @@
 #pragma hdrstop
 #endif
 
+#include <limits>
+
 #ifdef IBPP_WINDOWS
 // New (optional) Registry Keys introduced by Firebird Server 1.5
 #define REG_KEY_ROOT_INSTANCES	"SOFTWARE\\Firebird Project\\Firebird Server\\Instances"
@@ -46,6 +48,31 @@
 
 namespace ibpp_internals
 {
+	const double consts::dscales[19] = {
+		  1, 1E1, 1E2, 1E3, 1E4, 1E5, 1E6, 1E7, 1E8,
+		  1E9, 1E10, 1E11, 1E12, 1E13, 1E14, 1E15,
+		  1E16, 1E17, 1E18 };
+
+	const int consts::Dec31_1899 = 693595;
+
+// Many compilers confuses those following min/max with macros min and max !
+#undef min
+#undef max
+
+#ifdef __DMC__ // Needs to break-down the declaration else compiler crash (!)
+	const std::numeric_limits<int16_t> i16_limits;
+	const std::numeric_limits<int32_t> i32_limits;
+	const int16_t consts::min16 = i16_limits.min();
+	const int16_t consts::max16 = i16_limits.max();
+	const int32_t consts::min32 = i32_limits.min();
+	const int32_t consts::max32 = i32_limits.max();
+#else
+	const int16_t consts::min16 = std::numeric_limits<int16_t>::min();
+	const int16_t consts::max16 = std::numeric_limits<int16_t>::max();
+	const int32_t consts::min32 = std::numeric_limits<int32_t>::min();
+	const int32_t consts::max32 = std::numeric_limits<int32_t>::max();
+#endif
+
 	GDS gds;	// Global unique GDS instance
 
 #ifdef _DEBUG
@@ -334,3 +361,4 @@ namespace IBPP
 //
 //	EOF
 //
+

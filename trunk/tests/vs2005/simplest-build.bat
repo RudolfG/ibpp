@@ -1,2 +1,2 @@
 @MKDIR bin
-@cl /DIBPP_WINDOWS /W4 /EHsc /I..\..\core /Fobin\ ..\tests.cpp ..\..\core\*.cpp advapi32.lib
+@cl /DIBPP_WINDOWS /O2 /Oi /W4 /EHsc /I..\..\core /Fobin\ ..\tests.cpp ..\..\core\all_at_once.cpp advapi32.lib

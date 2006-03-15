@@ -24,6 +24,16 @@ Contributor(s):
 The most recent addition to this file is always on top and has the highest
 item number.
 
+9. March 15, 2006
+
+- Code tweaks to bring back MSVC 6 compatibility:
+  - Use std::string::erase() instead of std::string::clear()
+  - #define for if(true)for  (this is activated only for MSVC6)
+  
+- Added a sample 'all_at_once.cpp' file including all others to streamline
+quick and dirty command line compiles. Had to move out constants from the
+unnamed namespace to allow this.
+
 8. March 13, 2006
 
 - Added some code in tests.cpp to better exercise cases where a Database

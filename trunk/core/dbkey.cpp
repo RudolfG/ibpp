@@ -51,7 +51,7 @@ using namespace ibpp_internals;
 void IBPP::DBKey::Clear()
 {
 	mDBKey.clear();
-	mString.clear();
+	mString.erase();
 }
 
 void IBPP::DBKey::SetKey(const void* key, int size)
@@ -62,7 +62,7 @@ void IBPP::DBKey::SetKey(const void* key, int size)
 		throw LogicExceptionImpl("IBPP::DBKey::SetKey", _("Invalid DBKey size."));
 
 	mDBKey.assign((const char*)key, (size_t)size);
-	mString.clear();
+	mString.erase();
 }
 
 void IBPP::DBKey::GetKey(void* key, int size) const
