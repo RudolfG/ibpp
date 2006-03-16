@@ -50,7 +50,7 @@ using namespace ibpp_internals;
 
 void IBPP::DBKey::Clear()
 {
-	mDBKey.clear();
+	mDBKey.erase();
 	mString.erase();
 }
 
@@ -93,8 +93,8 @@ const char* IBPP::DBKey::AsString() const
 		for (int i = 0; i < n; i++)
 		{
 			if (i != 0) hexkey<< "-";
-			hexkey<< std::setw(4)<< key[i*2]<< ":";
-			hexkey<< std::setw(8)<< key[i*2+1];
+			hexkey<< std::setw(4); hexkey<< key[i*2]; hexkey<< ":"; // split, due to MSVC6
+			hexkey<< std::setw(8); hexkey<< key[i*2+1];				// split, due to MSVC6
 		}
 
 		mString = hexkey.str();

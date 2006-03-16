@@ -476,7 +476,7 @@ extern GDS gds;
 
 class SPB
 {
-	static const int BUFFERINCR = 128;
+	static const int BUFFERINCR;
 
 	char* mBuffer;				// Dynamically allocated SPB structure
 	int mSize;  				// Its used size in bytes
@@ -503,7 +503,7 @@ public:
 
 class DPB
 {
-	static const int BUFFERINCR = 128;
+	static const int BUFFERINCR;
 
 	char* mBuffer;				// Dynamically allocated DPB structure
 	int mSize;  				// Its used size in bytes
@@ -531,7 +531,7 @@ public:
 
 class TPB
 {
-	static const int BUFFERINCR = 128;
+	static const int BUFFERINCR;
 
 	char* mBuffer;					// Dynamically allocated TPB structure
 	int mSize;						// Its used size in bytes
@@ -592,7 +592,7 @@ public:
 
 class EPB
 {
-	static const size_t MAXEVENTNAMELEN = 127;
+	static const size_t MAXEVENTNAMELEN;
 
 	typedef std::vector<IBPP::EventInterface*> ObjRefs;
 	ObjRefs mObjectReferences;

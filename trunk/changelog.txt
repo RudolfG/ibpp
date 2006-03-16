@@ -24,6 +24,10 @@ Contributor(s):
 The most recent addition to this file is always on top and has the highest
 item number.
 
+10. March 16, 2006
+
+- Now, revival of MSVC6 compatibility is complete.
+
 9. March 15, 2006
 
 - Code tweaks to bring back MSVC 6 compatibility:

@@ -65,6 +65,11 @@
 #include <stdio.h>
 #include <typeinfo>
 
+// Fix to famous MSVC 6 variable scope bug
+#if defined(_MSC_VER) && (_MSC_VER < 1300)	// MSVC 6 should be < 1300
+#define for if(true)for
+#endif
+
 //	The following database name (DbName) will be used during this test.
 //	If existing, that DB will be deleted (assuming not used).
 //	It will then be dynamically created, and various tests will run

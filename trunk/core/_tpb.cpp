@@ -41,6 +41,8 @@
 
 using namespace ibpp_internals;
 
+const int TPB::BUFFERINCR = 128;
+
 void TPB::Grow(int needed)
 {
 	if (mBuffer == 0) ++needed;	// Initial alloc will require one more byte

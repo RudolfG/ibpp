@@ -1556,7 +1556,7 @@ void RowImpl::AllocVariables()
 			default : throw LogicExceptionImpl("RowImpl::AllocVariables",
 						_("Found an unknown sqltype !"));
 		}
-		if (var->sqltype & 1) var->sqlind = new int16_t(-1);	// 0 indicator
+		if (var->sqltype & 1) var->sqlind = new short(-1);	// 0 indicator
 	}
 }
 
@@ -1612,7 +1612,7 @@ RowImpl& RowImpl::operator=(const RowImpl& copied)
 			default : throw LogicExceptionImpl("RowImpl::Ctor",
 						_("Found an unknown sqltype !"));
 		}
-		if (var->sqltype & 1) var->sqlind = new int16_t(*org->sqlind);	// 0 indicator
+		if (var->sqltype & 1) var->sqlind = new short(*org->sqlind);	// 0 indicator
 	}
 
 	// Pointers init, real data copy
