@@ -66,14 +66,20 @@
 // the standard type 'int' is used. And where an exact integer size is required
 // the standard exact precision types definitions of C 99 standard are used.
 
-#if defined(_MSC_VER) || defined(__BCPLUSPLUS__)
+#if defined(_MSC_VER) || defined(__DMC__) || defined(__BCPLUSPLUS__)
 // C99 §7.18.1.1 Exact-width integer types (only those used by IBPP)
-typedef __int16 int16_t;
-typedef __int32 int32_t;
-typedef unsigned __int32 uint32_t;
-typedef __int64 int64_t;
+#if defined(_MSC_VER) && (_MSC_VER < 1300)	// MSVC 6 should be < 1300
+	typedef short int16_t;
+	typedef int int32_t;
+	typedef unsigned int uint32_t;
 #else
-#include <stdint.h>			// C99 (§7.18) integer types definitions
+	typedef __int16 int16_t;
+	typedef __int32 int32_t;
+	typedef unsigned __int32 uint32_t;
+#endif
+	typedef __int64 int64_t;
+#else
+	#include <stdint.h>			// C99 (§7.18) integer types definitions
 #endif
 
 #if !defined(_)
@@ -88,7 +94,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (0<<8) + 46; // Version == 2.5.0.46
+	const uint32_t Version = (2<<24) + (5<<16) + (0<<8) + 47; // Version == 2.5.0.47
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001

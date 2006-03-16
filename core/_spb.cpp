@@ -41,6 +41,8 @@
 
 using namespace ibpp_internals;
 
+const int SPB::BUFFERINCR = 128;
+
 void SPB::Grow(int needed)
 {
 	if ((mSize + needed) > mAlloc)
