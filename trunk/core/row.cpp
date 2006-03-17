@@ -133,7 +133,7 @@ void RowImpl::Set(int param, int32_t value)
 void RowImpl::Set(int param, int64_t value)
 {
 	if (mDescrArea == 0)
-		throw LogicExceptionImpl("Row::Set[int64]", _("The row is not initialized."));
+		throw LogicExceptionImpl("Row::Set[int64_t]", _("The row is not initialized."));
 
 	SetValue(param, ivInt64, &value);
 	mUpdated[param-1] = true;
@@ -872,23 +872,14 @@ void RowImpl::SetValue(int varnum, IITYPE ivType, const void* value, int userlen
 		case SQL_SHORT :
 			if (ivType == ivBool)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::SetValue",
-						_("NUM/DEC with scale : use SetDouble()"));
 				*(int16_t*)var->sqldata = int16_t(*(bool*)value ? 1 : 0);
 			}
 			else if (ivType == ivInt16)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::SetValue",
-						_("NUM/DEC with scale : use SetDouble()"));
 				*(int16_t*)var->sqldata = *(int16_t*)value;
 			}
 			else if (ivType == ivInt32)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::SetValue",
-						_("NUM/DEC with scale : use SetDouble()"));
 				if (*(int32_t*)value < consts::min16 || *(int32_t*)value > consts::max16)
 					throw LogicExceptionImpl("RowImpl::SetValue",
 						_("Out of range numeric conversion !"));
@@ -896,9 +887,6 @@ void RowImpl::SetValue(int varnum, IITYPE ivType, const void* value, int userlen
 			}
 			else if (ivType == ivInt64)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::SetValue",
-						_("NUM/DEC with scale : use SetDouble()"));
 				if (*(int64_t*)value < consts::min16 || *(int64_t*)value > consts::max16)
 					throw LogicExceptionImpl("RowImpl::SetValue",
 						_("Out of range numeric conversion !"));
@@ -925,30 +913,18 @@ void RowImpl::SetValue(int varnum, IITYPE ivType, const void* value, int userlen
 		case SQL_LONG :
 			if (ivType == ivBool)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::SetValue",
-						_("NUM/DEC with scale : use SetDouble()"));
-				*(ISC_LONG*)var->sqldata = *(bool*)value ? 1L : 0L;
+				*(ISC_LONG*)var->sqldata = *(bool*)value ? 1 : 0;
 			}
 			else if (ivType == ivInt16)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::SetValue",
-						_("NUM/DEC with scale : use SetDouble()"));
 				*(ISC_LONG*)var->sqldata = *(int16_t*)value;
 			}
 			else if (ivType == ivInt32)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::SetValue",
-						_("NUM/DEC with scale : use SetDouble()"));
 				*(ISC_LONG*)var->sqldata = *(ISC_LONG*)value;
 			}
 			else if (ivType == ivInt64)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::SetValue",
-						_("NUM/DEC with scale : use SetDouble()"));
 				if (*(int64_t*)value < consts::min32 || *(int64_t*)value > consts::max32)
 					throw LogicExceptionImpl("RowImpl::SetValue",
 						_("Out of range numeric conversion !"));
@@ -975,30 +951,18 @@ void RowImpl::SetValue(int varnum, IITYPE ivType, const void* value, int userlen
 		case SQL_INT64 :
 			if (ivType == ivBool)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::SetValue",
-						_("Numeric(x,y) field : use IStatement::GetDouble()"));
 				*(int64_t*)var->sqldata = *(bool*)value ? 1 : 0;
 			}
 			else if (ivType == ivInt16)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::SetValue",
-						_("NUM/DEC with scale : use SetDouble()"));
 				*(int64_t*)var->sqldata = *(int16_t*)value;
 			}
 			else if (ivType == ivInt32)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::SetValue",
-						_("NUM/DEC with scale : use SetDouble()"));
 				*(int64_t*)var->sqldata = *(int32_t*)value;
 			}
 			else if (ivType == ivInt64)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::SetValue",
-						_("Numeric(x,y) field : use IStatement::GetDouble()"));
 				*(int64_t*)var->sqldata = *(int64_t*)value;
 			}
 			else if (ivType == ivFloat)
@@ -1187,34 +1151,21 @@ void* RowImpl::GetValue(int varnum, IITYPE ivType, void* retvalue)
 		case SQL_SHORT :
 			if (ivType == ivInt16)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::GetValue",
-						_("NUM/DEC with scale : use GetDouble()"));
 				value = var->sqldata;
 			}
 			else if (ivType == ivBool)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::GetValue",
-						_("NUM/DEC with scale : use GetDouble()"));
-				if (*(int16_t*)var->sqldata == 0)
-					mBools[varnum-1] = 0;
+				if (*(int16_t*)var->sqldata == 0) mBools[varnum-1] = 0;
 				else mBools[varnum-1] = 1;
 				value = &mBools[varnum-1];
 			}
 			else if (ivType == ivInt32)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::GetValue",
-						_("NUM/DEC with scale : use GetDouble()"));
 				mInt32s[varnum-1] = *(int16_t*)var->sqldata;
 				value = &mInt32s[varnum-1];
 			}
 			else if (ivType == ivInt64)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::GetValue",
-						_("NUM/DEC with scale : use GetDouble()"));
 				mInt64s[varnum-1] = *(int16_t*)var->sqldata;
 				value = &mInt64s[varnum-1];
 			}
@@ -1240,28 +1191,17 @@ void* RowImpl::GetValue(int varnum, IITYPE ivType, void* retvalue)
 		case SQL_LONG :
 			if (ivType == ivInt32)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::GetValue",
-						_("NUM/DEC with scale : use GetDouble()"));
 				value = var->sqldata;
 			}
 			else if (ivType == ivBool)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::GetValue",
-						_("NUM/DEC with scale : use GetDouble()"));
-				if (*(int32_t*)var->sqldata == 0)
-					mBools[varnum-1] = 0;
+				if (*(int32_t*)var->sqldata == 0) mBools[varnum-1] = 0;
 				else mBools[varnum-1] = 1;
 				value = &mBools[varnum-1];
 			}
 			else if (ivType == ivInt16)
 			{
-				int32_t tmp;
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::GetValue",
-						_("NUM/DEC with scale : use GetDouble()"));
-				tmp = *(int32_t*)var->sqldata;
+				int32_t tmp = *(int32_t*)var->sqldata;
 				if (tmp < consts::min16 || tmp > consts::max16)
 					throw LogicExceptionImpl("RowImpl::GetValue",
 						_("Out of range numeric conversion !"));
@@ -1270,9 +1210,6 @@ void* RowImpl::GetValue(int varnum, IITYPE ivType, void* retvalue)
 			}
 			else if (ivType == ivInt64)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::GetValue",
-						_("NUM/DEC with scale : use GetDouble()"));
 				mInt64s[varnum-1] = *(int32_t*)var->sqldata;
 				value = &mInt64s[varnum-1];
 			}
@@ -1297,28 +1234,17 @@ void* RowImpl::GetValue(int varnum, IITYPE ivType, void* retvalue)
 		case SQL_INT64 :
 			if (ivType == ivInt64)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::GetValue",
-						_("NUM/DEC with scale : use GetDouble()"));
 				value = var->sqldata;
 			}
 			else if (ivType == ivBool)
 			{
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::GetValue",
-						_("NUM/DEC with scale : use GetDouble()"));
-				if (*(int64_t*)var->sqldata == 0)
-					mBools[varnum-1] = 0;
+				if (*(int64_t*)var->sqldata == 0) mBools[varnum-1] = 0;
 				else mBools[varnum-1] = 1;
 				value = &mBools[varnum-1];
 			}
 			else if (ivType == ivInt16)
 			{
-				int64_t tmp;
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::GetValue",
-						_("NUM/DEC with scale : use GetDouble()"));
-				tmp = *(int64_t*)var->sqldata;
+				int64_t tmp = *(int64_t*)var->sqldata;
 				if (tmp < consts::min16 || tmp > consts::max16)
 					throw LogicExceptionImpl("RowImpl::GetValue",
 						_("Out of range numeric conversion !"));
@@ -1327,11 +1253,7 @@ void* RowImpl::GetValue(int varnum, IITYPE ivType, void* retvalue)
 			}
 			else if (ivType == ivInt32)
 			{
-				int64_t tmp;
-				if (var->sqlscale != 0)
-					throw LogicExceptionImpl("RowImpl::GetValue",
-						_("NUM/DEC with scale : use GetDouble()"));
-				tmp = *(int64_t*)var->sqldata;
+				int64_t tmp = *(int64_t*)var->sqldata;
 				if (tmp < consts::min32 || tmp > consts::max32)
 					throw LogicExceptionImpl("RowImpl::GetValue",
 						_("Out of range numeric conversion !"));
