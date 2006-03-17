@@ -325,9 +325,6 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 		case blr_short :
 			if (adtype == IBPP::adBool)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::ReadTo",
-						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(bool*)dst = (*(short*)src != 0) ? true : false;
@@ -337,9 +334,6 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt16)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::ReadTo",
-						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(short*)dst = *(short*)src;
@@ -349,9 +343,6 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt32)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::ReadTo",
-						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(int*)dst = (int)*(short*)src;
@@ -361,9 +352,6 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt64)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::ReadTo",
-						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(int64_t*)dst = (int64_t)*(short*)src;
@@ -399,9 +387,6 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 		case blr_long :
 			if (adtype == IBPP::adBool)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::ReadTo",
-						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(bool*)dst = (*(long*)src != 0) ? true : false;
@@ -411,9 +396,6 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt16)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::ReadTo",
-						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					if (*(long*)src < consts::min16 || *(long*)src > consts::max16)
@@ -426,9 +408,6 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt32)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::ReadTo",
-						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(long*)dst = *(long*)src;
@@ -438,9 +417,6 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt64)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::ReadTo",
-						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(int64_t*)dst = (int64_t)*(long*)src;
@@ -476,9 +452,6 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 		case blr_int64 :
 			if (adtype == IBPP::adBool)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::ReadTo",
-						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(bool*)dst = (*(int64_t*)src != 0) ? true : false;
@@ -488,9 +461,6 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt16)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::ReadTo",
-						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					if (*(int64_t*)src < consts::min16 || *(int64_t*)src > consts::max16)
@@ -503,9 +473,6 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt32)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::ReadTo",
-						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					if (*(int64_t*)src < consts::min32 || *(int64_t*)src > consts::max32)
@@ -518,9 +485,6 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt64)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::ReadTo",
-						_("NUM/DEC with scale : use GetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(int64_t*)dst = *(int64_t*)src;
@@ -701,9 +665,6 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 		case blr_short :
 			if (adtype == IBPP::adBool)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::WriteFrom",
-						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(short*)dst = short(*(bool*)src ? 1 : 0);
@@ -713,9 +674,6 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt16)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::WriteFrom",
-						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(short*)dst = *(short*)src;
@@ -725,9 +683,6 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt32)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::WriteFrom",
-						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					if (*(long*)src < consts::min16 || *(long*)src > consts::max16)
@@ -740,9 +695,6 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt64)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::WriteFrom",
-						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					if (*(int64_t*)src < consts::min16 || *(int64_t*)src > consts::max16)
@@ -783,9 +735,6 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 		case blr_long :
 			if (adtype == IBPP::adBool)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::WriteFrom",
-						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(long*)dst = *(bool*)src ? 1 : 0;
@@ -795,9 +744,6 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt16)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::WriteFrom",
-						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(long*)dst = *(short*)src;
@@ -807,9 +753,6 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt32)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::WriteFrom",
-						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(long*)dst = *(long*)src;
@@ -819,9 +762,6 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt64)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::WriteFrom",
-						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					if (*(int64_t*)src < consts::min32 || *(int64_t*)src > consts::max32)
@@ -862,9 +802,6 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 		case blr_int64 :
 			if (adtype == IBPP::adBool)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::WriteFrom",
-						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(int64_t*)dst = *(bool*)src ? 1 : 0;
@@ -874,9 +811,6 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt16)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::WriteFrom",
-						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(int64_t*)dst = *(short*)src;
@@ -886,9 +820,6 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt32)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::WriteFrom",
-						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(int64_t*)dst = *(long*)src;
@@ -898,9 +829,6 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			}
 			else if (adtype == IBPP::adInt64)
 			{
-				if (mDesc.array_desc_scale != 0)
-					throw LogicExceptionImpl("Array::WriteFrom",
-						_("NUM/DEC with scale : use SetDouble()"));
 				for (int i = 0; i < mElemCount; i++)
 				{
 					*(int64_t*)dst = *(int64_t*)src;

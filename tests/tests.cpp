@@ -788,11 +788,12 @@ void Test::Test5()
 	while (st1->Fetch())
 	{
 		double n2, n6;
-		st1->Get(1, &n2);
-		st1->Get(2, &n6);
-		//double n2 = st1->GetDouble(1);
-		//double n6 = st1->GetDouble(2);
-		//printf("%g, %g\n", n2, n6);
+		int ni2, ni6;
+		st1->Get(1, n2);
+		st1->Get(2, n6);
+		st1->Get(1, ni2);
+		st1->Get(2, ni6);
+		//printf("%g, %g, %d, %d\n", n2, n6, ni2, ni6);
 	}
 
 	//printf(_("Select returning no rows...\n"));

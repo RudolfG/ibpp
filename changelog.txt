@@ -24,6 +24,11 @@ Contributor(s):
 The most recent addition to this file is always on top and has the highest
 item number.
 
+11. March 17, 2006
+
+- Now, NUMERIC/DECIMAL (scaled columns) can be exchanged with integer data
+types. The plain scaled value is returned / expected.
+
 10. March 16, 2006
 
 - Now, revival of MSVC6 compatibility is complete.
