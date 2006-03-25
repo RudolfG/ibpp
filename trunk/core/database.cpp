@@ -176,19 +176,19 @@ void DatabaseImpl::Inactivate()
 
 	// Let's detach from all Blobs
 	while (mBlobs.size() > 0)
-		mBlobs.back()->DetachDatabase();
+		mBlobs.back()->DetachDatabaseImpl();
 
 	// Let's detach from all Arrays
 	while (mArrays.size() > 0)
-		mArrays.back()->DetachDatabase();
+		mArrays.back()->DetachDatabaseImpl();
 
 	// Let's detach from all Statements
 	while (mStatements.size() > 0)
-		mStatements.back()->DetachDatabase();
+		mStatements.back()->DetachDatabaseImpl();
 
 	// Let's detach from all Transactions
 	while (mTransactions.size() > 0)
-		mTransactions.back()->DetachDatabase(this);
+		mTransactions.back()->DetachDatabaseImpl(this);
 }
 
 void DatabaseImpl::Disconnect()
@@ -429,7 +429,7 @@ void DatabaseImpl::Release()
 
 //	(((((((( OBJECT INTERNAL METHODS ))))))))
 
-void DatabaseImpl::AttachTransaction(TransactionImpl* tr)
+void DatabaseImpl::AttachTransactionImpl(TransactionImpl* tr)
 {
 	if (tr == 0)
 		throw LogicExceptionImpl("Database::AttachTransaction",
@@ -438,7 +438,7 @@ void DatabaseImpl::AttachTransaction(TransactionImpl* tr)
 	mTransactions.push_back(tr);
 }
 
-void DatabaseImpl::DetachTransaction(TransactionImpl* tr)
+void DatabaseImpl::DetachTransactionImpl(TransactionImpl* tr)
 {
 	if (tr == 0)
 		throw LogicExceptionImpl("Database::DetachTransaction",
@@ -447,7 +447,7 @@ void DatabaseImpl::DetachTransaction(TransactionImpl* tr)
 	mTransactions.erase(std::find(mTransactions.begin(), mTransactions.end(), tr));
 }
 
-void DatabaseImpl::AttachStatement(StatementImpl* st)
+void DatabaseImpl::AttachStatementImpl(StatementImpl* st)
 {
 	if (st == 0)
 		throw LogicExceptionImpl("Database::AttachStatement",
@@ -456,7 +456,7 @@ void DatabaseImpl::AttachStatement(StatementImpl* st)
 	mStatements.push_back(st);
 }
 
-void DatabaseImpl::DetachStatement(StatementImpl* st)
+void DatabaseImpl::DetachStatementImpl(StatementImpl* st)
 {
 	if (st == 0)
 		throw LogicExceptionImpl("Database::DetachStatement",
@@ -465,7 +465,7 @@ void DatabaseImpl::DetachStatement(StatementImpl* st)
 	mStatements.erase(std::find(mStatements.begin(), mStatements.end(), st));
 }
 
-void DatabaseImpl::AttachBlob(BlobImpl* bb)
+void DatabaseImpl::AttachBlobImpl(BlobImpl* bb)
 {
 	if (bb == 0)
 		throw LogicExceptionImpl("Database::AttachBlob",
@@ -474,7 +474,7 @@ void DatabaseImpl::AttachBlob(BlobImpl* bb)
 	mBlobs.push_back(bb);
 }
 
-void DatabaseImpl::DetachBlob(BlobImpl* bb)
+void DatabaseImpl::DetachBlobImpl(BlobImpl* bb)
 {
 	if (bb == 0)
 		throw LogicExceptionImpl("Database::DetachBlob",
@@ -483,7 +483,7 @@ void DatabaseImpl::DetachBlob(BlobImpl* bb)
 	mBlobs.erase(std::find(mBlobs.begin(), mBlobs.end(), bb));
 }
 
-void DatabaseImpl::AttachArray(ArrayImpl* ar)
+void DatabaseImpl::AttachArrayImpl(ArrayImpl* ar)
 {
 	if (ar == 0)
 		throw LogicExceptionImpl("Database::AttachArray",
@@ -492,7 +492,7 @@ void DatabaseImpl::AttachArray(ArrayImpl* ar)
 	mArrays.push_back(ar);
 }
 
-void DatabaseImpl::DetachArray(ArrayImpl* ar)
+void DatabaseImpl::DetachArrayImpl(ArrayImpl* ar)
 {
 	if (ar == 0)
 		throw LogicExceptionImpl("Database::DetachArray",

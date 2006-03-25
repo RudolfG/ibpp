@@ -44,93 +44,44 @@ using namespace ibpp_internals;
 
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 
-void TransactionImpl::AttachDatabase(IBPP::IDatabase* db,
+void TransactionImpl::AttachDatabase(IBPP::Database& db,
 	IBPP::TAM am, IBPP::TIL il, IBPP::TLR lr, IBPP::TFF flags)
 {
-	if (mHandle != 0)
-		throw LogicExceptionImpl("Transaction::AttachDatabase",
-				_("Can't attach a Database if Transaction started."));
-	if (db == 0)
+	if (db.intf() == 0)
 		throw LogicExceptionImpl("Transaction::AttachDatabase",
 				_("Can't attach a null Database."));
 
-	DatabaseImpl* dbi = dynamic_cast<DatabaseImpl*>(db);
-	if (dbi == 0)
-		throw LogicExceptionImpl("Transaction::AttachDatabase",
-				_("Illegal parameter (database)"));
-
-	mDatabases.push_back(dbi);
-
-	// Prepare a new TPB
-	TPB* tpb = new TPB;
-    if (am == IBPP::amRead) tpb->Insert(isc_tpb_read);
-    else tpb->Insert(isc_tpb_write);
-
-	switch (il)
-	{
-		case IBPP::ilConsistency :		tpb->Insert(isc_tpb_consistency); break;
-		case IBPP::ilReadDirty :		tpb->Insert(isc_tpb_read_committed);
-						    	    	tpb->Insert(isc_tpb_rec_version); break;
-		case IBPP::ilReadCommitted :	tpb->Insert(isc_tpb_read_committed);
-										tpb->Insert(isc_tpb_no_rec_version); break;
-		default :						tpb->Insert(isc_tpb_concurrency); break;
-	}
-
-    if (lr == IBPP::lrNoWait) tpb->Insert(isc_tpb_nowait);
-    else tpb->Insert(isc_tpb_wait);
-
-	if (flags & IBPP::tfIgnoreLimbo)	tpb->Insert(isc_tpb_ignore_limbo);
-	if (flags & IBPP::tfAutoCommit)		tpb->Insert(isc_tpb_autocommit);
-	if (flags & IBPP::tfNoAutoUndo)		tpb->Insert(isc_tpb_no_auto_undo);
-
-	mTPBs.push_back(tpb);
-
-	// Signals the Database object that it has been attached to the Transaction
-	dbi->AttachTransaction(this);
+	DatabaseImpl* dbi = dynamic_cast<DatabaseImpl*>(db.intf());
+	AttachDatabaseImpl(dbi, am, il, lr, flags);
 }
 
-void TransactionImpl::DetachDatabase(IBPP::IDatabase* db)
+void TransactionImpl::DetachDatabase(IBPP::Database& db)
 {
-	if (mHandle != 0)
-		throw LogicExceptionImpl("Transaction::DetachDatabase",
-				_("Can't detach a Database if Transaction started."));
-	if (db == 0)
+	if (db.intf() == 0)
 		throw LogicExceptionImpl("Transaction::DetachDatabase",
 				_("Can't detach a null Database."));
 
-	DatabaseImpl* dbi = dynamic_cast<DatabaseImpl*>(db);
+	DatabaseImpl* dbi = dynamic_cast<DatabaseImpl*>(db.intf());
 	if (dbi == 0)
 		throw LogicExceptionImpl("Transaction::DetachDatabase",
 				_("Illegal parameter (database)"));
 
-	std::vector<DatabaseImpl*>::iterator pos =
-		std::find(mDatabases.begin(), mDatabases.end(), dbi);
-	if (pos != mDatabases.end())
-	{
-		size_t index = pos - mDatabases.begin();
-		TPB* tpb = mTPBs[index];
-		mDatabases.erase(pos);
-		mTPBs.erase(mTPBs.begin()+index);
-		delete tpb;
-	}
-
-	// Signals the Database object that it has been detached from the Transaction
-	dbi->DetachTransaction(this);
+	DetachDatabaseImpl(dbi);
 }
 
-void TransactionImpl::AddReservation(IBPP::IDatabase* db,
+void TransactionImpl::AddReservation(IBPP::Database& db,
 	const std::string& table, IBPP::TTR tr)
 {
 	if (mHandle != 0)
 		throw LogicExceptionImpl("Transaction::AddReservation",
 				_("Can't add table reservation if Transaction started."));
-	if (db == 0)
+	if (db.intf() == 0)
 		throw LogicExceptionImpl("Transaction::AddReservation",
 				_("Null IDatabase pointer detected."));
 
 	// Find the TPB associated with this database
 	std::vector<DatabaseImpl*>::iterator pos =
-		std::find(mDatabases.begin(), mDatabases.end(), dynamic_cast<DatabaseImpl*>(db));
+		std::find(mDatabases.begin(), mDatabases.end(), dynamic_cast<DatabaseImpl*>(db.intf()));
 	if (pos != mDatabases.end())
 	{
 		size_t index = pos - mDatabases.begin();
@@ -294,7 +245,7 @@ void TransactionImpl::Init()
 	mArrays.clear();
 }
 
-void TransactionImpl::AttachStatement(StatementImpl* st)
+void TransactionImpl::AttachStatementImpl(StatementImpl* st)
 {
 	if (st == 0)
 		throw LogicExceptionImpl("Transaction::AttachStatement",
@@ -303,7 +254,7 @@ void TransactionImpl::AttachStatement(StatementImpl* st)
 	mStatements.push_back(st);
 }
 
-void TransactionImpl::DetachStatement(StatementImpl* st)
+void TransactionImpl::DetachStatementImpl(StatementImpl* st)
 {
 	if (st == 0)
 		throw LogicExceptionImpl("Transaction::DetachStatement",
@@ -312,7 +263,7 @@ void TransactionImpl::DetachStatement(StatementImpl* st)
 	mStatements.erase(std::find(mStatements.begin(), mStatements.end(), st));
 }
 
-void TransactionImpl::AttachBlob(BlobImpl* bb)
+void TransactionImpl::AttachBlobImpl(BlobImpl* bb)
 {
 	if (bb == 0)
 		throw LogicExceptionImpl("Transaction::AttachBlob",
@@ -321,7 +272,7 @@ void TransactionImpl::AttachBlob(BlobImpl* bb)
 	mBlobs.push_back(bb);
 }
 
-void TransactionImpl::DetachBlob(BlobImpl* bb)
+void TransactionImpl::DetachBlobImpl(BlobImpl* bb)
 {
 	if (bb == 0)
 		throw LogicExceptionImpl("Transaction::DetachBlob",
@@ -330,7 +281,7 @@ void TransactionImpl::DetachBlob(BlobImpl* bb)
 	mBlobs.erase(std::find(mBlobs.begin(), mBlobs.end(), bb));
 }
 
-void TransactionImpl::AttachArray(ArrayImpl* ar)
+void TransactionImpl::AttachArrayImpl(ArrayImpl* ar)
 {
 	if (ar == 0)
 		throw LogicExceptionImpl("Transaction::AttachArray",
@@ -339,7 +290,7 @@ void TransactionImpl::AttachArray(ArrayImpl* ar)
 	mArrays.push_back(ar);
 }
 
-void TransactionImpl::DetachArray(ArrayImpl* ar)
+void TransactionImpl::DetachArrayImpl(ArrayImpl* ar)
 {
 	if (ar == 0)
 		throw LogicExceptionImpl("Transaction::DetachArray",
@@ -348,17 +299,76 @@ void TransactionImpl::DetachArray(ArrayImpl* ar)
 	mArrays.erase(std::find(mArrays.begin(), mArrays.end(), ar));
 }
 
-///////////////////////////////////////////////////////////////////////////////
-//	INTERNAL (HIDDEN) IMPLEMENTATION
-//	PUBLIC METHODS
-///////////////////////////////////////////////////////////////////////////////
+void TransactionImpl::AttachDatabaseImpl(DatabaseImpl* dbi,
+	IBPP::TAM am, IBPP::TIL il, IBPP::TLR lr, IBPP::TFF flags)
+{
+	if (mHandle != 0)
+		throw LogicExceptionImpl("Transaction::AttachDatabase",
+				_("Can't attach a Database if Transaction started."));
+	if (dbi == 0)
+		throw LogicExceptionImpl("Transaction::AttachDatabase",
+				_("Can't attach a null Database."));
+
+	mDatabases.push_back(dbi);
+
+	// Prepare a new TPB
+	TPB* tpb = new TPB;
+    if (am == IBPP::amRead) tpb->Insert(isc_tpb_read);
+    else tpb->Insert(isc_tpb_write);
+
+	switch (il)
+	{
+		case IBPP::ilConsistency :		tpb->Insert(isc_tpb_consistency); break;
+		case IBPP::ilReadDirty :		tpb->Insert(isc_tpb_read_committed);
+						    	    	tpb->Insert(isc_tpb_rec_version); break;
+		case IBPP::ilReadCommitted :	tpb->Insert(isc_tpb_read_committed);
+										tpb->Insert(isc_tpb_no_rec_version); break;
+		default :						tpb->Insert(isc_tpb_concurrency); break;
+	}
+
+    if (lr == IBPP::lrNoWait) tpb->Insert(isc_tpb_nowait);
+    else tpb->Insert(isc_tpb_wait);
+
+	if (flags & IBPP::tfIgnoreLimbo)	tpb->Insert(isc_tpb_ignore_limbo);
+	if (flags & IBPP::tfAutoCommit)		tpb->Insert(isc_tpb_autocommit);
+	if (flags & IBPP::tfNoAutoUndo)		tpb->Insert(isc_tpb_no_auto_undo);
+
+	mTPBs.push_back(tpb);
+
+	// Signals the Database object that it has been attached to the Transaction
+	dbi->AttachTransactionImpl(this);
+}
+
+void TransactionImpl::DetachDatabaseImpl(DatabaseImpl* dbi)
+{
+	if (mHandle != 0)
+		throw LogicExceptionImpl("Transaction::DetachDatabase",
+				_("Can't detach a Database if Transaction started."));
+	if (dbi == 0)
+		throw LogicExceptionImpl("Transaction::DetachDatabase",
+				_("Can't detach a null Database."));
+
+	std::vector<DatabaseImpl*>::iterator pos =
+		std::find(mDatabases.begin(), mDatabases.end(), dbi);
+	if (pos != mDatabases.end())
+	{
+		size_t index = pos - mDatabases.begin();
+		TPB* tpb = mTPBs[index];
+		mDatabases.erase(pos);
+		mTPBs.erase(mTPBs.begin()+index);
+		delete tpb;
+	}
+
+	// Signals the Database object that it has been detached from the Transaction
+	dbi->DetachTransactionImpl(this);
+}
 
 TransactionImpl::TransactionImpl(DatabaseImpl* db,
 	IBPP::TAM am, IBPP::TIL il, IBPP::TLR lr, IBPP::TFF flags)
 	: mRefCount(0)
 {
 	Init();
-	AttachDatabase(db, am, il, lr, flags);
+	AttachDatabaseImpl(db, am, il, lr, flags);
 }
 
 TransactionImpl::~TransactionImpl()
@@ -377,7 +387,7 @@ TransactionImpl::~TransactionImpl()
 	// copy of elements from the end to the beginning of the array.
 	try {
 		while (mBlobs.size() > 0)
-			mBlobs.back()->DetachTransaction();
+			mBlobs.back()->DetachTransactionImpl();
 	} catch (...) { }
 
 	// Let's detach cleanly all Arrays from this Transaction.
@@ -385,7 +395,7 @@ TransactionImpl::~TransactionImpl()
 	// Transaction which is disappearing.
 	try {
 		while (mArrays.size() > 0)
-			mArrays.back()->DetachTransaction();
+			mArrays.back()->DetachTransactionImpl();
 	} catch (...) { }
 
 	// Let's detach cleanly all Statements from this Transaction.
@@ -393,7 +403,7 @@ TransactionImpl::~TransactionImpl()
 	// Transaction which is disappearing.
 	try {
 		while (mStatements.size() > 0)
-			mStatements.back()->DetachTransaction();
+			mStatements.back()->DetachTransactionImpl();
 	} catch (...) { }
 
 	// Very important : let's detach cleanly all Databases from this
@@ -403,7 +413,7 @@ TransactionImpl::~TransactionImpl()
 		while (mDatabases.size() > 0)
 		{
 			size_t i = mDatabases.size()-1;
-			DetachDatabase(mDatabases[i]);	// <-- remove link to database from mTPBs
+			DetachDatabaseImpl(mDatabases[i]);	// <-- remove link to database from mTPBs
 											// array and destroy TPB object
 											// Fixed : Maxim Abrashkin on 12 Jun 2002
 			//mDatabases.back()->DetachTransaction(this);

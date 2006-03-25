@@ -94,7 +94,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (0<<8) + 51; // Version == 2.5.0.51
+	const uint32_t Version = (2<<24) + (5<<16) + (1<<8) + 52; // Version == 2.5.1.52
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
@@ -234,6 +234,9 @@ namespace IBPP
 		void SetDate(int dt);
 		void GetDate(int& year, int& month, int& day) const;
 		int GetDate() const	{ return mDate; }
+		int Year() const;
+		int Month() const;
+		int Day() const;
 		void Add(int days);
 		void StartOfMonth();
 		void EndOfMonth();
@@ -267,7 +270,10 @@ namespace IBPP
 		void GetTime(int& hour, int& minute, int& second) const;
 		void GetTime(int& hour, int& minute, int& second, int& tenthousandths) const;
 		int GetTime() const	{ return mTime; }
-
+		int Hours() const;
+		int Minutes() const;
+		int Seconds() const;
+		int SubSeconds() const;		// Actually tenthousandths of seconds
 		Time()			{ Clear(); }
 		Time(int tm)	{ SetTime(tm); }
 		Time(int hour, int minute, int second, int tenthousandths = 0);
@@ -424,6 +430,14 @@ namespace IBPP
 	 * itself), you'll never have to care about AddRef/Release and you'll never
 	 * have to care about deleting your objects. */
 
+	class IBlob;			typedef Ptr<IBlob> Blob;
+	class IArray;			typedef Ptr<IArray> Array;
+	class IService;			typedef Ptr<IService> Service;
+	class IDatabase;		typedef Ptr<IDatabase> Database;
+	class ITransaction;		typedef Ptr<ITransaction> Transaction;
+	class IStatement;		typedef Ptr<IStatement> Statement;
+	class IRow;				typedef Ptr<IRow> Row;
+
 	/* IBlob is the interface to the blob capabilities of IBPP. Blob is the
 	 * object class you actually use in your programming. In Firebird, at the
 	 * row level, a blob is merely a handle to a blob, stored elsewhere in the
@@ -433,8 +447,6 @@ namespace IBPP
 	class IBlob
 	{
 	public:
-		virtual IDatabase* Database() const = 0;
-		virtual ITransaction* Transaction() const = 0;
 		virtual void Create() = 0;
 		virtual void Open() = 0;
 		virtual void Close() = 0;
@@ -446,12 +458,14 @@ namespace IBPP
 		virtual void Save(const std::string& data) = 0;
 		virtual void Load(std::string& data) = 0;
 
+		virtual Database DatabasePtr() const = 0;
+		virtual Transaction TransactionPtr() const = 0;
+
 		virtual IBlob* AddRef() = 0;
 		virtual void Release() = 0;
 
 		virtual ~IBlob() { };
 	};
-	typedef Ptr<IBlob> Blob;
 
 	/*	IArray is the interface to the array capabilities of IBPP. Array is the
 	* object class you actually use in your programming. With an Array object, you
@@ -460,8 +474,6 @@ namespace IBPP
 	class IArray
 	{
 	public:
-		virtual IDatabase* Database() const = 0;
-		virtual ITransaction* Transaction() const = 0;
 		virtual void Describe(const std::string& table, const std::string& column) = 0;
 		virtual void ReadTo(ADT, void* buffer, int elemcount) = 0;
 		virtual void WriteFrom(ADT, const void* buffer, int elemcount) = 0;
@@ -472,12 +484,14 @@ namespace IBPP
 		virtual void Bounds(int dim, int* low, int* high) = 0;
 		virtual void SetBounds(int dim, int low, int high) = 0;
 
+		virtual Database DatabasePtr() const = 0;
+		virtual Transaction TransactionPtr() const = 0;
+
 		virtual IArray* AddRef() = 0;
 		virtual void Release() = 0;
 
 		virtual ~IArray() { };
 	};
-	typedef Ptr<IArray> Array;
 
 	/* IService is the interface to the service capabilities of IBPP. Service is
 	 * the object class you actually use in your programming. With a Service
@@ -523,7 +537,6 @@ namespace IBPP
 
 		virtual ~IService() { };
 	};
-	typedef Ptr<IService> Service;
 
 	/*	IDatabase is the interface to the database connections in IBPP. Database
 	 * is the object class you actually use in your programming. With a Database
@@ -567,7 +580,6 @@ namespace IBPP
 
 	    virtual ~IDatabase() { };
 	};
-	typedef Ptr<IDatabase> Database;
 
 	/* ITransaction is the interface to the transaction connections in IBPP.
 	 * Transaction is the object class you actually use in your programming. A
@@ -580,10 +592,10 @@ namespace IBPP
 	class ITransaction
 	{
 	public:
-	    virtual void AttachDatabase(IDatabase* db, TAM am = amWrite,
+	    virtual void AttachDatabase(Database& db, TAM am = amWrite,
 			TIL il = ilConcurrency, TLR lr = lrWait, TFF flags = TFF(0)) = 0;
-	    virtual void DetachDatabase(IDatabase* db) = 0;
-	 	virtual void AddReservation(IDatabase* db,
+	    virtual void DetachDatabase(Database& db) = 0;
+	 	virtual void AddReservation(Database& db,
 	 			const std::string& table, TTR tr) = 0;
 
 		virtual void Start() = 0;
@@ -598,7 +610,6 @@ namespace IBPP
 
 	    virtual ~ITransaction() { };
 	};
-	typedef Ptr<ITransaction> Transaction;
 
 	/*
 	 *	Class Row can hold all the values of a row (from a SELECT for instance).
@@ -607,9 +618,6 @@ namespace IBPP
 	class IRow
 	{
 	public:
-		virtual	IDatabase* Database() const = 0;
-		virtual ITransaction* Transaction() const = 0;
-
 		virtual void SetNull(int) = 0;
 		virtual void Set(int, bool) = 0;
 		virtual void Set(int, const void*, int) = 0;		// byte buffers
@@ -672,13 +680,15 @@ namespace IBPP
 		virtual bool ColumnUpdated(int) = 0;
 		virtual bool Updated() = 0;
 
+		virtual	Database DatabasePtr() const = 0;
+		virtual Transaction TransactionPtr() const = 0;
+
 		virtual IRow* Clone() = 0;
 		virtual IRow* AddRef() = 0;
 		virtual void Release() = 0;
 
 	    virtual ~IRow() {};
 	};
-	typedef Ptr<IRow> Row;
 
 	/* IStatement is the interface to the statements execution in IBPP.
 	 * Statement is the object class you actually use in your programming. A
@@ -690,8 +700,6 @@ namespace IBPP
 	class IStatement
 	{
 	public:
-		virtual	IDatabase* Database() const = 0;
-		virtual ITransaction* Transaction() const = 0;
 		virtual void Prepare(const std::string&) = 0;
 		virtual void Execute() = 0;
 		virtual void Execute(const std::string&) = 0;
@@ -772,6 +780,9 @@ namespace IBPP
 
 		virtual void Plan(std::string&) = 0;
 
+		virtual	Database DatabasePtr() const = 0;
+		virtual Transaction TransactionPtr() const = 0;
+
 		virtual IStatement* AddRef() = 0;
 		virtual void Release() = 0;
 
@@ -793,7 +804,6 @@ namespace IBPP
 		virtual bool Get(int, double*) = 0;					// DEPRECATED
 		virtual bool Get(const std::string&, double*) = 0;	// DEPRECATED
 	};
-	typedef Ptr<IStatement> Statement;
 	
 	//	--- Factories ---
 	//	These methods are the only way to get one of the above
@@ -807,48 +817,31 @@ namespace IBPP
 	//		db->Disconnect();
 	//	}
 
-	IService* ServiceFactory(const std::string& ServerName,
+	Service ServiceFactory(const std::string& ServerName,
 		const std::string& UserName, const std::string& UserPassword);
 
-	IDatabase* DatabaseFactory(const std::string& ServerName,
+	Database DatabaseFactory(const std::string& ServerName,
 		const std::string& DatabaseName, const std::string& UserName,
 			const std::string& UserPassword, const std::string& RoleName,
 				const std::string& CharSet, const std::string& CreateParams);
 
-	inline IDatabase* DatabaseFactory(const std::string& ServerName,
+	inline Database DatabaseFactory(const std::string& ServerName,
 		const std::string& DatabaseName, const std::string& UserName,
 			const std::string& UserPassword)
 		{ return DatabaseFactory(ServerName, DatabaseName, UserName, UserPassword, "", "", "");	}
 
-	ITransaction* TransactionFactory(IDatabase* db, TAM am = amWrite,
+	Transaction TransactionFactory(Database& db, TAM am = amWrite,
 		TIL il = ilConcurrency, TLR lr = lrWait, TFF flags = TFF(0));
 
-	inline ITransaction* TransactionFactory(Database& db, TAM am = amWrite,
-		TIL il = ilConcurrency, TLR lr = lrWait, TFF flags = TFF(0))
-			{ return TransactionFactory(db.intf(), am, il, lr, flags); }
-
-	//IRow* RowFactory(int dialect);
-	
-	IStatement* StatementFactory(IDatabase* db, ITransaction* tr,
+	Statement StatementFactory(Database& db, Transaction& tr,
 		const std::string& sql);
 
-	inline IStatement* StatementFactory(IDatabase* db, ITransaction* tr)
+	inline Statement StatementFactory(Database& db, Transaction& tr)
 		{ return StatementFactory(db, tr, ""); }
 
-	inline IStatement* StatementFactory(Database& db, Transaction& tr,
-		const std::string& sql)
-			{ return StatementFactory(db.intf(), tr.intf(), sql); }
-
-	inline IStatement* StatementFactory(Database& db, Transaction& tr)
-			{ return StatementFactory(db.intf(), tr.intf(), ""); }
-
-	IBlob* BlobFactory(IDatabase* db, ITransaction* tr);
-	inline IBlob* BlobFactory(Database& db, Transaction& tr)
-		{ return BlobFactory(db.intf(), tr.intf()); }
-
-	IArray* ArrayFactory(IDatabase* db, ITransaction* tr);
-	inline IArray* ArrayFactory(Database& db, Transaction& tr)
-		{ return ArrayFactory(db.intf(), tr.intf()); }
+	Blob BlobFactory(Database& db, Transaction& tr);
+	
+	Array ArrayFactory(Database& db, Transaction& tr);
 
 	/* Class EventInterface is merely a pure interface. It is _not_ implemented
 	 * by IBPP. It is just base class definition from which your own event

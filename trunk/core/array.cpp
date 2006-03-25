@@ -44,56 +44,6 @@ using namespace ibpp_internals;
 
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 
-void ArrayImpl::AttachDatabase(IBPP::IDatabase* database)
-{
-	if (database == 0) throw LogicExceptionImpl("Array::AttachDatabase",
-			_("Can't attach a 0 Database object."));
-
-	if (mDatabase != 0) mDatabase->DetachArray(this);
-	mDatabase = dynamic_cast<DatabaseImpl*>(database);
-	mDatabase->AttachArray(this);
-}
-
-void ArrayImpl::AttachTransaction(IBPP::ITransaction* transaction)
-{
-	if (transaction == 0) throw LogicExceptionImpl("Array::AttachTransaction",
-			_("Can't attach a 0 Transaction object."));
-
-	if (mTransaction != 0) mTransaction->DetachArray(this);
-	mTransaction = dynamic_cast<TransactionImpl*>(transaction);
-	mTransaction->AttachArray(this);
-}
-
-void ArrayImpl::DetachDatabase()
-{
-	if (mDatabase == 0) return;
-
-	mDatabase->DetachArray(this);
-	mDatabase = 0;
-}
-
-void ArrayImpl::DetachTransaction()
-{
-	if (mTransaction == 0) return;
-
-	mTransaction->DetachArray(this);
-	mTransaction = 0;
-}
-
-IBPP::IDatabase* ArrayImpl::Database() const
-{
-	if (mDatabase == 0) throw LogicExceptionImpl("Array::Database",
-			_("No Database is attached."));
-	return mDatabase;
-}
-
-IBPP::ITransaction* ArrayImpl::Transaction() const
-{
-	if (mTransaction == 0) throw LogicExceptionImpl("Array::Transaction",
-			_("No Transaction is attached."));
-	return mTransaction;
-}
-
 void ArrayImpl::Describe(const std::string& table, const std::string& column)
 {
 	//if (mIdAssigned)
@@ -949,6 +899,20 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 		throw SQLExceptionImpl(status, "Array::WriteFrom", _("Internal buffer size discrepancy."));
 }
 
+IBPP::Database ArrayImpl::DatabasePtr() const
+{
+	if (mDatabase == 0) throw LogicExceptionImpl("Array::DatabasePtr",
+			_("No Database is attached."));
+	return mDatabase;
+}
+
+IBPP::Transaction ArrayImpl::TransactionPtr() const
+{
+	if (mTransaction == 0) throw LogicExceptionImpl("Array::TransactionPtr",
+			_("No Transaction is attached."));
+	return mTransaction;
+}
+
 IBPP::IArray* ArrayImpl::AddRef()
 {
 	ASSERTION(mRefCount >= 0);
@@ -1023,19 +987,55 @@ void ArrayImpl::AllocArrayBuffer()
 	mBuffer = (void*) new char[mBufferSize];
 }
 
+void ArrayImpl::AttachDatabaseImpl(DatabaseImpl* database)
+{
+	if (database == 0) throw LogicExceptionImpl("Array::AttachDatabase",
+			_("Can't attach a 0 Database object."));
+
+	if (mDatabase != 0) mDatabase->DetachArrayImpl(this);
+	mDatabase = database;
+	mDatabase->AttachArrayImpl(this);
+}
+
+void ArrayImpl::AttachTransactionImpl(TransactionImpl* transaction)
+{
+	if (transaction == 0) throw LogicExceptionImpl("Array::AttachTransaction",
+			_("Can't attach a 0 Transaction object."));
+
+	if (mTransaction != 0) mTransaction->DetachArrayImpl(this);
+	mTransaction = transaction;
+	mTransaction->AttachArrayImpl(this);
+}
+
+void ArrayImpl::DetachDatabaseImpl()
+{
+	if (mDatabase == 0) return;
+
+	mDatabase->DetachArrayImpl(this);
+	mDatabase = 0;
+}
+
+void ArrayImpl::DetachTransactionImpl()
+{
+	if (mTransaction == 0) return;
+
+	mTransaction->DetachArrayImpl(this);
+	mTransaction = 0;
+}
+
 ArrayImpl::ArrayImpl(DatabaseImpl* database, TransactionImpl* transaction)
 	: mRefCount(0)
 {
 	Init();
-	AttachDatabase(database);
-	if (transaction != 0) AttachTransaction(transaction);
+	AttachDatabaseImpl(database);
+	if (transaction != 0) AttachTransactionImpl(transaction);
 }
 
 ArrayImpl::~ArrayImpl()
 {
-	try { if (mTransaction != 0) mTransaction->DetachArray(this); }
+	try { if (mTransaction != 0) mTransaction->DetachArrayImpl(this); }
 		catch (...) {}
-	try { if (mDatabase != 0) mDatabase->DetachArray(this); }
+	try { if (mDatabase != 0) mDatabase->DetachArrayImpl(this); }
 		catch (...) {}
 	try { if (mBuffer != 0) delete [] (char*)mBuffer; }
 		catch (...) {}

@@ -120,7 +120,7 @@ GDS* GDS::Call()
 			std::string path;
 			if (newpos == std::string::npos) path = mSearchPaths.substr(pos);
 			else path = mSearchPaths.substr(pos, newpos-pos);
-				
+
 			if (path.size() >= 1)
 			{
 				if (path[path.size()-1] != '\\') path += '\\';
@@ -130,13 +130,13 @@ GDS* GDS::Call()
 			}
 			pos = newpos + 1;
 		}
-		
+
 		if (mHandle == 0)
 		{
 			// Try to load FBCLIENT.DLL from the current application location.  This
 			// is a usefull step for applications using the embedded version of FB
 			// or a local copy (for whatever reasons) of the dll.
-			
+
 			int len = GetModuleFileName(NULL, fbdll, sizeof(fbdll));
 			if (len != 0)
 			{
@@ -178,7 +178,7 @@ GDS* GDS::Call()
 				RegCloseKey(hkey_instances);
 			}
 		}
-		
+
 		if (mHandle == 0)
 		{
 			// Let's try from the PATH and System directories
@@ -206,7 +206,7 @@ GDS* GDS::Call()
 #endif
 #ifdef IBPP_UNIX
 /* TODO : perform a late-bind on unix --- not so important, well I think (OM) */
-#define IB_ENTRYPOINT(X) m_##X = (proto_##X*)isc_##X 
+#define IB_ENTRYPOINT(X) m_##X = (proto_##X*)isc_##X
 #endif
 
 		IB_ENTRYPOINT(create_database);
@@ -246,7 +246,7 @@ GDS* GDS::Call()
 		IB_ENTRYPOINT(dsql_free_statement);
 		IB_ENTRYPOINT(dsql_set_cursor_name);
 		IB_ENTRYPOINT(dsql_sql_info);
-		
+
 		IB_ENTRYPOINT(service_attach);
 		IB_ENTRYPOINT(service_detach);
 		IB_ENTRYPOINT(service_start);
@@ -295,17 +295,17 @@ namespace IBPP
 	{
 	}
 #endif
-	
+
 	//	Factories for our Interface objects
 
-	IService* ServiceFactory(const std::string& ServerName,
+	Service ServiceFactory(const std::string& ServerName,
 				const std::string& UserName, const std::string& UserPassword)
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
 		return new ServiceImpl(ServerName, UserName, UserPassword);
 	}
 
-	IDatabase* DatabaseFactory(const std::string& ServerName,
+	Database DatabaseFactory(const std::string& ServerName,
 		const std::string& DatabaseName, const std::string& UserName,
 		const std::string& UserPassword, const std::string& RoleName,
 		const std::string& CharSet, const std::string& CreateParams)
@@ -315,44 +315,36 @@ namespace IBPP
 					UserPassword, RoleName, CharSet, CreateParams);
 	}
 
-	ITransaction* TransactionFactory(IDatabase* db, TAM am,
+	Transaction TransactionFactory(Database& db, TAM am,
 					TIL il, TLR lr, TFF flags)
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
-		DatabaseImpl* dbimpl = dynamic_cast<DatabaseImpl*>(db);
+		DatabaseImpl* dbimpl = dynamic_cast<DatabaseImpl*>(db.intf());
 		return new TransactionImpl(dbimpl, am, il, lr, flags);
 	}
 
-	/*
-	IRow* RowFactory(int dialect)
-	{
-		(void)gds.Call();			// Triggers the initialization, if needed
-		return new RowImpl(dialect);
-	}
-	*/
-
-	IStatement* StatementFactory(IDatabase* db, ITransaction* tr,
+	Statement StatementFactory(Database& db, Transaction& tr,
 		const std::string& sql)
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
-		DatabaseImpl* dbimpl = dynamic_cast<DatabaseImpl*>(db);
-		TransactionImpl* trimpl = dynamic_cast<TransactionImpl*>(tr);
+		DatabaseImpl* dbimpl = dynamic_cast<DatabaseImpl*>(db.intf());
+		TransactionImpl* trimpl = dynamic_cast<TransactionImpl*>(tr.intf());
 		return new StatementImpl(dbimpl, trimpl, sql);
 	}
 
-	IBlob* BlobFactory(IDatabase* db, ITransaction* tr)
+	Blob BlobFactory(Database& db, Transaction& tr)
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
-		DatabaseImpl* dbimpl = dynamic_cast<DatabaseImpl*>(db);
-		TransactionImpl* trimpl = dynamic_cast<TransactionImpl*>(tr);
+		DatabaseImpl* dbimpl = dynamic_cast<DatabaseImpl*>(db.intf());
+		TransactionImpl* trimpl = dynamic_cast<TransactionImpl*>(tr.intf());
 		return new BlobImpl(dbimpl, trimpl);
 	}
 
-	IArray* ArrayFactory(IDatabase* db, ITransaction* tr)
+	Array ArrayFactory(Database& db, Transaction& tr)
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
-		DatabaseImpl* dbimpl = dynamic_cast<DatabaseImpl*>(db);
-		TransactionImpl* trimpl = dynamic_cast<TransactionImpl*>(tr);
+		DatabaseImpl* dbimpl = dynamic_cast<DatabaseImpl*>(db.intf());
+		TransactionImpl* trimpl = dynamic_cast<TransactionImpl*>(tr.intf());
 		return new ArrayImpl(dbimpl, trimpl);
 	}
 
