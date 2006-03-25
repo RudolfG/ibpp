@@ -722,7 +722,7 @@ void Test::Test5()
 	// those parameters could have as well be omitted to simplify writing.
 	IBPP::Transaction tr1 = IBPP::TransactionFactory(db1, IBPP::amWrite,
 		IBPP::ilConcurrency, IBPP::lrWait, IBPP::tfNoAutoUndo);
-	tr1->AddReservation(db1.intf(), "TEST", IBPP::trProtectedWrite);
+	tr1->AddReservation(db1, "TEST", IBPP::trProtectedWrite);
 	tr1->Start();
 
 	IBPP::Statement st1 = IBPP::StatementFactory(db1, tr1);

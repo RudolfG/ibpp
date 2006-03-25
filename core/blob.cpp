@@ -42,56 +42,6 @@ using namespace ibpp_internals;
 
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 
-void BlobImpl::AttachDatabase(IBPP::IDatabase* database)
-{
-	if (database == 0) throw LogicExceptionImpl("Blob::AttachDatabase",
-			_("Can't attach a NULL Database object."));
-
-	if (mDatabase != 0) mDatabase->DetachBlob(this);
-	mDatabase = dynamic_cast<DatabaseImpl*>(database);
-	mDatabase->AttachBlob(this);
-}
-
-void BlobImpl::AttachTransaction(IBPP::ITransaction* transaction)
-{
-	if (transaction == 0) throw LogicExceptionImpl("Blob::AttachTransaction",
-			_("Can't attach a NULL Transaction object."));
-
-	if (mTransaction != 0) mTransaction->DetachBlob(this);
-	mTransaction = dynamic_cast<TransactionImpl*>(transaction);
-	mTransaction->AttachBlob(this);
-}
-
-void BlobImpl::DetachDatabase()
-{
-	if (mDatabase == 0) return;
-
-	mDatabase->DetachBlob(this);
-	mDatabase = 0;
-}
-
-void BlobImpl::DetachTransaction()
-{
-	if (mTransaction == 0) return;
-
-	mTransaction->DetachBlob(this);
-	mTransaction = 0;
-}
-
-IBPP::IDatabase* BlobImpl::Database() const
-{
-	if (mDatabase == 0) throw LogicExceptionImpl("Blob::GetDatabase",
-			_("No Database is attached."));
-	return mDatabase;
-}
-
-IBPP::ITransaction* BlobImpl::Transaction() const
-{
-	if (mTransaction == 0) throw LogicExceptionImpl("Blob::GetTransaction",
-			_("No Transaction is attached."));
-	return mTransaction;
-}
-
 void BlobImpl::Open()
 {
 	if (mHandle != 0)
@@ -299,6 +249,20 @@ void BlobImpl::Load(std::string& data)
 	mHandle = 0;
 }
 
+IBPP::Database BlobImpl::DatabasePtr() const
+{
+	if (mDatabase == 0) throw LogicExceptionImpl("Blob::DatabasePtr",
+			_("No Database is attached."));
+	return mDatabase;
+}
+
+IBPP::Transaction BlobImpl::TransactionPtr() const
+{
+	if (mTransaction == 0) throw LogicExceptionImpl("Blob::TransactionPtr",
+			_("No Transaction is attached."));
+	return mTransaction;
+}
+
 IBPP::IBlob* BlobImpl::AddRef()
 {
 	ASSERTION(mRefCount >= 0);
@@ -349,12 +313,48 @@ void BlobImpl::GetId(ISC_QUAD* quad)
 	memcpy(quad, &mId, sizeof(mId));
 }
 
+void BlobImpl::AttachDatabaseImpl(DatabaseImpl* database)
+{
+	if (database == 0) throw LogicExceptionImpl("Blob::AttachDatabase",
+			_("Can't attach a NULL Database object."));
+
+	if (mDatabase != 0) mDatabase->DetachBlobImpl(this);
+	mDatabase = database;
+	mDatabase->AttachBlobImpl(this);
+}
+
+void BlobImpl::AttachTransactionImpl(TransactionImpl* transaction)
+{
+	if (transaction == 0) throw LogicExceptionImpl("Blob::AttachTransaction",
+			_("Can't attach a NULL Transaction object."));
+
+	if (mTransaction != 0) mTransaction->DetachBlobImpl(this);
+	mTransaction = transaction;
+	mTransaction->AttachBlobImpl(this);
+}
+
+void BlobImpl::DetachDatabaseImpl()
+{
+	if (mDatabase == 0) return;
+
+	mDatabase->DetachBlobImpl(this);
+	mDatabase = 0;
+}
+
+void BlobImpl::DetachTransactionImpl()
+{
+	if (mTransaction == 0) return;
+
+	mTransaction->DetachBlobImpl(this);
+	mTransaction = 0;
+}
+
 BlobImpl::BlobImpl(DatabaseImpl* database, TransactionImpl* transaction)
 	: mRefCount(0)
 {
 	Init();
-	AttachDatabase(database);
-	if (transaction != 0) AttachTransaction(transaction);
+	AttachDatabaseImpl(database);
+	if (transaction != 0) AttachTransactionImpl(transaction);
 }
 
 BlobImpl::~BlobImpl()
@@ -369,9 +369,9 @@ BlobImpl::~BlobImpl()
 	}
 	catch (...) { }
 	
-	try { if (mTransaction != 0) mTransaction->DetachBlob(this); }
+	try { if (mTransaction != 0) mTransaction->DetachBlobImpl(this); }
 		catch (...) { }
-	try { if (mDatabase != 0) mDatabase->DetachBlob(this); }
+	try { if (mDatabase != 0) mDatabase->DetachBlobImpl(this); }
 		catch (...) { }
 }
 

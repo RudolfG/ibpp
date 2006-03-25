@@ -91,6 +91,20 @@ column type and the variable data type).
 - Added exception class 'WrongType' derived from 'LogicException' to support
 the above.
 
+- Added comfort methods to classed Date and Time (Year(), ..., Hours(), ...)
+
+- Removed all access to the naked interface pointers from the public interface
+except through the Ptr<>::intf() method. Some methods overloads taking naked
+pointers have been dropped, only their versions using managed pointers subsists.
+This can break source code compatibility of *some* applications, but is a very
+easy fix to do in those applications source code.
+
+- Full MSVC6 compatibility which got partially lost in 2.4 versions has been
+revived.
+
+- Now, NUMERIC/DECIMAL (scaled columns) can be exchanged with integer data
+types. The plain scaled value is returned / expected.
+
 
 4/ Comments, Acknowledgments
 

@@ -77,6 +77,34 @@ void IBPP::Time::GetTime(int& hour, int& minute, int& second, int& tenthousandth
 	IBPP::ttoi(mTime, &hour, &minute, &second, &tenthousandths);
 }
 
+int IBPP::Time::Hours() const
+{
+	int hours;
+	IBPP::ttoi(mTime, &hours, 0, 0, 0);
+	return hours;
+}
+
+int IBPP::Time::Minutes() const
+{
+	int minutes;
+	IBPP::ttoi(mTime, 0, &minutes, 0, 0);
+	return minutes;
+}
+
+int IBPP::Time::Seconds() const
+{
+	int seconds;
+	IBPP::ttoi(mTime, 0, 0, &seconds, 0);
+	return seconds;
+}
+
+int IBPP::Time::SubSeconds() const	// Actually tenthousandths of seconds
+{
+	int tenthousandths;
+	IBPP::ttoi(mTime, 0, 0, 0, &tenthousandths);
+	return tenthousandths;
+}
+
 IBPP::Time::Time(int hour, int minute, int second, int tenthousandths)
 {
 	SetTime(hour, minute, second, tenthousandths);

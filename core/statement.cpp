@@ -42,16 +42,6 @@ using namespace ibpp_internals;
 
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 
-IBPP::IDatabase* StatementImpl::Database() const
-{
-	return mDatabase;
-}
-
-IBPP::ITransaction* StatementImpl::Transaction() const
-{
-	return mTransaction;
-}
-
 void StatementImpl::Prepare(const std::string& sql)
 {
 	if (mDatabase == 0)
@@ -81,7 +71,7 @@ void StatementImpl::Prepare(const std::string& sql)
 	// Empirical estimate of parameters count and output columns count.
 	// This is by far not an exact estimation, which would require parsing the
 	// SQL statement. If the SQL statement contains '?' and ',' in string
-	// constants, this count will obviously be wrong, but it will exagerated.
+	// constants, this count will obviously be wrong, but it will be exagerated.
 	// It won't hurt. We just try to not have to re-allocate those descriptors later.
 	// So we prefer to get them a little bit larger than needed than the other way.
 	int16_t inEstimate = 0;
@@ -92,9 +82,11 @@ void StatementImpl::Prepare(const std::string& sql)
 		if (sql[i] == ',') ++outEstimate;
 	}
 
+	/*
 	DebugStream()<< "Prepare(\""<< sql<< "\")"<< fds;
 	DebugStream()<< _("Estimation: ")<< inEstimate<< _(" IN parameters and ")
 			<< outEstimate<< _(" OUT columns")<< fds;
+	*/
 
 	// Allocates output descriptor and prepares the statement
 	mOutRow = new RowImpl(mDatabase->Dialect(), outEstimate, mDatabase, mTransaction);
@@ -152,7 +144,9 @@ void StatementImpl::Prepare(const std::string& sql)
 		// Get rid of the output descriptor, if it wasn't required (no output)
 		mOutRow->Release();
 		mOutRow = 0;
+		/*
 		DebugStream()<< _("Dropped output descriptor which was not required")<< fds;
+		*/
 	}
 	else if (mOutRow->Columns() > mOutRow->AllocatedSize())
 	{
@@ -160,8 +154,10 @@ void StatementImpl::Prepare(const std::string& sql)
 		// The statement does not need to be prepared again, though the
 		// output columns must be described again.
 
+		/*
 		DebugStream()<< _("Resize output descriptor from ")
 			<< mOutRow->AllocatedSize()<< _(" to ")<< mOutRow->Columns()<< fds;
+		*/
 
 		mOutRow->Resize(mOutRow->Columns());
 		status.Reset();
@@ -194,7 +190,9 @@ void StatementImpl::Prepare(const std::string& sql)
 			// Get rid of the input descriptor, if it wasn't required (no parameters)
 			mInRow->Release();
 			mInRow = 0;
+			/*
 			DebugStream()<< _("Dropped input descriptor which was not required")<< fds;
+			*/
 		}
 		else if (mInRow->Columns() > mInRow->AllocatedSize())
 		{
@@ -202,9 +200,11 @@ void StatementImpl::Prepare(const std::string& sql)
 			// The statement does not need to be prepared again, though the
 			// parameters must be described again.
 
+			/*
 			DebugStream()<< _("Resize input descriptor from ")
 					<< mInRow->AllocatedSize()<< _(" to ")
 					<< mInRow->Columns()<< fds;
+			*/
 			
 			mInRow->Resize(mInRow->Columns());
 			status.Reset();
@@ -219,7 +219,19 @@ void StatementImpl::Prepare(const std::string& sql)
 	}
 
 	// Allocates variables of the input descriptor
-	if (mInRow != 0) mInRow->AllocVariables();
+	if (mInRow != 0)
+	{
+		if (mType == IBPP::stExecProcedure)
+		{
+			// Turn on 'can be NULL' on each parameter because FB forgets about this
+			for (int i = 0; i < mInRow->Columns(); i++)
+			{
+				XSQLVAR* var = &(mInRow->Self()->sqlvar[i]);
+				if (! (var->sqltype & 1)) var->sqltype += short(1);
+			}
+		}
+		mInRow->AllocVariables();
+	}
 
 	// Allocates variables of the output descriptor
 	if (mOutRow != 0) mOutRow->AllocVariables();
@@ -1171,6 +1183,16 @@ int StatementImpl::ParameterScale(int varnum)
 	return mInRow->ColumnScale(varnum);
 }
 
+IBPP::Database StatementImpl::DatabasePtr() const
+{
+	return mDatabase;
+}
+
+IBPP::Transaction StatementImpl::TransactionPtr() const
+{
+	return mTransaction;
+}
+
 IBPP::IStatement* StatementImpl::AddRef()
 {
 	ASSERTION(mRefCount >= 0);
@@ -1190,43 +1212,43 @@ void StatementImpl::Release()
 
 //	(((((((( OBJECT INTERNAL METHODS ))))))))
 
-void StatementImpl::AttachDatabase(DatabaseImpl* database)
+void StatementImpl::AttachDatabaseImpl(DatabaseImpl* database)
 {
 	if (database == 0)
 		throw LogicExceptionImpl("Statement::AttachDatabase",
 			_("Can't attach a 0 IDatabase object."));
 
-	if (mDatabase != 0) mDatabase->DetachStatement(this);
+	if (mDatabase != 0) mDatabase->DetachStatementImpl(this);
 	mDatabase = database;
-	mDatabase->AttachStatement(this);
+	mDatabase->AttachStatementImpl(this);
 }
 
-void StatementImpl::DetachDatabase()
+void StatementImpl::DetachDatabaseImpl()
 {
 	if (mDatabase == 0) return;
 
 	Close();
-	mDatabase->DetachStatement(this);
+	mDatabase->DetachStatementImpl(this);
 	mDatabase = 0;
 }
 
-void StatementImpl::AttachTransaction(TransactionImpl* transaction)
+void StatementImpl::AttachTransactionImpl(TransactionImpl* transaction)
 {
 	if (transaction == 0)
 		throw LogicExceptionImpl("Statement::AttachTransaction",
 			_("Can't attach a 0 ITransaction object."));
 
-	if (mTransaction != 0) mTransaction->DetachStatement(this);
+	if (mTransaction != 0) mTransaction->DetachStatementImpl(this);
 	mTransaction = transaction;
-	mTransaction->AttachStatement(this);
+	mTransaction->AttachStatementImpl(this);
 }
 
-void StatementImpl::DetachTransaction()
+void StatementImpl::DetachTransactionImpl()
 {
 	if (mTransaction == 0) return;
 
 	Close();
-	mTransaction->DetachStatement(this);
+	mTransaction->DetachStatementImpl(this);
 	mTransaction = 0;
 }
 
@@ -1252,8 +1274,8 @@ StatementImpl::StatementImpl(DatabaseImpl* database, TransactionImpl* transactio
 	mInRow(0), mOutRow(0),
 	mResultSetAvailable(false), mType(IBPP::stUnknown)
 {
-	AttachDatabase(database);
-	if (transaction != 0) AttachTransaction(transaction);
+	AttachDatabaseImpl(database);
+	if (transaction != 0) AttachTransactionImpl(transaction);
 	if (! sql.empty()) Prepare(sql);
 }
 
@@ -1261,9 +1283,9 @@ StatementImpl::~StatementImpl()
 {
 	try { Close(); }
 		catch (...) { }
-	try { if (mTransaction != 0) mTransaction->DetachStatement(this); }
+	try { if (mTransaction != 0) mTransaction->DetachStatementImpl(this); }
 		catch (...) { }
-	try { if (mDatabase != 0) mDatabase->DetachStatement(this); }
+	try { if (mDatabase != 0) mDatabase->DetachStatementImpl(this); }
 		catch (...) { }
 }
 

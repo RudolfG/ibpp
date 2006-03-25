@@ -45,16 +45,6 @@ using namespace ibpp_internals;
 
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 
-IBPP::IDatabase* RowImpl::Database() const
-{
-	return mDatabase;
-}
-
-IBPP::ITransaction* RowImpl::Transaction() const
-{
-	return mTransaction;
-}
-
 void RowImpl::SetNull(int param)
 {
 	if (mDescrArea == 0)
@@ -202,10 +192,10 @@ void RowImpl::Set(int param, const IBPP::Blob& blob)
 {
 	if (mDescrArea == 0)
 		throw LogicExceptionImpl("Row::Set[Blob]", _("The row is not initialized."));
-	if (mDatabase != 0 && dynamic_cast<DatabaseImpl*>(blob->Database()) != mDatabase)
+	if (mDatabase != 0 && dynamic_cast<DatabaseImpl*>(blob->DatabasePtr().intf()) != mDatabase)
 		throw LogicExceptionImpl("Row::Set[Blob]",
 			_("IBlob and Row attached to different databases"));
-	if (mTransaction != 0 && dynamic_cast<TransactionImpl*>(blob->Transaction()) != mTransaction)
+	if (mTransaction != 0 && dynamic_cast<TransactionImpl*>(blob->TransactionPtr().intf()) != mTransaction)
 		throw LogicExceptionImpl("Row::Set[Blob]",
 			_("IBlob and Row attached to different transactions"));
 
@@ -217,10 +207,10 @@ void RowImpl::Set(int param, const IBPP::Array& array)
 {
 	if (mDescrArea == 0)
 		throw LogicExceptionImpl("Row::Set[Array]", _("The row is not initialized."));
-	if (mDatabase != 0 && dynamic_cast<DatabaseImpl*>(array->Database()) != mDatabase)
+	if (mDatabase != 0 && dynamic_cast<DatabaseImpl*>(array->DatabasePtr().intf()) != mDatabase)
 		throw LogicExceptionImpl("Row::Set[Array]",
 			_("IArray and Row attached to different databases"));
-	if (mTransaction != 0 && dynamic_cast<TransactionImpl*>(array->Transaction()) != mTransaction)
+	if (mTransaction != 0 && dynamic_cast<TransactionImpl*>(array->TransactionPtr().intf()) != mTransaction)
 		throw LogicExceptionImpl("Row::Set[Array]",
 			_("IArray and Row attached to different transactions"));
 
@@ -778,11 +768,14 @@ bool RowImpl::Updated()
 	return false;
 }
 
-IBPP::IRow* RowImpl::AddRef()
+IBPP::Database RowImpl::DatabasePtr() const
 {
-	ASSERTION(mRefCount >= 0);
-	++mRefCount;
-	return this;
+	return mDatabase;
+}
+
+IBPP::Transaction RowImpl::TransactionPtr() const
+{
+	return mTransaction;
 }
 
 IBPP::IRow* RowImpl::Clone()
@@ -793,7 +786,12 @@ IBPP::IRow* RowImpl::Clone()
 	return clone;
 }
 
-//	(((((((( OBJECT INTERNAL METHODS ))))))))
+IBPP::IRow* RowImpl::AddRef()
+{
+	ASSERTION(mRefCount >= 0);
+	++mRefCount;
+	return this;
+}
 
 void RowImpl::Release()
 {
@@ -803,6 +801,8 @@ void RowImpl::Release()
 	try { if (mRefCount <= 0) delete this; }
 		catch (...) { }
 }
+
+//	(((((((( OBJECT INTERNAL METHODS ))))))))
 
 void RowImpl::SetValue(int varnum, IITYPE ivType, const void* value, int userlen)
 {

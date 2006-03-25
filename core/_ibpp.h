@@ -129,207 +129,207 @@ typedef enum {ivArray, ivBlob, ivDate, ivTime, ivTimestamp, ivString,
 //	and 'typedef' preprended...
 //
 
-typedef ISC_STATUS ISC_EXPORT proto_create_database (ISC_STATUS *, 
-					    short, 
-					    char *, 
-					    isc_db_handle *, 
-					    short, 
-					    char *, 
+typedef ISC_STATUS ISC_EXPORT proto_create_database (ISC_STATUS *,
+					    short,
+					    char *,
+					    isc_db_handle *,
+					    short,
+					    char *,
 					    short);
 
-typedef ISC_STATUS ISC_EXPORT proto_attach_database (ISC_STATUS *, 
-					    short, 
-					    char *, 
-					    isc_db_handle *, 
-					    short, 
+typedef ISC_STATUS ISC_EXPORT proto_attach_database (ISC_STATUS *,
+					    short,
+					    char *,
+					    isc_db_handle *,
+					    short,
 					    char *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_detach_database (ISC_STATUS *,  
+typedef ISC_STATUS  ISC_EXPORT proto_detach_database (ISC_STATUS *,
 					    isc_db_handle *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_drop_database (ISC_STATUS *,  
+typedef ISC_STATUS  ISC_EXPORT proto_drop_database (ISC_STATUS *,
 					  isc_db_handle *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_database_info (ISC_STATUS *, 
-					  isc_db_handle *, 
-					  short, 
-					  char *, 
-					  short, 
+typedef ISC_STATUS  ISC_EXPORT proto_database_info (ISC_STATUS *,
+					  isc_db_handle *,
+					  short,
+					  char *,
+					  short,
 					  char *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_dsql_execute_immediate (ISC_STATUS *, 
-						   isc_db_handle *, 
-						   isc_tr_handle *, 
-						   unsigned short, 
-						   char *, 
-						   unsigned short, 
+typedef ISC_STATUS  ISC_EXPORT proto_dsql_execute_immediate (ISC_STATUS *,
+						   isc_db_handle *,
+						   isc_tr_handle *,
+						   unsigned short,
+						   char *,
+						   unsigned short,
 						   XSQLDA *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_open_blob2 (ISC_STATUS *, 
-				       isc_db_handle *, 
+typedef ISC_STATUS  ISC_EXPORT proto_open_blob2 (ISC_STATUS *,
+				       isc_db_handle *,
 				       isc_tr_handle *,
-				       isc_blob_handle *, 
-				       ISC_QUAD *, 
-				       short,  
+				       isc_blob_handle *,
+				       ISC_QUAD *,
+				       short,
 				       char *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_create_blob2 (ISC_STATUS *, 
-					isc_db_handle *, 
-					isc_tr_handle *, 
-					isc_blob_handle *, 
+typedef ISC_STATUS  ISC_EXPORT proto_create_blob2 (ISC_STATUS *,
+					isc_db_handle *,
+					isc_tr_handle *,
+					isc_blob_handle *,
 					ISC_QUAD *,
 					short,
 					char *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_close_blob (ISC_STATUS *, 
+typedef ISC_STATUS  ISC_EXPORT proto_close_blob (ISC_STATUS *,
 				       isc_blob_handle *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_cancel_blob (ISC_STATUS *, 
+typedef ISC_STATUS  ISC_EXPORT proto_cancel_blob (ISC_STATUS *,
 				        isc_blob_handle *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_get_segment (ISC_STATUS *, 
-				        isc_blob_handle *, 
-				        unsigned short *, 
-				        unsigned short, 
+typedef ISC_STATUS  ISC_EXPORT proto_get_segment (ISC_STATUS *,
+				        isc_blob_handle *,
+				        unsigned short *,
+				        unsigned short,
 				        char *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_put_segment (ISC_STATUS *, 
-					isc_blob_handle *, 
-					unsigned short, 
+typedef ISC_STATUS  ISC_EXPORT proto_put_segment (ISC_STATUS *,
+					isc_blob_handle *,
+					unsigned short,
 					char *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_blob_info (ISC_STATUS *, 
-				      isc_blob_handle *, 
+typedef ISC_STATUS  ISC_EXPORT proto_blob_info (ISC_STATUS *,
+				      isc_blob_handle *,
 				      short,
- 				      char *, 
-				      short, 
+ 				      char *,
+				      short,
 				      char *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_array_lookup_bounds (ISC_STATUS *, 
-						isc_db_handle *, 
-						isc_tr_handle *, 
+typedef ISC_STATUS  ISC_EXPORT proto_array_lookup_bounds (ISC_STATUS *,
+						isc_db_handle *,
+						isc_tr_handle *,
 						char *,
-						char *, 
+						char *,
 						ISC_ARRAY_DESC *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_array_get_slice (ISC_STATUS *, 
-					    isc_db_handle *, 
-					    isc_tr_handle *, 
-					    ISC_QUAD *, 
-					    ISC_ARRAY_DESC *, 
-					    void *, 
+typedef ISC_STATUS  ISC_EXPORT proto_array_get_slice (ISC_STATUS *,
+					    isc_db_handle *,
+					    isc_tr_handle *,
+					    ISC_QUAD *,
+					    ISC_ARRAY_DESC *,
+					    void *,
 					    ISC_LONG *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_array_put_slice (ISC_STATUS *, 
-					    isc_db_handle *, 
-					    isc_tr_handle *, 
-					    ISC_QUAD *, 
-					    ISC_ARRAY_DESC *, 
-					    void *, 
+typedef ISC_STATUS  ISC_EXPORT proto_array_put_slice (ISC_STATUS *,
+					    isc_db_handle *,
+					    isc_tr_handle *,
+					    ISC_QUAD *,
+					    ISC_ARRAY_DESC *,
+					    void *,
 					    ISC_LONG *);
 
-typedef ISC_LONG    ISC_EXPORT proto_vax_integer (char *, 
+typedef ISC_LONG    ISC_EXPORT proto_vax_integer (char *,
 					short);
 
 typedef ISC_LONG    ISC_EXPORT proto_sqlcode (ISC_STATUS *);
 
-typedef void        ISC_EXPORT proto_sql_interprete (short, 
-					   char *, 
+typedef void        ISC_EXPORT proto_sql_interprete (short,
+					   char *,
 					   short);
 
-typedef ISC_STATUS  ISC_EXPORT proto_interprete (char *, 
+typedef ISC_STATUS  ISC_EXPORT proto_interprete (char *,
 				       ISC_STATUS * *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_que_events (ISC_STATUS *, 
-				       isc_db_handle *, 
-				       ISC_LONG *, 
-				       short, 
-				       char *, 
-				       isc_callback, 
+typedef ISC_STATUS  ISC_EXPORT proto_que_events (ISC_STATUS *,
+				       isc_db_handle *,
+				       ISC_LONG *,
+				       short,
+				       char *,
+				       isc_callback,
 				       void *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_cancel_events (ISC_STATUS *, 
-					  isc_db_handle *, 
+typedef ISC_STATUS  ISC_EXPORT proto_cancel_events (ISC_STATUS *,
+					  isc_db_handle *,
 					  ISC_LONG *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_start_multiple (ISC_STATUS *, 
-					   isc_tr_handle *, 
-					   short, 
+typedef ISC_STATUS  ISC_EXPORT proto_start_multiple (ISC_STATUS *,
+					   isc_tr_handle *,
+					   short,
 					   void *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_commit_transaction (ISC_STATUS *, 
+typedef ISC_STATUS  ISC_EXPORT proto_commit_transaction (ISC_STATUS *,
 					       isc_tr_handle *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_commit_retaining (ISC_STATUS *, 
+typedef ISC_STATUS  ISC_EXPORT proto_commit_retaining (ISC_STATUS *,
 					     isc_tr_handle *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_rollback_transaction (ISC_STATUS *, 
+typedef ISC_STATUS  ISC_EXPORT proto_rollback_transaction (ISC_STATUS *,
 						 isc_tr_handle *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_rollback_retaining (ISC_STATUS *, 
+typedef ISC_STATUS  ISC_EXPORT proto_rollback_retaining (ISC_STATUS *,
 						 isc_tr_handle *);
 
 ///////////
-typedef ISC_STATUS  ISC_EXPORT proto_dsql_allocate_statement (ISC_STATUS *, 
-						    isc_db_handle *, 
+typedef ISC_STATUS  ISC_EXPORT proto_dsql_allocate_statement (ISC_STATUS *,
+						    isc_db_handle *,
 						    isc_stmt_handle *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_dsql_describe (ISC_STATUS *, 
-					  isc_stmt_handle *, 
-					  unsigned short, 
+typedef ISC_STATUS  ISC_EXPORT proto_dsql_describe (ISC_STATUS *,
+					  isc_stmt_handle *,
+					  unsigned short,
 					  XSQLDA *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_dsql_describe_bind (ISC_STATUS *, 
-					       isc_stmt_handle *, 
-					       unsigned short, 
+typedef ISC_STATUS  ISC_EXPORT proto_dsql_describe_bind (ISC_STATUS *,
+					       isc_stmt_handle *,
+					       unsigned short,
 					       XSQLDA *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_dsql_execute (ISC_STATUS *, 
+typedef ISC_STATUS  ISC_EXPORT proto_dsql_execute (ISC_STATUS *,
 					 isc_tr_handle *,
-					 isc_stmt_handle *, 
-					 unsigned short, 
+					 isc_stmt_handle *,
+					 unsigned short,
 					 XSQLDA *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_dsql_execute2 (ISC_STATUS *, 
+typedef ISC_STATUS  ISC_EXPORT proto_dsql_execute2 (ISC_STATUS *,
 					  isc_tr_handle *,
-					  isc_stmt_handle *, 
-					  unsigned short, 
+					  isc_stmt_handle *,
+					  unsigned short,
 					  XSQLDA *,
 					  XSQLDA *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_dsql_fetch (ISC_STATUS *, 
-				       isc_stmt_handle *, 
-				       unsigned short, 
+typedef ISC_STATUS  ISC_EXPORT proto_dsql_fetch (ISC_STATUS *,
+				       isc_stmt_handle *,
+				       unsigned short,
 				       XSQLDA *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_dsql_free_statement (ISC_STATUS *, 
-						isc_stmt_handle *, 
+typedef ISC_STATUS  ISC_EXPORT proto_dsql_free_statement (ISC_STATUS *,
+						isc_stmt_handle *,
 						unsigned short);
 
-typedef ISC_STATUS  ISC_EXPORT proto_dsql_prepare (ISC_STATUS *, 
-					 isc_tr_handle *, 
-					 isc_stmt_handle *, 
-					 unsigned short, 
-					 char *, 
-					 unsigned short, 
+typedef ISC_STATUS  ISC_EXPORT proto_dsql_prepare (ISC_STATUS *,
+					 isc_tr_handle *,
+					 isc_stmt_handle *,
+					 unsigned short,
+					 char *,
+					 unsigned short,
 				 	 XSQLDA *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_dsql_set_cursor_name (ISC_STATUS *, 
-						 isc_stmt_handle *, 
-						 char *, 
+typedef ISC_STATUS  ISC_EXPORT proto_dsql_set_cursor_name (ISC_STATUS *,
+						 isc_stmt_handle *,
+						 char *,
 						 unsigned short);
 
-typedef ISC_STATUS  ISC_EXPORT proto_dsql_sql_info (ISC_STATUS *, 
-					  isc_stmt_handle *, 
-					  short, 
-					  char *, 
-					  short, 
+typedef ISC_STATUS  ISC_EXPORT proto_dsql_sql_info (ISC_STATUS *,
+					  isc_stmt_handle *,
+					  short,
+					  char *,
+					  short,
 					  char *);
 
-typedef void        ISC_EXPORT proto_decode_date (ISC_QUAD *, 
+typedef void        ISC_EXPORT proto_decode_date (ISC_QUAD *,
 					void *);
 
-typedef void        ISC_EXPORT proto_encode_date (void *, 
+typedef void        ISC_EXPORT proto_encode_date (void *,
 					ISC_QUAD *);
 
 typedef int			ISC_EXPORT proto_add_user (ISC_STATUS *, USER_SEC_DATA *);
@@ -340,24 +340,24 @@ typedef int			ISC_EXPORT proto_modify_user (ISC_STATUS *, USER_SEC_DATA *);
 //	Those API are only available in versions 6.x of the GDS32.DLL
 //
 
-typedef ISC_STATUS  ISC_EXPORT proto_service_attach (ISC_STATUS *, 
-					   unsigned short, 
+typedef ISC_STATUS  ISC_EXPORT proto_service_attach (ISC_STATUS *,
+					   unsigned short,
 					   char *,
-					   isc_svc_handle *, 
-					   unsigned short, 
+					   isc_svc_handle *,
+					   unsigned short,
 					   char *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_service_detach (ISC_STATUS *, 
+typedef ISC_STATUS  ISC_EXPORT proto_service_detach (ISC_STATUS *,
 					   isc_svc_handle *);
 
-typedef ISC_STATUS  ISC_EXPORT proto_service_query (ISC_STATUS *, 
+typedef ISC_STATUS  ISC_EXPORT proto_service_query (ISC_STATUS *,
 					  isc_svc_handle *,
                       		          isc_resv_handle *,
-					  unsigned short, 
-					  char *, 
-					  unsigned short, 
-					  char *, 
-					  unsigned short, 
+					  unsigned short,
+					  char *,
+					  unsigned short,
+					  char *,
+					  unsigned short,
 					  char *);
 
 typedef ISC_STATUS ISC_EXPORT proto_service_start (ISC_STATUS *,
@@ -366,22 +366,22 @@ typedef ISC_STATUS ISC_EXPORT proto_service_start (ISC_STATUS *,
     					 unsigned short,
     					 char*);
 
-typedef void        ISC_EXPORT proto_decode_sql_date (ISC_DATE *, 
+typedef void        ISC_EXPORT proto_decode_sql_date (ISC_DATE *,
 					void *);
 
-typedef void        ISC_EXPORT proto_decode_sql_time (ISC_TIME *, 
+typedef void        ISC_EXPORT proto_decode_sql_time (ISC_TIME *,
 					void *);
 
-typedef void        ISC_EXPORT proto_decode_timestamp (ISC_TIMESTAMP *, 
+typedef void        ISC_EXPORT proto_decode_timestamp (ISC_TIMESTAMP *,
 					void *);
 
-typedef void        ISC_EXPORT proto_encode_sql_date (void *, 
+typedef void        ISC_EXPORT proto_encode_sql_date (void *,
 					ISC_DATE *);
 
-typedef void        ISC_EXPORT proto_encode_sql_time (void *, 
+typedef void        ISC_EXPORT proto_encode_sql_time (void *,
 					ISC_TIME *);
 
-typedef void        ISC_EXPORT proto_encode_timestamp (void *, 
+typedef void        ISC_EXPORT proto_encode_timestamp (void *,
 					ISC_TIMESTAMP *);
 
 //
@@ -397,7 +397,7 @@ struct GDS
 #ifdef IBPP_WINDOWS
 	HMODULE mHandle;			// The GDS32.DLL HMODULE
 	std::string mSearchPaths;	// Optional additional search paths
-#endif	
+#endif
 
 	GDS* Call();
 
@@ -464,7 +464,7 @@ struct GDS
 		mGDSVersion = 0;
 #ifdef IBPP_WINDOWS
 		mHandle = 0;
-#endif		
+#endif
 	};
 };
 
@@ -508,10 +508,10 @@ class DPB
 	char* mBuffer;				// Dynamically allocated DPB structure
 	int mSize;  				// Its used size in bytes
 	int mAlloc;					// Its allocated size in bytes
-	
+
 	void Grow(int needed);		// Allocate or grow the mBuffer, so that
 								// 'needed' bytes can be written (at least)
-	
+
 public:
 	void Insert(char, const char*);	// Insert a new char* 'cluster'
 	void Insert(char, int16_t);		// Insert a new int16_t 'cluster'
@@ -870,7 +870,7 @@ public:
 
 	const char* WaitMsg();
 	void Wait();
-	
+
 	IBPP::IService* AddRef();
 	void Release();
 };
@@ -911,14 +911,14 @@ public:
 	isc_db_handle* GetHandlePtr() { return &mHandle; }
 	isc_db_handle GetHandle() { return mHandle; }
 
-	void AttachTransaction(TransactionImpl*);
-	void DetachTransaction(TransactionImpl*);
-	void AttachStatement(StatementImpl*);
-	void DetachStatement(StatementImpl*);
-	void AttachBlob(BlobImpl*);
-	void DetachBlob(BlobImpl*);
-	void AttachArray(ArrayImpl*);
-	void DetachArray(ArrayImpl*);
+	void AttachTransactionImpl(TransactionImpl*);
+	void DetachTransactionImpl(TransactionImpl*);
+	void AttachStatementImpl(StatementImpl*);
+	void DetachStatementImpl(StatementImpl*);
+	void AttachBlobImpl(BlobImpl*);
+	void DetachBlobImpl(BlobImpl*);
+	void AttachArrayImpl(ArrayImpl*);
+	void DetachArrayImpl(ArrayImpl*);
 
 	DatabaseImpl(const std::string& ServerName, const std::string& DatabaseName,
 				const std::string& UserName, const std::string& UserPassword,
@@ -941,7 +941,7 @@ public:
 		int* PageSize, int* Pages, int* Buffers, int* Sweep,
 		bool* SyncWrites, bool* Reserve);
 	void Statistics(int* Fetches, int* Marks, int* Reads, int* Writes);
-	void Counts(int* Insert, int* Update, int* Delete, 
+	void Counts(int* Insert, int* Update, int* Delete,
 		int* ReadIdx, int* ReadSeq);
 	void Users(std::vector<std::string>& users);
 	int Dialect() { return mDialect; }
@@ -981,12 +981,17 @@ private:
 public:
 	isc_tr_handle* GetHandlePtr() { return &mHandle; }
 	isc_tr_handle GetHandle() { return mHandle; }
-	void AttachStatement(StatementImpl*);
-	void DetachStatement(StatementImpl*);
-	void AttachBlob(BlobImpl*);
-	void DetachBlob(BlobImpl*);
-	void AttachArray(ArrayImpl*);
-	void DetachArray(ArrayImpl*);
+
+	void AttachStatementImpl(StatementImpl*);
+	void DetachStatementImpl(StatementImpl*);
+	void AttachBlobImpl(BlobImpl*);
+	void DetachBlobImpl(BlobImpl*);
+	void AttachArrayImpl(ArrayImpl*);
+	void DetachArrayImpl(ArrayImpl*);
+    void AttachDatabaseImpl(DatabaseImpl* dbi, IBPP::TAM am = IBPP::amWrite,
+			IBPP::TIL il = IBPP::ilConcurrency,
+			IBPP::TLR lr = IBPP::lrWait, IBPP::TFF flags = IBPP::TFF(0));
+    void DetachDatabaseImpl(DatabaseImpl* dbi);
 
 	TransactionImpl(DatabaseImpl* db, IBPP::TAM am = IBPP::amWrite,
 		IBPP::TIL il = IBPP::ilConcurrency,
@@ -996,11 +1001,11 @@ public:
 	//	(((((((( OBJECT INTERFACE ))))))))
 
 public:
-    void AttachDatabase(IBPP::IDatabase* db, IBPP::TAM am = IBPP::amWrite,
-			IBPP::TIL il = IBPP::ilConcurrency,	
+    void AttachDatabase(IBPP::Database& db, IBPP::TAM am = IBPP::amWrite,
+			IBPP::TIL il = IBPP::ilConcurrency,
 			IBPP::TLR lr = IBPP::lrWait, IBPP::TFF flags = IBPP::TFF(0));
-    void DetachDatabase(IBPP::IDatabase* db);
-	void AddReservation(IBPP::IDatabase* db,
+    void DetachDatabase(IBPP::Database& db);
+	void AddReservation(IBPP::Database& db,
 			const std::string& table, IBPP::TTR tr);
 
     void Start();
@@ -1054,9 +1059,6 @@ public:
 	//	(((((((( OBJECT INTERFACE ))))))))
 
 public:
-	IBPP::IDatabase* Database() const;
-	IBPP::ITransaction* Transaction() const;
-
 	void SetNull(int);
 	void Set(int, bool);
 	void Set(int, const char*);				// c-strings
@@ -1121,6 +1123,9 @@ public:
 	bool ColumnUpdated(int);
 	bool Updated();
 
+	IBPP::Database DatabasePtr() const;
+	IBPP::Transaction TransactionPtr() const;
+
 	IBPP::IRow* Clone();
 	IBPP::IRow* AddRef();
 	void Release();
@@ -1152,10 +1157,10 @@ public:
 	// Properties and Attributes Access Methods
 	isc_stmt_handle GetHandle() { return mHandle; }
 
-	void AttachDatabase(DatabaseImpl*);
-	void DetachDatabase();
-	void AttachTransaction(TransactionImpl*);
-	void DetachTransaction();
+	void AttachDatabaseImpl(DatabaseImpl*);
+	void DetachDatabaseImpl();
+	void AttachTransactionImpl(TransactionImpl*);
+	void DetachTransactionImpl();
 
 	StatementImpl(DatabaseImpl*, TransactionImpl*, const std::string&);
     ~StatementImpl();
@@ -1163,8 +1168,6 @@ public:
 	//	(((((((( OBJECT INTERFACE ))))))))
 
 public:
-	IBPP::IDatabase* Database() const;
-	IBPP::ITransaction* Transaction() const;
 	void Prepare(const std::string& sql);
 	void Execute(const std::string& sql);
 	inline void Execute()	{ Execute(std::string()); }
@@ -1259,7 +1262,10 @@ public:
 	int Parameters();
 
 	void Plan(std::string&);
-	
+
+	IBPP::Database DatabasePtr() const;
+	IBPP::Transaction TransactionPtr() const;
+
 	IBPP::IStatement* AddRef();
 	void Release();
 };
@@ -1284,6 +1290,11 @@ private:
 	void GetId(ISC_QUAD*);
 
 public:
+	void AttachDatabaseImpl(DatabaseImpl*);
+	void DetachDatabaseImpl();
+	void AttachTransactionImpl(TransactionImpl*);
+	void DetachTransactionImpl();
+
 	BlobImpl(const BlobImpl&);
 	BlobImpl(DatabaseImpl*, TransactionImpl* = 0);
 	~BlobImpl();
@@ -1291,12 +1302,6 @@ public:
 	//	(((((((( OBJECT INTERFACE ))))))))
 
 public:
-	void AttachDatabase(IBPP::IDatabase*);
-	IBPP::IDatabase* Database() const;
-	void DetachDatabase();
-	void AttachTransaction(IBPP::ITransaction*);
-	IBPP::ITransaction* Transaction() const;
-	void DetachTransaction();
 	void Create();
 	void Open();
 	void Close();
@@ -1307,6 +1312,9 @@ public:
 
 	void Save(const std::string& data);
 	void Load(std::string& data);
+
+	IBPP::Database DatabasePtr() const;
+	IBPP::Transaction TransactionPtr() const;
 
 	IBPP::IBlob* AddRef();
 	void Release();
@@ -1338,6 +1346,11 @@ private:
 	void AllocArrayBuffer();
 
 public:
+	void AttachDatabaseImpl(DatabaseImpl*);
+	void DetachDatabaseImpl();
+	void AttachTransactionImpl(TransactionImpl*);
+	void DetachTransactionImpl();
+
 	ArrayImpl(const ArrayImpl&);
 	ArrayImpl(DatabaseImpl*, TransactionImpl* = 0);
 	~ArrayImpl();
@@ -1345,12 +1358,6 @@ public:
 	//	(((((((( OBJECT INTERFACE ))))))))
 
 public:
-	void AttachDatabase(IBPP::IDatabase*);
-	IBPP::IDatabase* Database() const;
-	void DetachDatabase();
-	void AttachTransaction(IBPP::ITransaction*);
-	IBPP::ITransaction* Transaction() const;
-	void DetachTransaction();
 	void Describe(const std::string& table, const std::string& column);
 	void ReadTo(IBPP::ADT, void*, int);
 	void WriteFrom(IBPP::ADT, const void*, int);
@@ -1360,6 +1367,9 @@ public:
 	int Dimensions();
 	void Bounds(int dim, int* low, int* high);
 	void SetBounds(int dim, int low, int high);
+
+	IBPP::Database DatabasePtr() const;
+	IBPP::Transaction TransactionPtr() const;
 
 	IBPP::IArray* AddRef();
 	void Release();

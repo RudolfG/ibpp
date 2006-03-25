@@ -24,6 +24,21 @@ Contributor(s):
 The most recent addition to this file is always on top and has the highest
 item number.
 
+12. March 25, 2006
+
+- Added some comfort methods to Date and Time (Year(), Month(), Day(), Hours(),
+Minutes(), Seconds(), SubSeconds())
+
+- All remaining methods which might have helped get a naked pointer (except
+Ptr<>::intf()) have been replaced by new prototypes returning managed pointers.
+Consequently, any overload taking a naked pointer has been superceded by
+versions only taking managed pointers.
+
+- The Factories themselves have been updated to return managed pointers.
+
+- Work around a limitation of FB/IB C-API where stored proc parameters cannot
+be made passed NULL.
+
 11. March 17, 2006
 
 - Now, NUMERIC/DECIMAL (scaled columns) can be exchanged with integer data
@@ -79,7 +94,7 @@ been enhanced to give the two conflicting types (the SQL column type and the var
 
 3. March 2, 2006
 
-Changed AddUser/ModifyUser/ListUsers (not backward compatible but easy to
+Changed AddUser/GetUser/ModifyUser/ListUsers (not backward compatible but easy to
 upgrade) to use the new IBPP::User helper class.
 
 
