@@ -252,18 +252,6 @@ GDS* GDS::Call()
 		IB_ENTRYPOINT(service_start);
 		IB_ENTRYPOINT(service_query);
 
-		//IB_ENTRYPOINT(add_user);
-		//IB_ENTRYPOINT(modify_user);
-		//IB_ENTRYPOINT(delete_user);
-		//IB_ENTRYPOINT(decode_date);
-		//IB_ENTRYPOINT(encode_date);
-		//IB_ENTRYPOINT(decode_sql_date);
-		//IB_ENTRYPOINT(decode_sql_time);
-		//IB_ENTRYPOINT(decode_timestamp);
-		//IB_ENTRYPOINT(encode_sql_date);
-		//IB_ENTRYPOINT(encode_sql_time);
-		//IB_ENTRYPOINT(encode_timestamp);
-
 		mReady = true;
 	}
 
@@ -312,40 +300,38 @@ namespace IBPP
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
 		return new DatabaseImpl(ServerName, DatabaseName, UserName,
-					UserPassword, RoleName, CharSet, CreateParams);
+								UserPassword, RoleName, CharSet, CreateParams);
 	}
 
 	Transaction TransactionFactory(Database& db, TAM am,
 					TIL il, TLR lr, TFF flags)
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
-		DatabaseImpl* dbimpl = dynamic_cast<DatabaseImpl*>(db.intf());
-		return new TransactionImpl(dbimpl, am, il, lr, flags);
+		return new TransactionImpl(	dynamic_cast<DatabaseImpl*>(db.intf()),
+									am, il, lr, flags);
 	}
 
 	Statement StatementFactory(Database& db, Transaction& tr,
 		const std::string& sql)
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
-		DatabaseImpl* dbimpl = dynamic_cast<DatabaseImpl*>(db.intf());
-		TransactionImpl* trimpl = dynamic_cast<TransactionImpl*>(tr.intf());
-		return new StatementImpl(dbimpl, trimpl, sql);
+		return new StatementImpl(	dynamic_cast<DatabaseImpl*>(db.intf()),
+									dynamic_cast<TransactionImpl*>(tr.intf()),
+									sql);
 	}
 
 	Blob BlobFactory(Database& db, Transaction& tr)
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
-		DatabaseImpl* dbimpl = dynamic_cast<DatabaseImpl*>(db.intf());
-		TransactionImpl* trimpl = dynamic_cast<TransactionImpl*>(tr.intf());
-		return new BlobImpl(dbimpl, trimpl);
+		return new BlobImpl(dynamic_cast<DatabaseImpl*>(db.intf()),
+							dynamic_cast<TransactionImpl*>(tr.intf()));
 	}
 
 	Array ArrayFactory(Database& db, Transaction& tr)
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
-		DatabaseImpl* dbimpl = dynamic_cast<DatabaseImpl*>(db.intf());
-		TransactionImpl* trimpl = dynamic_cast<TransactionImpl*>(tr.intf());
-		return new ArrayImpl(dbimpl, trimpl);
+		return new ArrayImpl(dynamic_cast<DatabaseImpl*>(db.intf()),
+							dynamic_cast<TransactionImpl*>(tr.intf()));
 	}
 
 }

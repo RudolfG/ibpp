@@ -192,10 +192,10 @@ void RowImpl::Set(int param, const IBPP::Blob& blob)
 {
 	if (mDescrArea == 0)
 		throw LogicExceptionImpl("Row::Set[Blob]", _("The row is not initialized."));
-	if (mDatabase != 0 && dynamic_cast<DatabaseImpl*>(blob->DatabasePtr().intf()) != mDatabase)
+	if (mDatabase != 0 && blob->DatabasePtr() != mDatabase)
 		throw LogicExceptionImpl("Row::Set[Blob]",
 			_("IBlob and Row attached to different databases"));
-	if (mTransaction != 0 && dynamic_cast<TransactionImpl*>(blob->TransactionPtr().intf()) != mTransaction)
+	if (mTransaction != 0 && blob->TransactionPtr() != mTransaction)
 		throw LogicExceptionImpl("Row::Set[Blob]",
 			_("IBlob and Row attached to different transactions"));
 
@@ -207,10 +207,10 @@ void RowImpl::Set(int param, const IBPP::Array& array)
 {
 	if (mDescrArea == 0)
 		throw LogicExceptionImpl("Row::Set[Array]", _("The row is not initialized."));
-	if (mDatabase != 0 && dynamic_cast<DatabaseImpl*>(array->DatabasePtr().intf()) != mDatabase)
+	if (mDatabase != 0 && array->DatabasePtr() != mDatabase)
 		throw LogicExceptionImpl("Row::Set[Array]",
 			_("IArray and Row attached to different databases"));
-	if (mTransaction != 0 && dynamic_cast<TransactionImpl*>(array->TransactionPtr().intf()) != mTransaction)
+	if (mTransaction != 0 && array->TransactionPtr() != mTransaction)
 		throw LogicExceptionImpl("Row::Set[Array]",
 			_("IArray and Row attached to different transactions"));
 
