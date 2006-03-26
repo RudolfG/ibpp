@@ -49,24 +49,18 @@ void TransactionImpl::AttachDatabase(IBPP::Database& db,
 {
 	if (db.intf() == 0)
 		throw LogicExceptionImpl("Transaction::AttachDatabase",
-				_("Can't attach a null Database."));
+				_("Can't attach an unbound Database."));
 
-	DatabaseImpl* dbi = dynamic_cast<DatabaseImpl*>(db.intf());
-	AttachDatabaseImpl(dbi, am, il, lr, flags);
+	AttachDatabaseImpl(dynamic_cast<DatabaseImpl*>(db.intf()), am, il, lr, flags);
 }
 
 void TransactionImpl::DetachDatabase(IBPP::Database& db)
 {
 	if (db.intf() == 0)
 		throw LogicExceptionImpl("Transaction::DetachDatabase",
-				_("Can't detach a null Database."));
+				_("Can't detach an unbound Database."));
 
-	DatabaseImpl* dbi = dynamic_cast<DatabaseImpl*>(db.intf());
-	if (dbi == 0)
-		throw LogicExceptionImpl("Transaction::DetachDatabase",
-				_("Illegal parameter (database)"));
-
-	DetachDatabaseImpl(dbi);
+	DetachDatabaseImpl(dynamic_cast<DatabaseImpl*>(db.intf()));
 }
 
 void TransactionImpl::AddReservation(IBPP::Database& db,
@@ -77,7 +71,7 @@ void TransactionImpl::AddReservation(IBPP::Database& db,
 				_("Can't add table reservation if Transaction started."));
 	if (db.intf() == 0)
 		throw LogicExceptionImpl("Transaction::AddReservation",
-				_("Null IDatabase pointer detected."));
+				_("Can't add table reservation on an unbound Database."));
 
 	// Find the TPB associated with this database
 	std::vector<DatabaseImpl*>::iterator pos =

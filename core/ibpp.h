@@ -94,7 +94,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (1<<8) + 52; // Version == 2.5.1.52
+	const uint32_t Version = (2<<24) + (5<<16) + (1<<8) + 53; // Version == 2.5.1.53
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
@@ -395,8 +395,15 @@ namespace IBPP
 		{
 			if (mObject != 0) { mObject->Release(); mObject = 0; }
 		}
-		T* intf() const			{ return mObject; }
-		T* operator->() const	{ return mObject; }
+
+		T* intf() const						{ return mObject; }
+		T* operator->() const				{ return mObject; }
+
+		bool operator==(const T* p) const	{ return mObject == p; }
+		bool operator==(const Ptr& r) const	{ return mObject == r.mObject; }
+		bool operator!=(const T* p) const	{ return mObject != p; }
+		bool operator!=(const Ptr& r) const	{ return mObject != r.mObject; }
+
 		Ptr& operator=(T* p)
 		{
 			// AddRef _before_ Release gives correct behaviour on self-assigns
@@ -404,6 +411,7 @@ namespace IBPP
 			if (mObject != 0) mObject->Release();
 			mObject = tmp; return *this;
 		}
+
 		Ptr& operator=(const Ptr& r)
 		{
 			// AddRef _before_ Release gives correct behaviour on self-assigns
@@ -411,6 +419,7 @@ namespace IBPP
 			if (mObject != 0) mObject->Release();
 			mObject = tmp; return *this;
 		}
+
 		Ptr(T* p) : mObject(p == 0 ? 0 : p->AddRef()) { }
 		Ptr(const Ptr& r) : mObject(r.intf() == 0 ? 0 : r->AddRef()) {  }
 
