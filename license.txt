@@ -1,186 +1,21 @@
--------------------------------------------------------------------------------
-   IBPP LICENSE, Version 1.0   >>> STARTS HERE <<<
--------------------------------------------------------------------------------
+(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 
-0. Definitions
+Permission is hereby granted, free of charge, to any person or organization
+("You") obtaining a copy of this software and associated documentation files
+covered by this license (the "Software") to use the Software as part of another
+work; to modify it for that purpose; to publish or distribute it, modified or
+not, for that same purpose; to permit persons to whom the other work using the
+Software is furnished to do so; subject to the following conditions: the above
+copyright notice and this complete and unmodified permission notice shall be
+included in all copies or substantial portions of the Software; you will not
+misrepresent modified versions of the Software as being the original.
 
-   0.1. IBPP
-   
-   'IBPP' is primarily a set of programming interfaces, initially written in
-   the C++ language, which makes it easier to develop any other programming
-   work which need to communicate and work with Firebird, a SQL-based database
-   engine and server, and possibly other similar engines and servers.  Further
-   in this document we also name 'IBPP' the source code itself which implements
-   those interfaces and any associated files whatever their nature.
-
-   0.2. TIP
-   
-   'TIP' is the company T.I.P. Group S.A., a legal entity, registered in the
-   Kingdom of Belgium under the enterprise identification number 0.429.942.927.
-   Contact information: http://www.tipgroup.com.
-
-   0.3. Authors
-   
-   'Authors' is the college of private persons or legal entities, including
-   TIP, who at least once contributed to IBPP.
-   
-   
-1. Copyrights
-
-The very initial version of IBPP (0.9) was released in the year 2000 by TIP.
-Through this initial contribution, TIP holds a Copyright (c) 2000 on that
-original version of IBPP.
-
-In addition, each and every private person or legal entity, including TIP, who
-since contributed or contribute to IBPP hold a shared Copyright (c) <year of
-contribution> with TIP on that portion of code they contribute, wether the
-contribution is made by modification or addition to the source code or
-associated files.
-
-
-2. Rights
-
-Without damage of the duties exposed at article 3., the Authors hereby grant
-the following permissions, free of charge, to any private person or legal
-entity (hereafter "You"):
-
-   2.1. Right to Use
-
-   To use (edit when required, compile and link) the IBPP source code as part
-   of a larger programming work which effectively makes use of some or all of
-   the functionnalities offered by IBPP.
-
-   2.2. Right to Modify
-
-   To develop modifications or additions which enhance or fix IBPP.
-   
-   2.3. Right to Publish
-   
-   To publish the IBPP source code along with your own source code which uses
-   it.
-
-
-3. Duties
-
-   3.1. Duty to give modifications back to IBPP Authors
-
-   Any modification or addition done to IBPP will be submitted to the Authors,
-   so that those modifications or additions can be reviewed, possibly modified
-   or fixed, and eventually merged in a new version of IBPP, if the
-   modification is found by the Authors to be of interest to the IBPP users
-   community.
-   
-   3.2. Duty to play by the rules when publishing the IBPP source code
-   
-   When You publish the IBPP source code with your own source code which uses
-   it, You must also publish this license.txt file and You must not remove any
-   of the licensing and copyright texts located near the beginning of the IBPP
-   source code files.
-
-   3.3. Duty to free IBPP Authors from any responsability
-   
-   When You use IBPP in your programming works, You implicitely agree to free
-   the Authors from any and all responsability.  You fully endorse IBPP and
-   assume all consequences of using it in your programming works.  This goes
-   to the extent that, should the IBPP code be found to infringe on the
-   copyright or patent of any third-party entity, you assume the entire
-   responsability regarding your own programming works which use IBPP.  You
-   always a least have the final solution not to use IBPP anymore in your
-   programming works.
-   
-
-4. New versions of this License
-
-TIP is the only entity who can publish new versions of this license and attach
-such new license versions to any future version of IBPP.  Though if doing so,
-TIP cannot remove any right previously granted by this version 1.0 of the
-license, nor can TIP add duties restricting those previous rights further.
-New rights and / or duties might though be added if the nature of IBPP
-(article 0.1) evolve in the future or if components of a different nature
-are added to IBPP.  A new license version might also be required if some
-words of this version needed to be corrected or changed to make things even
-more clear and precise.
-
-
-5. Disclaimer of Warranty
-
-IBPP IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
--------------------------------------------------------------------------------
-   IBPP LICENSE, Version 1.0   >>> ENDS HERE <<<
--------------------------------------------------------------------------------
-
-
-  FREQUENTLY ASKED QUESTIONS
-
-o Can I use IBPP in any kind of closed-source programming work?
-  
-  YES. Nothing in the license forbids you of doing so.
-
-o Can I use IBPP in any kind of commercial programming work, one for which
-  a revenue is drawn from?
-  
-  YES. Nothing in the license forbids you of doing so.
-
-o Am I obliged to publish my own source code when I use IBPP in that code?
-  
-  NO. You have no duty to publish your own code if it doesn't fit your needs.
-
-o Can I package and sell copies of IBPP?
-  
-  NO. This right is not among the three rights granted by this license.
-  
-o Is the IBPP License compatible with <insert your choice of License here>?
-  
-  Probably. The IBPP license is so open-minded that it is hard to imagine how
-  it could really conflict with any license applied to a larger work in which
-  IBPP is used. In all cases, the burden of answering this question is on you.
-  As long as your use complies with this license, you're ok for what concerns
-  IBPP. Wether the reverse is ok for you, is all on you.
-
-o I have made enhancements to IBPP but these are tightely coupled to closed-
-  source portions of my application(s). Am I obliged to contribute these
-  enhancements to IBPP Authors?
-  
-  YES. That is a clear duty that you agree on by making use of IBPP.  Though,
-  of course, nobody obliges you to disclose any parts of your closed-source.
-  It is then all upon you to find proper ways to let the community of users
-  eventually benefit of any kind of enhancements you found useful for you,
-  without divulging your trade secrets.  Suggestion: don't enhance IBPP
-  source code itself with closed-source extensions.  Implement such extensions
-  as a wrapper over IBPP interfaces or enhance IBPP itself with techniques
-  such as hooks, which would then allow you to plug in your closed-source
-  extensions while at the same time contributing some useful generic extensions
-  mechanisms to IBPP.
-
-o The IBPP previous versions up to and including versions 2.4.x were licensed
-  under the Mozilla Public License, Version 1.0.  How does it come that this
-  version uses a new licence?
-
-  This new license doesn't remove any previous rights but is considerably
-  easier to understand, live and work with.
-
-  People might argue that the previous IBPP license had these terms in
-  paragraph number 6.2: "No one other than Netscape has the right to modify the
-  terms applicable to Covered Code created under this License" and that these
-  terms should deny T.I.P. Group S.A. to replace the licensing model of IBPP
-  with another license.  This is non-sense, in each and every way you can
-  consider it and only comes from mistakenly having forgotten to remove and
-  update "Netscape" references in the original license attached to the code.
-  It is evident for anybody who would review the history of IBPP code, from its
-  initial publication on SourceForge in year 2000 up to now, that the full
-  initial code came solely from T.I.P. Group S.A. and is in no way related to
-  'Netscape', nor are any contribution made to the code since its initial
-  release related to 'Netscape'.
-
-  Legal advice was seeked on this matter and it is under complete assurance
-  that T.I.P. Group S.A. proudly republished IBPP source code under the above
-  new license terms, for the increased benefit of all existing IBPP users and
-  those to come.
+The Software is provided "as is", without warranty of any kind, express or
+implied, including but not limited to the warranties of merchantability,
+fitness for a particular purpose and noninfringement.  In no event shall
+the authors or copyright holders be liable for any claim, damages or other
+liability, whether in an action of contract, tort or otherwise, arising from,
+out of or in connection with the software or the use of other dealings in
+the Software.
 
 // EOF //
