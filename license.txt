@@ -7,7 +7,7 @@ work; to modify it for that purpose; to publish or distribute it, modified or
 not, for that same purpose; to permit persons to whom the other work using the
 Software is furnished to do so; subject to the following conditions: the above
 copyright notice and this complete and unmodified permission notice shall be
-included in all copies or substantial portions of the Software; you will not
+included in all copies or substantial portions of the Software; You will not
 misrepresent modified versions of the Software as being the original.
 
 The Software is provided "as is", without warranty of any kind, express or
