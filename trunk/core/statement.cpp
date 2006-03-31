@@ -127,7 +127,8 @@ void StatementImpl::Prepare(const std::string& sql)
 			case isc_info_sql_stmt_ddl :		mType = IBPP::stDDL; break;
 			case isc_info_sql_stmt_exec_procedure : mType = IBPP::stExecProcedure; break;
 			case isc_info_sql_stmt_select_for_upd : mType = IBPP::stSelectUpdate; break;
-			case isc_info_sql_stmt_set_generator :	mType = IBPP::stOther; break;
+			case isc_info_sql_stmt_set_generator :	mType = IBPP::stSetGenerator; break;
+			case isc_info_sql_stmt_savepoint :	mType = IBPP::stSavePoint; break;
 			default : mType = IBPP::stUnsupported;
 		}
 	}
@@ -220,14 +221,11 @@ void StatementImpl::Prepare(const std::string& sql)
 	// Allocates variables of the input descriptor
 	if (mInRow != 0)
 	{
-		if (mType == IBPP::stExecProcedure)
+		// Turn on 'can be NULL' on each input parameter
+		for (int i = 0; i < mInRow->Columns(); i++)
 		{
-			// Turn on 'can be NULL' on each parameter because FB forgets about this
-			for (int i = 0; i < mInRow->Columns(); i++)
-			{
-				XSQLVAR* var = &(mInRow->Self()->sqlvar[i]);
-				if (! (var->sqltype & 1)) var->sqltype += short(1);
-			}
+			XSQLVAR* var = &(mInRow->Self()->sqlvar[i]);
+			if (! (var->sqltype & 1)) var->sqltype += short(1);
 		}
 		mInRow->AllocVariables();
 	}

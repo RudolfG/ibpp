@@ -23,6 +23,18 @@ under the License.
 The most recent addition to this file is always on top and has the highest
 item number.
 
+13. March 31, 2006
+
+- Reworked the work-around the input parameters handling. Now IBPP considers
+that each input parameter can be made SQL NULL. Why? Following an interesting
+discussion with core Firebird developers, it became clear that even though
+one can consider that FB forgets to signal the input parameters of a stored
+procedure as NULLABLE, the issue extends to even simpler statements as an
+UPDATE or INSERT. FB will describe based on the columns definitions, but even
+a NOT NULL column might accept a NULL in an INSERT or UPDATE. If there is a
+trigger which act upon that and turn the NULL in something else. So in the
+first place, it is best if IBPP does not restrict the user on submitting NULLs.
+
 12. March 25, 2006
 
 - Added some comfort methods to Date and Time (Year(), Month(), Day(), Hours(),

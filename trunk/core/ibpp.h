@@ -95,7 +95,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (1<<8) + 55; // Version == 2.5.1.55
+	const uint32_t Version = (2<<24) + (5<<16) + (1<<8) + 56; // Version == 2.5.1.56
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
@@ -116,7 +116,7 @@ namespace IBPP
 	//	Prepared Statement Types
 	enum STT {stUnknown, stUnsupported,
 		stSelect, stInsert, stUpdate, stDelete,	stDDL, stExecProcedure,
-		stSelectUpdate, stOther};
+		stSelectUpdate, stSetGenerator, stSavePoint};
 
 	//	SQL Data Types
 	enum SDT {sdArray, sdBlob, sdDate, sdTime, sdTimestamp, sdString,
