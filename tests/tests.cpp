@@ -1034,7 +1034,9 @@ void Test::Test8()
 
 	EventCatch catcher;
 
-	IBPP::Events ev = EventsFactory(db1, false);
+	// Want to play with async notifications?
+	// Turn the false into a true in the following line.
+	IBPP::Events ev = IBPP::EventsFactory(db1, false);
 	
 	// The following transaction configuration values are the defaults and
 	// those parameters could have as well be omitted to simplify writing.
@@ -1079,7 +1081,7 @@ void Test::Test8()
 	printf("           Commit...\n");
 	tr1->Commit();
 	
-	printf(_("           First immediate call to DispatchEvents()\n"));
+	printf(_("           First immediate call to Dispatch()\n"));
 	ev->Dispatch();
 
 	printf(_("           Sleeping 2 sec...\n"));
@@ -1088,7 +1090,7 @@ void Test::Test8()
 	printf(_("           Adding an event\n"));
 	ev->Add("FOURTH", &catcher);
 
-	printf(_("           Second call to DispatchEvents()\n"));
+	printf(_("           Second call to Dispatch()\n"));
 	ev->Dispatch();
 
 	printf(_("           Inserting 3 records, that should trigger 'INSERT' event...\n"));
@@ -1097,16 +1099,17 @@ void Test::Test8()
 	st1->ExecuteImmediate("INSERT INTO TEST(N2) VALUES(1)");
 	st1->ExecuteImmediate("INSERT INTO TEST(N2) VALUES(1)");
 
-	printf(_("           Third call to DispatchEvents (commit not done)...\n"));
+	printf(_("           Third call to Dispatch (commit not done)...\n"));
 	ev->Dispatch();
 
 	printf(_("           Now committing (events should only trigger after commit)...\n"));
 	tr1->Commit();
 
-	printf(_("           Series of 20 calls to DispatchEvents(),\n"));
+	printf(_("           Series of 20 calls to Dispatch(),\n"));
 	printf(_("           with a 0.050 sec sleep after each\n"));
 	for (i = 0; i < 20; i++)
 	{
+		printf(".");
 		ev->Dispatch();
 		Sleep(50);
 	}
@@ -1118,7 +1121,7 @@ void Test::Test8()
 	st1->ExecuteImmediate("INSERT INTO TEST(N2) VALUES(1)");
 	st1->ExecuteImmediate("INSERT INTO TEST(N2) VALUES(1)");
 	ev->Drop("INSERT");
-	printf(_("           Series of 20 calls to DispatchEvents(),\n"));
+	printf(_("           Series of 20 calls to Dispatch(),\n"));
 	printf(_("           with a 0.050 sec sleep after each\n"));
 	for (i = 0; i < 20; i++)
 	{

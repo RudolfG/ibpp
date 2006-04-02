@@ -75,6 +75,8 @@ void EventsImpl::Add(const std::string& eventname, IBPP::EventInterface* objref)
 	if (eventname.size() > MAXEVENTNAMELEN)
 		throw LogicExceptionImpl("EventsImpl::Define", _("Event name is too long"));
 
+	Cancel();
+
 	// 1) Alloc or grow the buffers
 	size_t prev_buffer_size = mEventBuffer.size();
 	size_t needed = ((prev_buffer_size==0) ? 1 : 0) + eventname.length() + 5;
@@ -103,6 +105,8 @@ void EventsImpl::Add(const std::string& eventname, IBPP::EventInterface* objref)
 
 	// 3) Alloc or grow the objref array and update the objref array (append)
 	mObjectReferences.push_back(objref);
+
+	Queue();
 }
 
 void EventsImpl::Drop(const std::string& eventname)
@@ -113,6 +117,8 @@ void EventsImpl::Drop(const std::string& eventname)
 		throw LogicExceptionImpl("EventsImpl::Drop", _("Event name is too long"));
 
 	if (mEventBuffer.size() <= 1) return;	// Nothing to do, but not an error
+
+	Cancel();
 
 	// 1) Find the event in the buffers
 	typedef EventBufferIterator<Buffer::iterator> EventIterator;
@@ -131,6 +137,8 @@ void EventsImpl::Drop(const std::string& eventname)
 		mObjectReferences.erase(oit);
 		break;
 	}
+
+	Queue();
 }
 
 void EventsImpl::List(std::vector<std::string>& events)
@@ -306,7 +314,7 @@ void EventsImpl::EventHandler(const char* object, short size, const char* tmpbuf
 	if (evi->mQueued)
 	{
 		char* rb = &evi->mResultsBuffer[0];
-		if (evi->mEventBuffer.size() < (unsigned)size) size = evi->mEventBuffer.size();
+		if (evi->mEventBuffer.size() < (unsigned)size) size = (short)evi->mEventBuffer.size();
 		for (int i = 0; i < size; i++)
 			rb[i] = tmpbuffer[i];
 		evi->mTrapped = true;

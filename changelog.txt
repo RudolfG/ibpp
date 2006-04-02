@@ -25,9 +25,6 @@ item number.
 
 14. April 2, 2006
 
-WARNING: That code still has to be tested. Work in progress. Don't rely on the
-HEAD of the Subversion repository for now.
-
 - Complete rewrite of all the events handling system.
 There is no a first class citizen IBPP::Events. Events holds a set of events
 related to a specific instance of a connected Database. Upon creation of
