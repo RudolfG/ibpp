@@ -95,7 +95,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (1<<8) + 56; // Version == 2.5.1.56
+	const uint32_t Version = (2<<24) + (5<<16) + (1<<8) + 57; // Version == 2.5.1.57
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
@@ -153,13 +153,6 @@ namespace IBPP
 
 	// TransactionFactory Flags
 	enum TFF {tfIgnoreLimbo = 0x1, tfAutoCommit = 0x2, tfNoAutoUndo = 0x4};
-
-	//	Some forward declarations to keep the compiler happy
-	class IDatabase;
-	class ITransaction;
-	class IStatement;
-	class EventInterface;
-	class Timestamp;
 
 	/* IBPP never return any error codes. It throws exceptions.
 	 * On database engine reported errors, an IBPP::SQLException is thrown.
@@ -222,7 +215,9 @@ namespace IBPP
 	 * The full range goes from integer values IBPP::MinDate to IBPP::MaxDate
 	 * which means from 01 Jan 0001 to 31 Dec 9999. ( Which is inherently
 	 * incorrect as this assumes Gregorian calendar. ) */
-
+	
+	class Timestamp;	// Cross-reference between Timestamp, Date and Time
+	
 	class Date
 	{
 	protected:
@@ -446,6 +441,7 @@ namespace IBPP
 	class IDatabase;		typedef Ptr<IDatabase> Database;
 	class ITransaction;		typedef Ptr<ITransaction> Transaction;
 	class IStatement;		typedef Ptr<IStatement> Statement;
+	class IEvents;			typedef Ptr<IEvents> Events;
 	class IRow;				typedef Ptr<IRow> Row;
 
 	/* IBlob is the interface to the blob capabilities of IBPP. Blob is the
@@ -552,6 +548,8 @@ namespace IBPP
 	 * is the object class you actually use in your programming. With a Database
 	 * object, you can create/drop/connect databases. */
 
+	class EventInterface;	// Cross-reference between EventInterface and IDatabase
+	
 	class IDatabase
 	{
 	public:
@@ -579,11 +577,6 @@ namespace IBPP
 		virtual void Inactivate() = 0;
 		virtual void Disconnect() = 0;
 		virtual void Drop() = 0;
-
-		virtual void DefineEvent(const std::string&, EventInterface*) = 0;
-		virtual void DropEvent(const std::string&) = 0;
-		virtual void ClearEvents() = 0;		// Drop all events
-		virtual void DispatchEvents() = 0;
 
 		virtual IDatabase* AddRef() = 0;
 		virtual void Release() = 0;
@@ -815,6 +808,35 @@ namespace IBPP
 		virtual bool Get(const std::string&, double*) = 0;	// DEPRECATED
 	};
 	
+	class IEvents
+	{
+	public:
+		virtual void Add(const std::string&, EventInterface*) = 0;
+		virtual void Drop(const std::string&) = 0;
+		virtual void List(std::vector<std::string>&) = 0;
+		virtual void Clear() = 0;			// Drop all events
+		virtual void Dispatch() = 0;		// Dispatch NON async events
+
+		virtual	Database DatabasePtr() const = 0;
+
+		virtual IEvents* AddRef() = 0;
+		virtual void Release() = 0;
+
+	    virtual ~IEvents() { };
+	};
+	
+	/* Class EventInterface is merely a pure interface.
+	 * It is _not_ implemented by IBPP. It is only a base class definition from
+	 * which your own event interface classes have to derive from.
+	 * Please read the reference guide at http://www.ibpp.org for more info. */
+
+	class EventInterface
+	{
+	public:
+		virtual void ibppEventHandler(Database, const std::string&, int) = 0;
+		virtual ~EventInterface() { };
+	};
+
 	//	--- Factories ---
 	//	These methods are the only way to get one of the above
 	//	Interfaces.  They are at the heart of how you program using IBPP.  For
@@ -852,25 +874,8 @@ namespace IBPP
 	Blob BlobFactory(Database& db, Transaction& tr);
 	
 	Array ArrayFactory(Database& db, Transaction& tr);
-
-	/* Class EventInterface is merely a pure interface. It is _not_ implemented
-	 * by IBPP. It is just base class definition from which your own event
-	 * interface classes have to derive from.
-
-	 * The Event handling system from the class Database requires the programmer
-	 * to give an object pointer when defining a new event. When that event will
-	 * fire, IBPP will call the method ibppEventHandler on the object registered
-	 * with the event. So in order to catch events, the programmer must derive a
-	 * class from EventInterface, implement 'ibppEventHandler' to do anything
-	 * wanted when the event triggers and register an instance of that derived
-	 * class when defining the event trap. */
-
-	class EventInterface
-	{
-	public:
-		virtual void ibppEventHandler(IDatabase*, const std::string&, int) = 0;
-		virtual ~EventInterface() { };
-	};
+	
+	Events EventsFactory(Database& db, bool async);
 
 	/* IBPP uses a self initialization system. Each time an object that may
 	 * require the usage of the Interbase client C-API library is used, the

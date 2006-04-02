@@ -23,6 +23,26 @@ under the License.
 The most recent addition to this file is always on top and has the highest
 item number.
 
+14. April 2, 2006
+
+WARNING: That code still has to be tested. Work in progress. Don't rely on the
+HEAD of the Subversion repository for now.
+
+- Complete rewrite of all the events handling system.
+There is no a first class citizen IBPP::Events. Events holds a set of events
+related to a specific instance of a connected Database. Upon creation of
+the Events object, one can request these events to be delivered in an
+asynchronous manner (NEW!) or in a sysnchronous (as before version 2.5).
+An application can register multiple sets of events on a same Database
+connection. Of course this change is completely source code incompatible
+with previous versions. Essentially, the changes only involve obtaining
+an Events object through EventsFactory(Database&, bool async).
+Then to replace previous methods calls as such:
+	Database::DefineEvent --> Events::Add
+	Database::DropEvent --> Events::Drop
+	Database::ClearEvents --> Events::Clear
+	Database::DispatchEvents --> Events::Dispatch
+
 13. March 31, 2006
 
 - Reworked the work-around the input parameters handling. Now IBPP considers

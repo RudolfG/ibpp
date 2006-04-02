@@ -71,7 +71,7 @@ for more complete instructions on how to do so.
 
 3/ New or Updated Features since Version 2.4
 
-- Completely revamped the concepts of how to build IBPP : embed it in your
+- Completely reworked the concepts of how to build IBPP : embed it in your
 own code and build procedure.  See howtobuild.txt for details.
 
 - Changed and enhanced the Service::AddUser, Service::ModifyUser and
@@ -103,6 +103,21 @@ revived.
 
 - Now, NUMERIC/DECIMAL (scaled columns) can be exchanged with integer data
 types. The plain scaled value is returned / expected.
+
+- Complete rewrite of all the events handling system.
+There is no a first class citizen IBPP::Events. Events holds a set of events
+related to a specific instance of a connected Database. Upon creation of
+the Events object, one can request these events to be delivered in an
+asynchronous manner (NEW!) or in a sysnchronous (as before version 2.5).
+An application can register multiple sets of events on a same Database
+connection. Of course this change is completely source code incompatible
+with previous versions. Essentially, the changes only involve obtaining
+an Events object through EventsFactory(Database&, bool async).
+Then to replace previous methods calls as such:
+	Database::DefineEvent --> Events::Add
+	Database::DropEvent --> Events::Drop
+	Database::ClearEvents --> Events::Clear
+	Database::DispatchEvents --> Events::Dispatch
 
 
 4/ Comments, Acknowledgments

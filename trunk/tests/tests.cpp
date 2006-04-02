@@ -77,8 +77,8 @@
 //	The DB should grow to around 25 MB while being exercised.
 
 #ifdef IBPP_UNIX
-	const char* DbName = "/usr/tmp/test.fdb";
-	const char* BkName = "/usr/tmp/test.fbk";
+	const char* DbName = "~/test.fdb";
+	const char* BkName = "~/test.fbk";
 	const std::string ServerName = "localhost";
 #else
 	const char* DbName = "C:/test.fdb";	// FDB extension (GDB is hacked by Windows Me/XP "System Restore")
@@ -505,6 +505,9 @@ void Test::Test4()
 			st1->ParameterSize(13) != 30)
 		{
 			_Success = false;
+			printf("Type(13) == %d\n", st1->ParameterType(13));
+			printf("SubType(5) == %d\n", st1->ParameterSubtype(5));
+			printf("Size(13) == %d\n", st1->ParameterSize(13));
 			printf(_("Statement::ParameterType(), Subtype() or Size() failed to return correct value."));
 		}
 	}
@@ -1015,7 +1018,7 @@ void Test::Test7()
 
 class EventCatch : public IBPP::EventInterface
 {
-	virtual void ibppEventHandler(IBPP::IDatabase*, const std::string& name, int count)
+	virtual void ibppEventHandler(IBPP::Database, const std::string& name, int count)
 	{
 		printf(_("           *** Event %s triggered, count = %d ***\n"), name.c_str(), count);
 	}
@@ -1031,6 +1034,8 @@ void Test::Test8()
 
 	EventCatch catcher;
 
+	IBPP::Events ev = EventsFactory(db1, false);
+	
 	// The following transaction configuration values are the defaults and
 	// those parameters could have as well be omitted to simplify writing.
 	IBPP::Transaction tr1 = IBPP::TransactionFactory(db1,
@@ -1038,7 +1043,7 @@ void Test::Test8()
 	tr1->Start();
 
 	IBPP::Statement st1 = IBPP::StatementFactory(db1, tr1);
-	printf(_("           Adding a trigger to test database...\n"));
+	printf(_("           Adding a trigger to the test database...\n"));
 	st1->ExecuteImmediate(
         "CREATE TRIGGER TEST_TRIGGER FOR TEST ACTIVE AFTER INSERT AS\n"
         "BEGIN\n"
@@ -1056,15 +1061,15 @@ void Test::Test8()
 	for (i = 1; i <= 100; i++)
 	{
 		sprintf(event, "EVENTNUMBER%3.3d", i);
-		db1->DefineEvent(event, &catcher);
+		ev->Add(event, &catcher);
 	}
 
-	db1->DefineEvent("INSERT", &catcher);
+	ev->Add("INSERT", &catcher);
 
 	for (i = 101; i <= 200; i++)
 	{
 		sprintf(event, "EVENTNUMBER%3.3d", i);
-		db1->DefineEvent(event, &catcher);
+		ev->Add(event, &catcher);
 	}
 
 	printf(_("           Inserting 2 records, that should trigger 'INSERT' event...\n"));
@@ -1075,16 +1080,16 @@ void Test::Test8()
 	tr1->Commit();
 	
 	printf(_("           First immediate call to DispatchEvents()\n"));
-	db1->DispatchEvents();
+	ev->Dispatch();
 
 	printf(_("           Sleeping 2 sec...\n"));
 	Sleep(2000);
 
 	printf(_("           Adding an event\n"));
-	db1->DefineEvent("FOURTH", &catcher);
+	ev->Add("FOURTH", &catcher);
 
 	printf(_("           Second call to DispatchEvents()\n"));
-	db1->DispatchEvents();
+	ev->Dispatch();
 
 	printf(_("           Inserting 3 records, that should trigger 'INSERT' event...\n"));
 	tr1->Start();
@@ -1093,7 +1098,7 @@ void Test::Test8()
 	st1->ExecuteImmediate("INSERT INTO TEST(N2) VALUES(1)");
 
 	printf(_("           Third call to DispatchEvents (commit not done)...\n"));
-	db1->DispatchEvents();
+	ev->Dispatch();
 
 	printf(_("           Now committing (events should only trigger after commit)...\n"));
 	tr1->Commit();
@@ -1102,7 +1107,7 @@ void Test::Test8()
 	printf(_("           with a 0.050 sec sleep after each\n"));
 	for (i = 0; i < 20; i++)
 	{
-		db1->DispatchEvents();
+		ev->Dispatch();
 		Sleep(50);
 	}
 	printf("\n");
@@ -1112,12 +1117,12 @@ void Test::Test8()
 	st1->ExecuteImmediate("INSERT INTO TEST(N2) VALUES(1)");
 	st1->ExecuteImmediate("INSERT INTO TEST(N2) VALUES(1)");
 	st1->ExecuteImmediate("INSERT INTO TEST(N2) VALUES(1)");
-	db1->DropEvent("INSERT");
+	ev->Drop("INSERT");
 	printf(_("           Series of 20 calls to DispatchEvents(),\n"));
 	printf(_("           with a 0.050 sec sleep after each\n"));
 	for (i = 0; i < 20; i++)
 	{
-		db1->DispatchEvents();
+		ev->Dispatch();
 		Sleep(50);
 	}
 	printf("\n");
