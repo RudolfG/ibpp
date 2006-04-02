@@ -218,30 +218,6 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\core\_epb.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="_ibpp.h"
-							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="_ibpp.h"
-							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
 					RelativePath="..\..\core\_ibpp.cpp"
 					>
 					<FileConfiguration
@@ -480,6 +456,10 @@
 							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\core\events.cpp"
+					>
 				</File>
 				<File
 					RelativePath="..\..\core\exception.cpp"

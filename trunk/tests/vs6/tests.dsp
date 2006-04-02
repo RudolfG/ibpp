@@ -102,19 +102,6 @@ SOURCE=..\..\core\_dpb.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\core\_epb.cpp
-
-!IF  "$(CFG)" == "tests - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "tests - Win32 Debug"
-
-# ADD CPP /W3
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\core\_ibpp.cpp
 
 !IF  "$(CFG)" == "tests - Win32 Release"
@@ -242,6 +229,10 @@ SOURCE=..\..\core\dbkey.cpp
 
 !ENDIF 
 
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\core\events.cpp
 # End Source File
 # Begin Source File
 
