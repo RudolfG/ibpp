@@ -116,6 +116,7 @@ class TransactionImpl;
 class StatementImpl;
 class BlobImpl;
 class ArrayImpl;
+class EventsImpl;
 
 //	Native data types
 typedef enum {ivArray, ivBlob, ivDate, ivTime, ivTimestamp, ivString,
@@ -550,71 +551,6 @@ public:
 };
 
 //
-//	Events Handling. EPB stands for Events Paramater Block, but it really
-//	encapsulate all the management of a list of events to wait for.
-//
-
-template<class It>
-struct EventBufferIterator
-{
-	It mIt;
-
-public:
-	EventBufferIterator& operator++()
-		{ mIt += 1 + static_cast<int>(*mIt) + 4; return *this; }
-
-	bool operator == (const EventBufferIterator& i) const { return i.mIt == mIt; }
-	bool operator != (const EventBufferIterator& i) const { return i.mIt != mIt; }
-
-#ifdef __BCPLUSPLUS__
-#pragma warn -8027
-#endif
-	std::string get_name() const
-		{ return std::string(mIt + 1, mIt + 1 + static_cast<int32_t>(*mIt)); }
-#ifdef __BCPLUSPLUS__
-#pragma warn .8027
-#endif
-
-	uint32_t get_count() const
-	{
-		return (*gds.Call()->m_vax_integer)
-			(const_cast<char*>(&*(mIt + 1 + static_cast<int>(*mIt))), 4);
-	}
-
-	// Those container like begin() and end() allow access to the underlying type
-	It begin()	{ return mIt; }
-	It end()	{ return mIt + 1 + static_cast<int>(*mIt) + 4; }
-
-	EventBufferIterator() {}
-	EventBufferIterator(It it) : mIt(it) {}
-};
-
-class EPB
-{
-	static const size_t MAXEVENTNAMELEN;
-
-	typedef std::vector<IBPP::EventInterface*> ObjRefs;
-	ObjRefs mObjectReferences;
-
-	typedef std::vector<char> Buffer;
-	Buffer mEventBuffer;
-	Buffer mResultsBuffer;
-
-	EPB& operator= (const EPB&);
-	EPB(const EPB&);
-
-public:
-	// Define (add) an event to the list
-	void Define(const std::string&, IBPP::EventInterface*);
-	void Drop(const std::string&);
-	void FireActions(IBPP::IDatabase *);
-	char* EventsBuffer() { return &mEventBuffer[0]; }
-	char* ResultsBuffer() { return &mResultsBuffer[0]; }
-	short Size() const { return (short)mEventBuffer.size(); }
-	EPB() {}
-};
-
-//
 //	Used to receive (and process) a results buffer in various API calls
 //
 
@@ -893,18 +829,7 @@ class DatabaseImpl : public IBPP::IDatabase
 	std::vector<StatementImpl*> mStatements;// Table of Statement*
 	std::vector<BlobImpl*> mBlobs;			// Table of Blob*
 	std::vector<ArrayImpl*> mArrays;		// Table of Array*
-
-	EPB* mEvents;					// Events Object
-	ISC_LONG mEventsId;				// IB internal Id of these events
-	bool mEventsQueued;				// Activated ?
-	bool mEventsTrapped;			// Trapped Events ?
-	bool mEventsThrew;				// EventHandler() detected an error condition
-
-	void QueueEvents();
-	void CancelEvents();
-	void EventUpdateCounts(int size, const char* tmpbuffer);
-
-	static void EventHandler(const char*, short, const char*);
+	std::vector<EventsImpl*> mEvents;		// Table of Events*
 
 public:
 	isc_db_handle* GetHandlePtr() { return &mHandle; }
@@ -918,6 +843,8 @@ public:
 	void DetachBlobImpl(BlobImpl*);
 	void AttachArrayImpl(ArrayImpl*);
 	void DetachArrayImpl(ArrayImpl*);
+	void AttachEventsImpl(EventsImpl*);
+	void DetachEventsImpl(EventsImpl*);
 
 	DatabaseImpl(const std::string& ServerName, const std::string& DatabaseName,
 				const std::string& UserName, const std::string& UserPassword,
@@ -951,11 +878,6 @@ public:
 	void Inactivate();
 	void Disconnect();
     void Drop();
-
-	void DefineEvent(const std::string&, IBPP::EventInterface*);
-	void DropEvent(const std::string&);
-	void ClearEvents();
-	void DispatchEvents();
 
 	IBPP::IDatabase* AddRef();
 	void Release();
@@ -1371,6 +1293,97 @@ public:
 	IBPP::Transaction TransactionPtr() const;
 
 	IBPP::IArray* AddRef();
+	void Release();
+};
+
+//
+//	EventBufferIterator: used in EventsImpl implementation.
+//
+
+template<class It>
+struct EventBufferIterator
+{
+	It mIt;
+
+public:
+	EventBufferIterator& operator++()
+		{ mIt += 1 + static_cast<int>(*mIt) + 4; return *this; }
+
+	bool operator == (const EventBufferIterator& i) const { return i.mIt == mIt; }
+	bool operator != (const EventBufferIterator& i) const { return i.mIt != mIt; }
+
+#ifdef __BCPLUSPLUS__
+#pragma warn -8027
+#endif
+	std::string get_name() const
+	{
+		return std::string(mIt + 1, mIt + 1 + static_cast<int32_t>(*mIt));
+	}
+#ifdef __BCPLUSPLUS__
+#pragma warn .8027
+#endif
+
+	uint32_t get_count() const
+	{
+		return (*gds.Call()->m_vax_integer)
+			(const_cast<char*>(&*(mIt + 1 + static_cast<int>(*mIt))), 4);
+	}
+
+	// Those container like begin() and end() allow access to the underlying type
+	It begin()	{ return mIt; }
+	It end()	{ return mIt + 1 + static_cast<int>(*mIt) + 4; }
+
+	EventBufferIterator() {}
+	EventBufferIterator(It it) : mIt(it) {}
+};
+
+class EventsImpl : public IBPP::IEvents
+{
+	static const size_t MAXEVENTNAMELEN;
+	static void EventHandler(const char*, short, const char*);
+
+	typedef std::vector<IBPP::EventInterface*> ObjRefs;
+	ObjRefs mObjectReferences;
+
+	typedef std::vector<char> Buffer;
+	Buffer mEventBuffer;
+	Buffer mResultsBuffer;
+
+	int mRefCount;		// Reference counter
+
+	bool mAsync;			// Are events of this set to be triggered asynchronously?
+	DatabaseImpl* mDatabase;
+	ISC_LONG mId;			// Firebird internal Id of these events
+	bool mQueued;			// Has isc_que_events() been called?
+	bool mTrapped;			// EventHandled() was called since last que_events()
+	bool mThrew;			// EventHandler() detected an error condition
+
+	void FireActions();
+	void Queue();
+	void Cancel();
+
+	EventsImpl& operator=(const EventsImpl&);
+	EventsImpl(const EventsImpl&);
+
+public:
+	void AttachDatabaseImpl(DatabaseImpl*);
+	void DetachDatabaseImpl();
+	
+	EventsImpl(DatabaseImpl* dbi, bool async);
+	~EventsImpl();
+		
+	//	(((((((( OBJECT INTERFACE ))))))))
+
+public:
+	void Add(const std::string&, IBPP::EventInterface*);
+	void Drop(const std::string&);
+	void List(std::vector<std::string>&);
+	void Clear();				// Drop all events
+	void Dispatch();			// Dispatch NON async events
+
+	IBPP::Database DatabasePtr() const;
+
+	IBPP::IEvents* AddRef();
 	void Release();
 };
 

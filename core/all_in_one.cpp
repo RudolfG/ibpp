@@ -34,7 +34,6 @@
 
 #include "_ibpp.cpp"
 #include "_dpb.cpp"
-#include "_epb.cpp"
 #include "_ibs.cpp"
 #include "_rb.cpp"
 #include "_spb.cpp"
@@ -45,6 +44,7 @@
 #include "database.cpp"
 #include "date.cpp"
 #include "dbkey.cpp"
+#include "events.cpp"
 #include "exception.cpp"
 #include "row.cpp"
 #include "service.cpp"

@@ -163,15 +163,16 @@ void DatabaseImpl::Inactivate()
 
     IBS status;
 
-	// Cancel all pending event traps
-	ClearEvents();
-
     // Rollback any started transaction...
 	for (unsigned i = 0; i < mTransactions.size(); i++)
 	{
 		if (mTransactions[i]->Started())
-				mTransactions[i]->Rollback();
+			mTransactions[i]->Rollback();
 	}
+
+	// Cancel all pending event traps
+	for (unsigned i = 0; i < mEvents.size(); i++)
+		mEvents[i]->Clear();
 
 	// Let's detach from all Blobs
 	while (mBlobs.size() > 0)
@@ -188,6 +189,10 @@ void DatabaseImpl::Inactivate()
 	// Let's detach from all Transactions
 	while (mTransactions.size() > 0)
 		mTransactions.back()->DetachDatabaseImpl(this);
+
+	// Let's detach from all Events
+	while (mEvents.size() > 0)
+		mEvents.back()->DetachDatabaseImpl();
 }
 
 void DatabaseImpl::Disconnect()
@@ -222,70 +227,6 @@ void DatabaseImpl::Drop()
     	throw SQLExceptionImpl(vector, "Database::Drop", _("isc_drop_database failed"));
 
     mHandle = 0;
-}
-
-void DatabaseImpl::DefineEvent(const std::string& eventname, IBPP::EventInterface* objref)
-{
-	if (eventname.empty())
-		throw LogicExceptionImpl("Database::DefineEvent", _("Null pointer reference detected."));
-
-	if (mEventsThrew)
-		throw LogicExceptionImpl("Database::DefineEvent", _("An error condition was "
-							"detected by the asynchronous EventHandler() method."));
-
-	if (mEvents == 0) mEvents = new EPB;
-	else CancelEvents();
-
-	mEvents->Define(eventname, objref);
-	QueueEvents();
-}
-
-void DatabaseImpl::DropEvent(const std::string& eventname)
-{
-	if (eventname.empty())
-		throw LogicExceptionImpl("Database::DropEvent", _("Null pointer reference detected."));
-
-	if (mEventsThrew)
-		throw LogicExceptionImpl("Database::DropEvent", _("An error condition was "
-							"detected by the asynchronous EventHandler() method."));
-
-	if (mEvents == 0) return;
-
-	CancelEvents();
-	mEvents->Drop(eventname);
-	QueueEvents();
-}
-
-void DatabaseImpl::ClearEvents()
-{
-	CancelEvents();
-
-	if (mEvents != 0)
-	{
-		delete mEvents;
-		mEvents = 0;
-		mEventsId = 0;
-	}
-}
-
-void DatabaseImpl::DispatchEvents()
-{
-	// If no events registered, nothing to do of course.
-	// If we are still waiting for some events to fire, nothing to do, too.
-	if (mEvents == 0 || mEventsQueued) return;
-
-	if (mHandle == 0)
-		throw LogicExceptionImpl("Database::DispatchEvents", _("Database is not connected."));
-
-	if (mEventsThrew)
-		throw LogicExceptionImpl("Database::DispatchEvents", _("An error condition was "
-							"detected by the asynchronous EventHandler() method."));
-	
-	// Let's fire the events actions for all the events which triggered, if any.
-	if (mEventsTrapped) mEvents->FireActions(this);
-
-	// Requeue the events
-	QueueEvents();
 }
 
 void DatabaseImpl::Info(int* ODSMajor, int* ODSMinor,
@@ -500,88 +441,22 @@ void DatabaseImpl::DetachArrayImpl(ArrayImpl* ar)
 	mArrays.erase(std::find(mArrays.begin(), mArrays.end(), ar));
 }
 
-void DatabaseImpl::QueueEvents()
+void DatabaseImpl::AttachEventsImpl(EventsImpl* ev)
 {
-	if (mEvents != 0 && (!mEventsQueued))
-	{
-		if (mHandle == 0)
-			throw LogicExceptionImpl("Database::QueueEvents",
-				  _("Database is not connected"));
+	if (ev == 0)
+		throw LogicExceptionImpl("Database::AttachEventsImpl",
+					_("Can't attach a null Events object."));
 
-		IBS vector;
-		mEventsTrapped = false;
-		mEventsQueued = true;
-		(*gds.Call()->m_que_events)(vector.Self(), &mHandle, &mEventsId,
-			short(mEvents->Size()), mEvents->EventsBuffer(),
-				(isc_callback)EventHandler, (char*)this);
-
-		if (vector.Errors())
-		{
-			mEventsId = 0;	// Should be, but better be safe
-			mEventsQueued = false;
-			throw SQLExceptionImpl(vector, "Database::QueueEvents",
-				_("isc_que_events failed"));
-		}
-	}
+	mEvents.push_back(ev);
 }
 
-void DatabaseImpl::CancelEvents()
+void DatabaseImpl::DetachEventsImpl(EventsImpl* ev)
 {
-	if (mEvents != 0 && mEventsQueued)
-	{
-		if (mHandle == 0) throw LogicExceptionImpl("Database::CancelEvents",
-			_("Database is not connected"));
+	if (ev == 0)
+		throw LogicExceptionImpl("Database::DetachEventsImpl",
+				_("Can't detach a null Events object."));
 
-		IBS vector;
-
-		// A call to cancel_events will call *once* the handler routine, even
-		// though no events had fired. This is why we first set mEventsQueued
-		// to false, so that we can be sure to dismiss those unwanted callbacks
-		// subsequent to the execution of isc_cancel_events().
-		mEventsQueued = false;
-		(*gds.Call()->m_cancel_events)(vector.Self(), &mHandle, &mEventsId);
-
-	    if (vector.Errors())
-		{
-			mEventsQueued = true;	// Need to restore this as cancel failed
-	    	throw SQLExceptionImpl(vector, "Database::CancelEvents",
-	    		_("isc_cancel_events failed"));
-		}
-
-		mEventsId = 0;	// Should be, but better be safe
-		mEventsThrew = false;	// Reset potential error condition
-	}
-}
-
-void DatabaseImpl::EventUpdateCounts(int size, const char* tmpbuffer)
-{
-	if (size > mEvents->Size())
-	{
-		mEventsThrew = true;	// Take note. Will throw from another context.
-		return;
-	}
-
-	for (int i = 0; i < size; i++)
-		mEvents->ResultsBuffer()[i] = tmpbuffer[i];
-
-	mEventsTrapped = true;
-}
-
-// This function must keep this prototype to stay compatible with
-// what isc_que_events() expect
-void DatabaseImpl::EventHandler(const char* object,
-	short size, const char* tmpbuffer)
-{
-	// >>>>> This method is a STATIC member !! <<<<<
-	// Consider this method as a kind of "interrupt handler". It should do as
-	// few work as possible as quickly as possible and then return.
-
-	DatabaseImpl* db = (DatabaseImpl*)object;	// Ugly, but wanted, c-style cast
-
-	if (db->mEventsQueued && size != 0 && tmpbuffer != 0)
-		db->EventUpdateCounts(size, tmpbuffer);
-
-	db->mEventsQueued = false;
+	mEvents.erase(std::find(mEvents.begin(), mEvents.end(), ev));
 }
 
 DatabaseImpl::DatabaseImpl(const std::string& ServerName, const std::string& DatabaseName,
@@ -593,8 +468,7 @@ DatabaseImpl::DatabaseImpl(const std::string& ServerName, const std::string& Dat
 	mServerName(ServerName), mDatabaseName(DatabaseName),
 	mUserName(UserName), mUserPassword(UserPassword), mRoleName(RoleName),
 	mCharSet(CharSet), mCreateParams(CreateParams),
-	mDialect(3), mEvents(0), mEventsId(0), mEventsQueued(false),
-	mEventsTrapped(false), mEventsThrew(false)
+	mDialect(3)
 {
 }
 
