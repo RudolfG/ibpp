@@ -59,11 +59,17 @@ project, or locally from within each code file which use ibpp does not matter.
 
 All the other code files (*.cpp) of the 'ibpp/core' folder must be compiled and
 linked with your application as if they were original portions of your
-application, except 'all_in_one.cpp'.  There are less than 20 code files, this
-is very easy to add to your Makefile, or visual project file.  In a Visual
-Studio Project, you might conveniently add a "group" (or "filter") named 'ibpp'
-and there 'add' the existing .cpp files from the 'ibpp/core' folder.  It is
-probably even more straightforward to do in your existing Makefile on unix.
+application, except the file 'all_in_one.cpp'.  There are less than 20 code
+files, this is very easy to add to your Makefile, or visual project file.  In
+a Visual Studio Project, you might conveniently add a "group" (or "filter")
+named 'ibpp' and there 'add' the existing .cpp files from the 'ibpp/core'
+folder.  It is probably even more straightforward to do in your existing
+Makefile on unix.
+
+You can obviously even simplify your integration work by just adding the file
+'all_in_one.cpp' in your build procedure.  In turn, this file includes all the
+others.  This is why you must either include all .cpp files except all_in_one
+or *only* include all_in_one.cpp.
 
 All the header files (*.h), other than 'ibpp.h' itself are included by one or
 multiple of the core code files.  They are NOT included by 'ibpp.h' itself.
