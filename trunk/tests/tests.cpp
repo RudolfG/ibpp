@@ -1018,7 +1018,7 @@ void Test::Test7()
 
 class EventCatch : public IBPP::EventInterface
 {
-	virtual void ibppEventHandler(IBPP::Database, const std::string& name, int count)
+	virtual void ibppEventHandler(IBPP::Events, const std::string& name, int count)
 	{
 		printf(_("           *** Event %s triggered, count = %d ***\n"), name.c_str(), count);
 	}

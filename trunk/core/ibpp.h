@@ -95,7 +95,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (1<<8) + 58; // Version == 2.5.1.58
+	const uint32_t Version = (2<<24) + (5<<16) + (1<<8) + 59; // Version == 2.5.1.59
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
@@ -814,8 +814,9 @@ namespace IBPP
 		virtual void Add(const std::string&, EventInterface*) = 0;
 		virtual void Drop(const std::string&) = 0;
 		virtual void List(std::vector<std::string>&) = 0;
-		virtual void Clear() = 0;			// Drop all events
-		virtual void Dispatch() = 0;		// Dispatch NON async events
+		virtual void Clear() = 0;				// Drop all events
+		virtual void Dispatch() = 0;			// Dispatch NON async events; else it's a no-op
+		virtual bool Asynchronous() const = 0;	// Tells if this set is asynchronous or not
 
 		virtual	Database DatabasePtr() const = 0;
 
@@ -833,7 +834,7 @@ namespace IBPP
 	class EventInterface
 	{
 	public:
-		virtual void ibppEventHandler(Database, const std::string&, int) = 0;
+		virtual void ibppEventHandler(Events, const std::string&, int) = 0;
 		virtual ~EventInterface() { };
 	};
 

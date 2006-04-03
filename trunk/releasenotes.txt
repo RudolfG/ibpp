@@ -105,10 +105,10 @@ revived.
 types. The plain scaled value is returned / expected.
 
 - Complete rewrite of all the events handling system.
-There is no a first class citizen IBPP::Events. Events holds a set of events
+There is new first class citizen IBPP::Events. Events holds a set of events
 related to a specific instance of a connected Database. Upon creation of
 the Events object, one can request these events to be delivered in an
-asynchronous manner (NEW!) or in a sysnchronous (as before version 2.5).
+asynchronous manner (NEW!) or in a synchronous (as before version 2.5).
 An application can register multiple sets of events on a same Database
 connection. Of course this change is completely source code incompatible
 with previous versions. Essentially, the changes only involve obtaining
@@ -118,6 +118,7 @@ Then to replace previous methods calls as such:
 	Database::DropEvent --> Events::Drop
 	Database::ClearEvents --> Events::Clear
 	Database::DispatchEvents --> Events::Dispatch
+The upgrade path is then nearly trivial.
 
 
 4/ Comments, Acknowledgments

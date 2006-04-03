@@ -71,9 +71,12 @@ const size_t EventsImpl::MAXEVENTNAMELEN = 127;
 void EventsImpl::Add(const std::string& eventname, IBPP::EventInterface* objref)
 {
 	if (eventname.size() == 0)
-		throw LogicExceptionImpl("EventsImpl::Define", _("Zero length event names not permitted"));
+		throw LogicExceptionImpl("Events::Add", _("Zero length event names not permitted"));
 	if (eventname.size() > MAXEVENTNAMELEN)
-		throw LogicExceptionImpl("EventsImpl::Define", _("Event name is too long"));
+		throw LogicExceptionImpl("Events::Add", _("Event name is too long"));
+	if ((mEventBuffer.size() + eventname.length() + 5) > 32766)	// max signed 16 bits integer minus one
+		throw LogicExceptionImpl("Events::Add",
+			_("Can't add this event, the events list would overflow IB/FB limitation"));
 
 	Cancel();
 
@@ -172,15 +175,6 @@ void EventsImpl::Dispatch()
 	// If no events registered, or this is a set of asynchronous events, nothing to do of course.
 	if (mEventBuffer.size() == 0 || mAsync == true) return;
 
-	/*
-	if (mHandle == 0)
-		throw LogicExceptionImpl("Events::Dispatch", _("Database is not connected."));
-	*/
-	
-	if (mThrew)
-		throw LogicExceptionImpl("Events::Dispatch", _("An error condition was "
-							"raised by the asynchronous EventHandler() method."));
-	
 	// Let's fire the events actions for all the events which triggered, if any, and requeue.
 	FireActions();
 	Queue();
@@ -249,6 +243,7 @@ void EventsImpl::Cancel()
 		// though no events had fired. This is why we first set mEventsQueued
 		// to false, so that we can be sure to dismiss those unwanted callbacks
 		// subsequent to the execution of isc_cancel_events().
+		mTrapped = false;
 		mQueued = false;
 		(*gds.Call()->m_cancel_events)(vector.Self(), mDatabase->GetHandlePtr(), &mId);
 
@@ -260,7 +255,6 @@ void EventsImpl::Cancel()
 		}
 
 		mId = 0;	// Should be, but better be safe
-		mThrew = false;	// Reset potential error condition
 	}
 }
 
@@ -282,19 +276,26 @@ void EventsImpl::FireActions()
 			uint32_t vnew = rit.get_count();
 			uint32_t vold = eit.get_count();
 			if (vnew > vold)
-			{ // Fire the action
+			{
+				// Fire the action
 				try
 				{
-					(*oit)->ibppEventHandler(mDatabase, eit.get_name(), (int)(vnew - vold));
+					(*oit)->ibppEventHandler(this, eit.get_name(), (int)(vnew - vold));
+				}
+				catch (...)
+				{
 					std::copy(rit.begin(), rit.end(), eit.begin());
-				} catch (...) { }
+					throw;
+				}
+				std::copy(rit.begin(), rit.end(), eit.begin());
 			}
 		}
 	}
 }
 
 // This function must keep this prototype to stay compatible with
-// what isc_que_events() expect
+// what isc_que_events() expects
+
 void EventsImpl::EventHandler(const char* object, short size, const char* tmpbuffer)
 {
 	// >>>>> This method is a STATIC member !! <<<<<
@@ -313,19 +314,26 @@ void EventsImpl::EventHandler(const char* object, short size, const char* tmpbuf
 
 	if (evi->mQueued)
 	{
-		char* rb = &evi->mResultsBuffer[0];
-		if (evi->mEventBuffer.size() < (unsigned)size) size = (short)evi->mEventBuffer.size();
-		for (int i = 0; i < size; i++)
-			rb[i] = tmpbuffer[i];
-		evi->mTrapped = true;
-		evi->mQueued = false;
-		
-		if (evi->mAsync)
+		try
 		{
-			// Fire actions immediately in case these are async events
-			evi->FireActions();
-			evi->Queue();
+			char* rb = &evi->mResultsBuffer[0];
+			if (evi->mEventBuffer.size() < (unsigned)size) size = (short)evi->mEventBuffer.size();
+			for (int i = 0; i < size; i++)
+				rb[i] = tmpbuffer[i];
+			evi->mTrapped = true;
+			evi->mQueued = false;
+			
+			if (evi->mAsync)
+			{
+				// Fire actions immediately in case these are async events
+				// We cannot let exceptions leak out of this callback function
+				// And we must guarantee that we try to re-queue even in case of problem
+				try { evi->FireActions(); }
+				catch (...) { }
+				evi->Queue();
+			}
 		}
+		catch (...) { }
 	}
 }
 
@@ -353,7 +361,7 @@ EventsImpl::EventsImpl(DatabaseImpl* database, bool async)
 	mDatabase = 0;
 	mAsync = async;
 	mId = 0;
-	mQueued = mTrapped = mThrew = false;
+	mQueued = mTrapped = false;
 	AttachDatabaseImpl(database);
 }
 

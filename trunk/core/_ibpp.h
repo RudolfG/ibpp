@@ -1356,7 +1356,6 @@ class EventsImpl : public IBPP::IEvents
 	ISC_LONG mId;			// Firebird internal Id of these events
 	bool mQueued;			// Has isc_que_events() been called?
 	bool mTrapped;			// EventHandled() was called since last que_events()
-	bool mThrew;			// EventHandler() detected an error condition
 
 	void FireActions();
 	void Queue();
@@ -1380,6 +1379,7 @@ public:
 	void List(std::vector<std::string>&);
 	void Clear();				// Drop all events
 	void Dispatch();			// Dispatch NON async events
+	bool Asynchronous() const { return mAsync; }
 
 	IBPP::Database DatabasePtr() const;
 
