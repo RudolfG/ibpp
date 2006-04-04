@@ -38,7 +38,7 @@ website at http://www.ibpp.org.
 
 ---------------------------------------------------------------------------
 
-Release Notes for Version 2.5 (March, 2006)
+Release Notes for Version 2.5 (April 4, 2006)
 
 
 1/ Introduction
@@ -58,6 +58,7 @@ tasks : creating a database, modifying its structure, performing online backups,
 administering user accounts on the server and so on.
 
 More background information on http://www.ibpp.org website.
+This website now holds full reference documentation.
 
 
 2/ Installation

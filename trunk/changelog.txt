@@ -23,6 +23,10 @@ under the License.
 The most recent addition to this file is always on top and has the highest
 item number.
 
+16. April 4, 2006
+
+- IBPP 2.5 has been released today, as of version 2.5.1.60.
+
 15. April 2, 2006
 
 - Some code cleanup in the new Events implementation. Looks great.
