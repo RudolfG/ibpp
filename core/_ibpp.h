@@ -1067,7 +1067,8 @@ private:
 	RowImpl* mInRow;
 	//bool* mInMissing;			// Quels paramètres n'ont pas été spécifiés
 	RowImpl* mOutRow;
-	bool mResultSetAvailable;	// A été exécuté et un result set est disponible
+	bool mResultSetAvailable;	// Executed and result set is available
+	bool mCursorOpened;			// dsql_set_cursor_name was called
 	IBPP::STT mType;			// Type de requète
 	std::string mSql;			// Last SQL statement prepared or executed
 
