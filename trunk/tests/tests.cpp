@@ -806,8 +806,9 @@ void Test::Test5()
 		_Success = false;
 		printf(_("Statement::Fetch() not working.\n"
 			"Returned row when there is none.\n"));
-		//double n2 = st1->GetDouble(1);
-		//double n6 = st1->GetDouble(2);
+		//double n2, n6;
+		//st1->Get(1, n2);
+		//st1->Get(2, n6);
 		//printf("%g, %g\n", n2, n6);
 	}
 
@@ -818,8 +819,9 @@ void Test::Test5()
 		_Success = false;
 		printf(_("Statement::Fetch() not working.\n"
 			"Returned row when there is none.\n"));
-		//double n2 = st1->GetDouble(1);
-		//double n6 = st1->GetDouble(2);
+		//double n2, n6;
+		//st1->Get(1, n2);
+		//st1->Get(2, n6);
 		//printf("%g, %g\n", n2, n6);
 	}
 
@@ -856,7 +858,13 @@ void Test::Test5()
 
 	// The rows vector will be deleted when function returns, which
 	// will release all individual rows and their storage. Check for leaks !
-	
+
+	// Now, run a select, fetch all but the last row
+	st1->Execute("select N2, N6 from test");
+	for (unsigned i = 0; i < rows.size()-1; i++)
+		st1->Fetch();
+
+	// And commit
 	tr1->Commit();
 }
 
