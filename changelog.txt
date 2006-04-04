@@ -25,7 +25,7 @@ item number.
 
 16. April 4, 2006
 
-- IBPP 2.5 has been released today, as of version 2.5.1.60.
+- IBPP 2.5 has been released today, as of version 2.5.1.62.
 
 15. April 2, 2006
 
