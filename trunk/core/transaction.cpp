@@ -43,7 +43,7 @@ using namespace ibpp_internals;
 
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 
-void TransactionImpl::AttachDatabase(IBPP::Database& db,
+void TransactionImpl::AttachDatabase(IBPP::Database db,
 	IBPP::TAM am, IBPP::TIL il, IBPP::TLR lr, IBPP::TFF flags)
 {
 	if (db.intf() == 0)
@@ -53,7 +53,7 @@ void TransactionImpl::AttachDatabase(IBPP::Database& db,
 	AttachDatabaseImpl(dynamic_cast<DatabaseImpl*>(db.intf()), am, il, lr, flags);
 }
 
-void TransactionImpl::DetachDatabase(IBPP::Database& db)
+void TransactionImpl::DetachDatabase(IBPP::Database db)
 {
 	if (db.intf() == 0)
 		throw LogicExceptionImpl("Transaction::DetachDatabase",
@@ -62,7 +62,7 @@ void TransactionImpl::DetachDatabase(IBPP::Database& db)
 	DetachDatabaseImpl(dynamic_cast<DatabaseImpl*>(db.intf()));
 }
 
-void TransactionImpl::AddReservation(IBPP::Database& db,
+void TransactionImpl::AddReservation(IBPP::Database db,
 	const std::string& table, IBPP::TTR tr)
 {
 	if (mHandle != 0)
