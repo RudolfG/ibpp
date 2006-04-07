@@ -95,7 +95,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (1<<8) + 63; // Version == 2.5.1.63
+	const uint32_t Version = (2<<24) + (5<<16) + (1<<8) + 64; // Version == 2.5.1.64
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
@@ -595,10 +595,10 @@ namespace IBPP
 	class ITransaction
 	{
 	public:
-	    virtual void AttachDatabase(Database& db, TAM am = amWrite,
+	    virtual void AttachDatabase(Database db, TAM am = amWrite,
 			TIL il = ilConcurrency, TLR lr = lrWait, TFF flags = TFF(0)) = 0;
-	    virtual void DetachDatabase(Database& db) = 0;
-	 	virtual void AddReservation(Database& db,
+	    virtual void DetachDatabase(Database db) = 0;
+	 	virtual void AddReservation(Database db,
 	 			const std::string& table, TTR tr) = 0;
 
 		virtual void Start() = 0;
@@ -861,22 +861,22 @@ namespace IBPP
 	inline Database DatabaseFactory(const std::string& ServerName,
 		const std::string& DatabaseName, const std::string& UserName,
 			const std::string& UserPassword)
-		{ return DatabaseFactory(ServerName, DatabaseName, UserName, UserPassword, "", "", "");	}
+		{ return DatabaseFactory(ServerName, DatabaseName, UserName, UserPassword, "", "", ""); }
 
-	Transaction TransactionFactory(Database& db, TAM am = amWrite,
+	Transaction TransactionFactory(Database db, TAM am = amWrite,
 		TIL il = ilConcurrency, TLR lr = lrWait, TFF flags = TFF(0));
 
-	Statement StatementFactory(Database& db, Transaction& tr,
+	Statement StatementFactory(Database db, Transaction tr,
 		const std::string& sql);
 
-	inline Statement StatementFactory(Database& db, Transaction& tr)
+	inline Statement StatementFactory(Database db, Transaction tr)
 		{ return StatementFactory(db, tr, ""); }
 
-	Blob BlobFactory(Database& db, Transaction& tr);
+	Blob BlobFactory(Database db, Transaction tr);
 	
-	Array ArrayFactory(Database& db, Transaction& tr);
+	Array ArrayFactory(Database db, Transaction tr);
 	
-	Events EventsFactory(Database& db, bool async);
+	Events EventsFactory(Database db, bool async);
 
 	/* IBPP uses a self initialization system. Each time an object that may
 	 * require the usage of the Interbase client C-API library is used, the

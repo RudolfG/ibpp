@@ -419,7 +419,7 @@ void Test::Test4()
 
 	IBPP::Statement st1 = IBPP::StatementFactory(db1, tr1);
 
-	IBPP::Blob b1 = IBPP::BlobFactory(db1, tr1);
+	IBPP::Blob b1 = IBPP::BlobFactory(st1->DatabasePtr(), st1->TransactionPtr());
 	IBPP::Blob bb = IBPP::BlobFactory(db1, tr1);
 	IBPP::Array ar1 = IBPP::ArrayFactory(db1, tr1);
 	IBPP::Array ar2 = IBPP::ArrayFactory(db1, tr1);

@@ -922,11 +922,11 @@ public:
 	//	(((((((( OBJECT INTERFACE ))))))))
 
 public:
-    void AttachDatabase(IBPP::Database& db, IBPP::TAM am = IBPP::amWrite,
+    void AttachDatabase(IBPP::Database db, IBPP::TAM am = IBPP::amWrite,
 			IBPP::TIL il = IBPP::ilConcurrency,
 			IBPP::TLR lr = IBPP::lrWait, IBPP::TFF flags = IBPP::TFF(0));
-    void DetachDatabase(IBPP::Database& db);
-	void AddReservation(IBPP::Database& db,
+    void DetachDatabase(IBPP::Database db);
+	void AddReservation(IBPP::Database db,
 			const std::string& table, IBPP::TTR tr);
 
     void Start();

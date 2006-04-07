@@ -302,7 +302,7 @@ namespace IBPP
 								UserPassword, RoleName, CharSet, CreateParams);
 	}
 
-	Transaction TransactionFactory(Database& db, TAM am,
+	Transaction TransactionFactory(Database db, TAM am,
 					TIL il, TLR lr, TFF flags)
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
@@ -310,7 +310,7 @@ namespace IBPP
 									am, il, lr, flags);
 	}
 
-	Statement StatementFactory(Database& db, Transaction& tr,
+	Statement StatementFactory(Database db, Transaction tr,
 		const std::string& sql)
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
@@ -319,21 +319,21 @@ namespace IBPP
 									sql);
 	}
 
-	Blob BlobFactory(Database& db, Transaction& tr)
+	Blob BlobFactory(Database db, Transaction tr)
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
 		return new BlobImpl(dynamic_cast<DatabaseImpl*>(db.intf()),
 							dynamic_cast<TransactionImpl*>(tr.intf()));
 	}
 
-	Array ArrayFactory(Database& db, Transaction& tr)
+	Array ArrayFactory(Database db, Transaction tr)
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
 		return new ArrayImpl(dynamic_cast<DatabaseImpl*>(db.intf()),
 							dynamic_cast<TransactionImpl*>(tr.intf()));
 	}
 
-	Events EventsFactory(Database& db, bool async)
+	Events EventsFactory(Database db, bool async)
 	{
 		(void)gds.Call();			// Triggers the initialization, if needed
 		return new EventsImpl(dynamic_cast<DatabaseImpl*>(db.intf()), async);
