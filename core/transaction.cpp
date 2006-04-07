@@ -193,8 +193,7 @@ void TransactionImpl::Rollback()
 
 	size_t i;
 	for (i = mStatements.size(); i != 0; i--)
-		try { mStatements[i-1]->CursorFree(); }
-			catch (IBPP::Exception&) { }
+		mStatements[i-1]->CursorFree();
 }
 
 void TransactionImpl::RollbackRetain()
