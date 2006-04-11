@@ -1042,9 +1042,7 @@ void Test::Test8()
 
 	EventCatch catcher;
 
-	// Want to play with async notifications?
-	// Turn the false into a true in the following line.
-	IBPP::Events ev = IBPP::EventsFactory(db1, false);
+	IBPP::Events ev = IBPP::EventsFactory(db1);
 	
 	// The following transaction configuration values are the defaults and
 	// those parameters could have as well be omitted to simplify writing.
@@ -1117,7 +1115,7 @@ void Test::Test8()
 	printf(_("           with a 0.050 sec sleep after each\n"));
 	for (i = 0; i < 20; i++)
 	{
-		printf(".");
+		//printf(".");
 		ev->Dispatch();
 		Sleep(50);
 	}
@@ -1137,7 +1135,7 @@ void Test::Test8()
 		Sleep(50);
 	}
 	printf("\n");
-	printf(_("           The event should not have been caught.\n"));
+	printf(_("           (If it is ok, you should see NO event caught just before this line.)\n"));
 
 	db1->Drop();
 }
@@ -1175,4 +1173,5 @@ int main(int argc, char* argv[])
 }
 
 //	Eof
+
 
