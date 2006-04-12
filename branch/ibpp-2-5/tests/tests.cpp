@@ -1122,6 +1122,7 @@ void Test::Test8()
 	printf("\n");
 
 	printf(_("           Start new transaction, trigger the event, drop it then dispatch...\n"));
+	printf(_("           You should see NO event trigger (else it would be a bug)\n"));
 	tr1->Start();
 	st1->ExecuteImmediate("INSERT INTO TEST(N2) VALUES(1)");
 	st1->ExecuteImmediate("INSERT INTO TEST(N2) VALUES(1)");
@@ -1135,7 +1136,16 @@ void Test::Test8()
 		Sleep(50);
 	}
 	printf("\n");
-	printf(_("           (If it is ok, you should see NO event caught just before this line.)\n"));
+	printf(_("           Re-registering a same event again...\n"));
+	printf(_("           You should see NO event trigger (else it would be a bug)\n"));
+
+	ev = IBPP::EventsFactory(db1);
+	ev->Add("INSERT", &catcher);
+	for (i = 0; i < 20; i++)
+	{
+		ev->Dispatch();
+		Sleep(50);
+	}
 
 	db1->Drop();
 }
