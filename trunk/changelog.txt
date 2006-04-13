@@ -23,6 +23,18 @@ under the License.
 The most recent addition to this file is always on top and has the highest
 item number.
 
+4. April 13, 2006
+
+- Renamed Events::Clear() to Events::Drop()
+
+3. April 12, 2006
+
+- Back-ported the fix to events counts thanks to Michael Hieke from 2.5.2.1.
+
+2. April 11, 2006
+
+- Back-ported the drop of the asynchronous events model from 2.5.2.0 code base.
+
 1. April 7, 2006
 
 - 2.5 code base was branched to ibpp/branch/ibpp-2-5

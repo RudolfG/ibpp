@@ -95,12 +95,12 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (1<<8) + 65; // Version == 2.5.1.65
+	const uint32_t Version = (2<<24) + (6<<16) + (0<8) + 0; // Version == 2.6.0.0
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
 	const int MaxDate = 2958464;	// 31 DEC 9999
-	
+
 	//	Transaction Access Modes
 	enum TAM {amWrite, amRead};
 
@@ -190,7 +190,7 @@ namespace IBPP
 	public:
 		virtual int SqlCode() const throw() = 0;
 		virtual int EngineCode() const throw() = 0;
-		
+
 		virtual ~SQLException() throw();
 	};
 
@@ -199,7 +199,7 @@ namespace IBPP
 	public:
 		virtual ~WrongType() throw();
 	};
-	
+
 	/* Classes Date, Time, Timestamp and DBKey are 'helper' classes.  They help
 	 * in retrieving or setting some special SQL types. Dates, times and dbkeys
 	 * are often read and written as strings in SQL scripts. When programming
@@ -215,9 +215,9 @@ namespace IBPP
 	 * The full range goes from integer values IBPP::MinDate to IBPP::MaxDate
 	 * which means from 01 Jan 0001 to 31 Dec 9999. ( Which is inherently
 	 * incorrect as this assumes Gregorian calendar. ) */
-	
+
 	class Timestamp;	// Cross-reference between Timestamp, Date and Time
-	
+
 	class Date
 	{
 	protected:
@@ -236,7 +236,7 @@ namespace IBPP
 		void Add(int days);
 		void StartOfMonth();
 		void EndOfMonth();
-	
+
 		Date()			{ Clear(); };
 		Date(int dt)	{ SetDate(dt); }
 		Date(int year, int month, int day);
@@ -460,7 +460,7 @@ namespace IBPP
 		virtual int Read(void*, int size) = 0;
 		virtual void Write(const void*, int size) = 0;
 		virtual void Info(int* Size, int* Largest, int* Segments) = 0;
-	
+
 		virtual void Save(const std::string& data) = 0;
 		virtual void Load(std::string& data) = 0;
 
@@ -549,7 +549,7 @@ namespace IBPP
 	 * object, you can create/drop/connect databases. */
 
 	class EventInterface;	// Cross-reference between EventInterface and IDatabase
-	
+
 	class IDatabase
 	{
 	public:
@@ -566,7 +566,7 @@ namespace IBPP
 			bool* Reserve) = 0;
 		virtual void Statistics(int* Fetches, int* Marks,
 			int* Reads, int* Writes) = 0;
-		virtual void Counts(int* Insert, int* Update, int* Delete, 
+		virtual void Counts(int* Insert, int* Update, int* Delete,
 			int* ReadIdx, int* ReadSeq) = 0;
 		virtual void Users(std::vector<std::string>& users) = 0;
 		virtual int Dialect() = 0;
@@ -679,7 +679,7 @@ namespace IBPP
 		virtual int ColumnSize(int) = 0;
 		virtual int ColumnScale(int) = 0;
 		virtual int Columns() = 0;
-		
+
 		virtual bool ColumnUpdated(int) = 0;
 		virtual bool Updated() = 0;
 
@@ -807,16 +807,15 @@ namespace IBPP
 		virtual bool Get(int, double*) = 0;					// DEPRECATED
 		virtual bool Get(const std::string&, double*) = 0;	// DEPRECATED
 	};
-	
+
 	class IEvents
 	{
 	public:
 		virtual void Add(const std::string&, EventInterface*) = 0;
 		virtual void Drop(const std::string&) = 0;
+		virtual void Drop() = 0;				// Drop all events
 		virtual void List(std::vector<std::string>&) = 0;
-		virtual void Clear() = 0;				// Drop all events
-		virtual void Dispatch() = 0;			// Dispatch NON async events; else it's a no-op
-		virtual bool Asynchronous() const = 0;	// Tells if this set is asynchronous or not
+		virtual void Dispatch() = 0;			// Dispatch events (calls handlers)
 
 		virtual	Database DatabasePtr() const = 0;
 
@@ -825,7 +824,7 @@ namespace IBPP
 
 	    virtual ~IEvents() { };
 	};
-	
+
 	/* Class EventInterface is merely a pure interface.
 	 * It is _not_ implemented by IBPP. It is only a base class definition from
 	 * which your own event interface classes have to derive from.
@@ -873,10 +872,10 @@ namespace IBPP
 		{ return StatementFactory(db, tr, ""); }
 
 	Blob BlobFactory(Database db, Transaction tr);
-	
+
 	Array ArrayFactory(Database db, Transaction tr);
-	
-	Events EventsFactory(Database db, bool async);
+
+	Events EventsFactory(Database db);
 
 	/* IBPP uses a self initialization system. Each time an object that may
 	 * require the usage of the Interbase client C-API library is used, the
@@ -888,7 +887,7 @@ namespace IBPP
 
 	bool CheckVersion(uint32_t);
 	int GDSVersion();
-	
+
 	/* On Win32 platform, ClientLibSearchPaths() allows to setup
 	 * one or multiple additional paths (separated with a ';') where IBPP
 	 * will look for the client library (before the default implicit search
@@ -898,7 +897,7 @@ namespace IBPP
 	 * If called, this function must be called *early* by the application,
 	 * before *any* other function or object methods of IBPP.
 	 * Currently, this is a NO-OP on platforms other than Win32. */
-	 
+
 	void ClientLibSearchPaths(const std::string&);
 
 	/* Finally, here are some date and time conversion routines used by IBPP and

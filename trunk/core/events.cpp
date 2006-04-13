@@ -44,8 +44,7 @@
 //	SPECIAL CREDIT (July 2004) : this is a complete re-implementation of this
 //	class, directly based on work by Val Samko.
 //	The whole event handling has then be completely redesigned, based on the old
-//	EPB class to bring up the current IBPP::Events implementation, supporting
-//	synchronous and asynchronous notifications.
+//	EPB class to bring up the current IBPP::Events implementation.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +96,8 @@ void EventsImpl::Add(const std::string& eventname, IBPP::EventInterface* objref)
 				((prev_buffer_size==0) ? 1 : prev_buffer_size); // Byte after current content
 		*(it++) = static_cast<char>(eventname.length());
 		it = std::copy(eventname.begin(), eventname.end(), it);
-		*(it++) = 1; *(it++) = 0; *(it++) = 0; *it = 0; // We initialize the counts to 1
+		// We initialize the counts to (uint32_t)(-1) to initialize properly, see FireActions()
+		*(it++) = -1; *(it++) = -1; *(it++) = -1; *it = -1;
 	}
 
 	// copying new event to the results buffer to keep event_buffer_ and results_buffer_ consistant,
@@ -133,7 +133,7 @@ void EventsImpl::Drop(const std::string& eventname)
 				++oit, ++eit, ++rit)
 	{
 		if (eventname != eit.get_name()) continue;
-		
+
 		// 2) Event found, remove it
 		mEventBuffer.erase(eit.begin(), eit.end());
 		mResultsBuffer.erase(rit.begin(), rit.end());
@@ -147,7 +147,7 @@ void EventsImpl::Drop(const std::string& eventname)
 void EventsImpl::List(std::vector<std::string>& events)
 {
 	events.clear();
-	
+
 	if (mEventBuffer.size() <= 1) return;	// Nothing to do, but not an error
 
 	typedef EventBufferIterator<Buffer::iterator> EventIterator;
@@ -161,10 +161,10 @@ void EventsImpl::List(std::vector<std::string>& events)
 	}
 }
 
-void EventsImpl::Clear()
+void EventsImpl::Drop()
 {
 	Cancel();
-	
+
 	mObjectReferences.clear();
 	mEventBuffer.clear();
 	mResultsBuffer.clear();
@@ -172,8 +172,8 @@ void EventsImpl::Clear()
 
 void EventsImpl::Dispatch()
 {
-	// If no events registered, or this is a set of asynchronous events, nothing to do of course.
-	if (mEventBuffer.size() == 0 || mAsync == true) return;
+	// If no events registered, nothing to do of course.
+	if (mEventBuffer.size() == 0) return;
 
 	// Let's fire the events actions for all the events which triggered, if any, and requeue.
 	FireActions();
@@ -289,6 +289,10 @@ void EventsImpl::FireActions()
 				}
 				std::copy(rit.begin(), rit.end(), eit.begin());
 			}
+			// This handles initialization too, where vold == (uint32_t)(-1)
+			// Thanks to M. Hieke for this idea and related initialization to (-1)
+			if (vnew != vold)
+ 				std::copy(rit.begin(), rit.end(), eit.begin());
 		}
 	}
 }
@@ -309,7 +313,7 @@ void EventsImpl::EventHandler(const char* object, short size, const char* tmpbuf
 	// There can be spurious calls to EventHandler from FB internal. We must
 	// dismiss those calls.
 	if (object == 0 || size == 0 || tmpbuffer == 0) return;
-		
+
 	EventsImpl* evi = (EventsImpl*)object;	// Ugly, but wanted, c-style cast
 
 	if (evi->mQueued)
@@ -322,16 +326,6 @@ void EventsImpl::EventHandler(const char* object, short size, const char* tmpbuf
 				rb[i] = tmpbuffer[i];
 			evi->mTrapped = true;
 			evi->mQueued = false;
-			
-			if (evi->mAsync)
-			{
-				// Fire actions immediately in case these are async events
-				// We cannot let exceptions leak out of this callback function
-				// And we must guarantee that we try to re-queue even in case of problem
-				try { evi->FireActions(); }
-				catch (...) { }
-				evi->Queue();
-			}
 		}
 		catch (...) { }
 	}
@@ -355,11 +349,10 @@ void EventsImpl::DetachDatabaseImpl()
 	mDatabase = 0;
 }
 
-EventsImpl::EventsImpl(DatabaseImpl* database, bool async)
+EventsImpl::EventsImpl(DatabaseImpl* database)
 	: mRefCount(0)
 {
 	mDatabase = 0;
-	mAsync = async;
 	mId = 0;
 	mQueued = mTrapped = false;
 	AttachDatabaseImpl(database);
@@ -367,9 +360,9 @@ EventsImpl::EventsImpl(DatabaseImpl* database, bool async)
 
 EventsImpl::~EventsImpl()
 {
-	try { Clear(); }
+	try { Drop(); }
 		catch (...) { }
-	
+
 	try { if (mDatabase != 0) mDatabase->DetachEventsImpl(this); }
 		catch (...) { }
 }
