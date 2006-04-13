@@ -172,7 +172,7 @@ void DatabaseImpl::Inactivate()
 
 	// Cancel all pending event traps
 	for (unsigned i = 0; i < mEvents.size(); i++)
-		mEvents[i]->Clear();
+		mEvents[i]->Drop();
 
 	// Let's detach from all Blobs
 	while (mBlobs.size() > 0)

@@ -79,11 +79,11 @@
 #ifdef IBPP_UNIX
 	const char* DbName = "~/test.fdb";
 	const char* BkName = "~/test.fbk";
-	const std::string ServerName = "localhost";
+	const std::string ServerName = "localhost";	// Change to "" for local protocol
 #else
-	const char* DbName = "C:/test.fdb";	// FDB extension (GDB is hacked by Windows Me/XP "System Restore")
-	const char* BkName = "C:/test.fbk";
-	const std::string ServerName = "localhost";	// Change to "" for local protocol / embedded
+	const char* DbName = "C:\\test.fdb";	// FDB extension (GDB is hacked by Windows Me/XP "System Restore")
+	const char* BkName = "C:\\test.fbk";
+	const std::string ServerName = "localhost";	// Change to "" for local protocol
 #endif
 
 //	The tests use by default the well-known default of SYSDBA/masterkey
@@ -100,7 +100,7 @@ class Test
 	int _WriteMode;				// 0 == default, 1 == speed, 2 == safety
 
 	void Test1();
-	void Test2(); 
+	void Test2();
 	void Test3();
 	void Test4();
 	void Test5();
@@ -325,7 +325,7 @@ void Test::Test2()
 		"           Use 'speed' command-line argument to test the other mode.\n"));
     else printf(_("           Sync Writes is disabled (Speed).\n"
 		"           Use 'safety' command-line argument to test the other mode.\n"));
- 
+
 	/**/
 	printf("           ODS Major %d\n", Major);
 	printf("           ODS Minor %d\n", Minor);
@@ -444,7 +444,7 @@ void Test::Test4()
 	st1->Get(1, dt);
 	st1->Get(2, tm);
 	st1->Get(3, ts);
-	
+
 	int y, m, d, h, min, s, t;
 	dt.GetDate(y, m, d);
 	if (y != 2004 || m != 2 || d != 29)
@@ -453,7 +453,7 @@ void Test::Test4()
 		printf("Date storage anomaly : %d / %d / %d\n", y, m, d);
 		return;
 	}
-	
+
 	tm.GetTime(h, min, s, t);
 	if (h != 10 || min != 11 || s != 12 || t != 1314)
 	{
@@ -635,7 +635,7 @@ void Test::Test4()
 	printf("           Plan: ");
 	printf(plan.c_str());
 	printf("\n");
-	
+
 	st1->Execute();
 	IBPP::Row row;
 	st1->Fetch(row);
@@ -874,7 +874,7 @@ void Test::Test6()
 
 	IBPP::Service svc = IBPP::ServiceFactory(ServerName, UserName, Password);
 	svc->Connect();
-	
+
 	try
 	{
 		std::string version;
@@ -1042,10 +1042,8 @@ void Test::Test8()
 
 	EventCatch catcher;
 
-	// Want to play with async notifications?
-	// Turn the false into a true in the following line.
-	IBPP::Events ev = IBPP::EventsFactory(db1, false);
-	
+	IBPP::Events ev = IBPP::EventsFactory(db1);
+
 	// The following transaction configuration values are the defaults and
 	// those parameters could have as well be omitted to simplify writing.
 	IBPP::Transaction tr1 = IBPP::TransactionFactory(db1,
@@ -1088,7 +1086,7 @@ void Test::Test8()
 	st1->ExecuteImmediate("INSERT INTO TEST(N2) VALUES(1)");
 	printf("           Commit...\n");
 	tr1->Commit();
-	
+
 	printf(_("           First immediate call to Dispatch()\n"));
 	ev->Dispatch();
 
@@ -1117,13 +1115,14 @@ void Test::Test8()
 	printf(_("           with a 0.050 sec sleep after each\n"));
 	for (i = 0; i < 20; i++)
 	{
-		printf(".");
+		//printf(".");
 		ev->Dispatch();
 		Sleep(50);
 	}
 	printf("\n");
 
 	printf(_("           Start new transaction, trigger the event, drop it then dispatch...\n"));
+	printf(_("           You should see NO event trigger (else it would be a bug)\n"));
 	tr1->Start();
 	st1->ExecuteImmediate("INSERT INTO TEST(N2) VALUES(1)");
 	st1->ExecuteImmediate("INSERT INTO TEST(N2) VALUES(1)");
@@ -1137,7 +1136,16 @@ void Test::Test8()
 		Sleep(50);
 	}
 	printf("\n");
-	printf(_("           The event should not have been caught.\n"));
+	printf(_("           Re-registering a same event again...\n"));
+	printf(_("           You should see NO event trigger (else it would be a bug)\n"));
+
+	ev = IBPP::EventsFactory(db1);
+	ev->Add("INSERT", &catcher);
+	for (i = 0; i < 20; i++)
+	{
+		ev->Dispatch();
+		Sleep(50);
+	}
 
 	db1->Drop();
 }
@@ -1175,4 +1183,5 @@ int main(int argc, char* argv[])
 }
 
 //	Eof
+
 

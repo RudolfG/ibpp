@@ -107,9 +107,7 @@ types. The plain scaled value is returned / expected.
 
 - Complete rewrite of all the events handling system.
 There is new first class citizen IBPP::Events. Events holds a set of events
-related to a specific instance of a connected Database. Upon creation of
-the Events object, one can request these events to be delivered in an
-asynchronous manner (NEW!) or in a synchronous (as before version 2.5).
+related to a specific instance of a connected Database.
 An application can register multiple sets of events on a same Database
 connection. Of course this change is completely source code incompatible
 with previous versions. Essentially, the changes only involve obtaining
@@ -179,13 +177,13 @@ this interface on IBPP::Blob was logical now that IBPP::Statement had a direct
 support for blobs and std:string.
 
 - Added void ClientLibSearchPaths(const std::string&);
-On Win32 platform, ClientLibSearchPaths() allows to setup one or multiple 
-additional paths (separated with a ';') where IBPP will look for the client 
-library (before the default implicit search locations). This is usefull for 
-applications distributed with a 'private' copy of Firebird, when the registry 
-is useless to identify the location from where to attempt loading the 
-fbclient.dll / gds32.dll. If called, this function must be called *early* by 
-the application, before *any* other function or object methods of IBPP. This 
+On Win32 platform, ClientLibSearchPaths() allows to setup one or multiple
+additional paths (separated with a ';') where IBPP will look for the client
+library (before the default implicit search locations). This is usefull for
+applications distributed with a 'private' copy of Firebird, when the registry
+is useless to identify the location from where to attempt loading the
+fbclient.dll / gds32.dll. If called, this function must be called *early* by
+the application, before *any* other function or object methods of IBPP. This
 is currently a NO-OP on platforms other than Win32.
 
 - Changed the date / time / timestamp support in order to get access to the sub-second
@@ -316,7 +314,7 @@ revised and now offer :
 		int* Buffers, int* Sweep, bool* Sync, bool* Reserve) = 0;
 	virtual void Statistics(int* Fetches, int* Marks,
 		int* Reads, int* Writes) = 0;
-	virtual void Counts(int* Insert, int* Update, int* Delete, 
+	virtual void Counts(int* Insert, int* Update, int* Delete,
 		int* ReadIdx, int* ReadSeq) = 0;
 
 - The Database interface method DropEvent() has been dropped. It was never
