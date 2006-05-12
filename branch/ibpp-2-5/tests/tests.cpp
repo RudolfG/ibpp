@@ -126,6 +126,8 @@ void Test::RunTests()
 {
 	int NextTest = 1;
 
+	//IBPP::ClientLibSearchPaths("C:\\integral_90\\firebird\\bin");
+
 	printf(_("\nIBPP Test Suite (Version %d.%d.%d.%d)\n\n"),
 		(IBPP::Version & 0xFF000000) >> 24,
 		(IBPP::Version & 0x00FF0000) >> 16,
@@ -707,8 +709,16 @@ void Test::Test4()
 	delete [] pa4;
 	*/
 
-	st1->Close();	// unneeded : just to test
+	st1->Close();	// unneeded : just to test an old bug fix
 	tr1->Commit();
+
+	// Testing old weird cursor close issues on commits/rollbacks
+	tr1->Start();
+	st1->Prepare("select B, BB, A2 from test where ID = 1 for update");
+	st1->CursorExecute("name");
+	//st1->Fetch();
+	tr1->Commit();	// This used to be an issue with CursorFree()
+
 	db1->Disconnect();
 }
 

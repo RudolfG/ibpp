@@ -38,7 +38,7 @@ website at http://www.ibpp.org.
 
 ---------------------------------------------------------------------------
 
-Release Notes for Version 2.5 (April 4, 2006)
+Release Notes for Version 2.5 (May 12, 2006)
 
 
 1/ Introduction
@@ -118,6 +118,14 @@ Then to replace previous methods calls as such:
 	Database::ClearEvents --> Events::Clear
 	Database::DispatchEvents --> Events::Dispatch
 The upgrade path is then nearly trivial.
+
+- When IBPP attempts to load the FBCLIENT.DLL (Win32) from specific directories
+(either as reported by the FB 1.5/2.0 registry keys or through the indirect
+use of ClientLibSearchPaths), IBPP now alters the host process private PATH
+environment variable to add the directory from where the load is attempted.
+This helps windows find local copies of Microsoft runtime libraries when
+those are installed locally along with the Firebird binaries but not
+generally available in the system paths.
 
 
 4/ Comments, Acknowledgments

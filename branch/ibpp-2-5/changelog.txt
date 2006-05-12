@@ -23,7 +23,21 @@ under the License.
 The most recent addition to this file is always on top and has the highest
 item number.
 
-20. April 12, 200§
+21. May 12, 2006
+
+- Back ported a small addition from HEAD branch. When IBPP attempts to load
+the FBCLIENT.DLL (Win32) from specific directories (either as reported by the
+FB 1.5/2.0 registry keys or through the indirect use of ClientLibSearchPaths),
+IBPP now alters the host process private PATH environment variable to add the
+directory from where the load is attempted. This helps windows find local
+copies of Microsoft runtime libraries when those are installed locally along
+with the Firebird binaries but not generally available in the system paths.
+
+- Fixed a bug introduced with 2.5 code base regarding Commit and Rollback of
+transaction which called CursorExecute() but didn't Fetch() anything. There was
+a logic error in this whole scheme.
+
+20. April 12, 2006
 
 - Thanks to FlameRobin team and Michael Hieke for detecting a discrepancy
 in the events counts when one Add(), Drop(), and re-Add() a same event in
