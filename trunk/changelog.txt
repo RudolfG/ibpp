@@ -23,6 +23,13 @@ under the License.
 The most recent addition to this file is always on top and has the highest
 item number.
 
+5. May 12, 2006
+
+- Fixed a bug introduced with 2.5 code base regarding Commit and Rollback of
+transaction which called CursorExecute() but didn't Fetch() anything. There was
+a logic error in this whole scheme. This fix has also been introduced to 2.5
+code base.
+
 4. April 13, 2006
 
 - Renamed Events::Clear() to Events::Drop()
