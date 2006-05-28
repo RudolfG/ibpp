@@ -57,7 +57,7 @@ void StatementImpl::Prepare(const std::string& sql)
 	// Saves the SQL sentence, only for reporting reasons in case of errors
 	mSql = sql;
 
-	IBS status;
+	IBS status(mDriver);
 
 	// Free all resources currently attached to this Statement, then allocate
 	// a new statement descriptor.
@@ -88,8 +88,8 @@ void StatementImpl::Prepare(const std::string& sql)
 	*/
 
 	// Allocates output descriptor and prepares the statement
-	mOutRow = new RowImpl(mDatabase->Dialect(), outEstimate, mDatabase, mTransaction);
-	mOutRow->AddRef();
+	mOutRow = new RowImpl(mDriver, mDatabase->Dialect(), outEstimate, mDatabase, mTransaction);
+	//mOutRow->AddRef();
 
 	status.Reset();
 	(mDriver->m_dsql_prepare)(status.Self(), mTransaction->GetHandlePtr(),
@@ -173,7 +173,7 @@ void StatementImpl::Prepare(const std::string& sql)
 	if (inEstimate > 0)
 	{
 		// Ready an input descriptor
-		mInRow = new RowImpl(mDatabase->Dialect(), inEstimate, mDatabase, mTransaction);
+		mInRow = new RowImpl(mDriver, mDatabase->Dialect(), inEstimate, mDatabase, mTransaction);
 		mInRow->AddRef();
 
 		status.Reset();
@@ -243,8 +243,8 @@ void StatementImpl::Plan(std::string& plan)
 	if (mDatabase->GetHandle() == 0)
 		throw LogicExceptionImpl("Statement::Plan", _("Database must be connected."));
 
-	IBS status;
-	RB result(4096);
+	IBS status(mDriver);
+	RB result(mDriver, 4096);
 	char itemsReq[] = {isc_info_sql_get_plan};
 
 	(mDriver->m_dsql_sql_info)(status.Self(), &mHandle, 1, itemsReq,
@@ -271,7 +271,7 @@ void StatementImpl::Execute(const std::string& sql)
 
 	CursorFree();	// Free a previous 'cursor' if any
 
-	IBS status;
+	IBS status(mDriver);
 	if (mType == IBPP::stSelect)
 	{
 		// Could return a result set (none, single or multi rows)
@@ -325,7 +325,7 @@ void StatementImpl::CursorExecute(const std::string& cursor, const std::string& 
 
 	CursorFree();	// Free a previous 'cursor' if any
 
-	IBS status;
+	IBS status(mDriver);
 	(mDriver->m_dsql_execute)(status.Self(), mTransaction->GetHandlePtr(),
 		&mHandle, 1, mInRow == 0 ? 0 : mInRow->Self());
 	if (status.Errors())
@@ -363,7 +363,7 @@ void StatementImpl::ExecuteImmediate(const std::string& sql)
 	if (sql.empty())
 		throw LogicExceptionImpl("Statement::ExecuteImmediate", _("SQL statement can't be 0."));
 
-	IBS status;
+	IBS status(mDriver);
 	Close();
     (mDriver->m_dsql_execute_immediate)(status.Self(), mDatabase->GetHandlePtr(),
     	mTransaction->GetHandlePtr(), 0, const_cast<char*>(sql.c_str()),
@@ -387,8 +387,8 @@ int StatementImpl::AffectedRows()
 		throw LogicExceptionImpl("Statement::AffectedRows", _("Database must be connected."));
 
 	int count;
-	IBS status;
-	RB result;
+	IBS status(mDriver);
+	RB result(mDriver);
 	char itemsReq[] = {isc_info_sql_records};
 
 	(mDriver->m_dsql_sql_info)(status.Self(), &mHandle, 1, itemsReq,
@@ -415,7 +415,7 @@ bool StatementImpl::Fetch()
 		throw LogicExceptionImpl("Statement::Fetch",
 			_("No statement has been executed or no result set available."));
 
-	IBS status;
+	IBS status(mDriver);
 	int code = (mDriver->m_dsql_fetch)(status.Self(), &mHandle, 1, mOutRow->Self());
 	if (code == 100)	// This special code means "no more rows"
 	{
@@ -436,6 +436,7 @@ bool StatementImpl::Fetch()
 	return true;
 }
 
+/*
 bool StatementImpl::Fetch(IBPP::Row& row)
 {
 	if (! mResultSetAvailable)
@@ -445,7 +446,7 @@ bool StatementImpl::Fetch(IBPP::Row& row)
 	RowImpl* rowimpl = new RowImpl(*mOutRow);
 	row = rowimpl;
 
-	IBS status;
+	IBS status(mDriver);
 	int code = (mDriver->m_dsql_fetch)(status.Self(), &mHandle, 1,
 					rowimpl->Self());
 	if (code == 100)	// This special code means "no more rows"
@@ -468,6 +469,7 @@ bool StatementImpl::Fetch(IBPP::Row& row)
 
 	return true;
 }
+*/
 
 void StatementImpl::Close()
 {
@@ -483,7 +485,7 @@ void StatementImpl::Close()
 
 	if (mHandle != 0)
 	{
-		IBS status;
+		IBS status(mDriver);
 		(mDriver->m_dsql_free_statement)(status.Self(), &mHandle, DSQL_drop);
 		mHandle = 0;
 		if (status.Errors())
@@ -1266,7 +1268,7 @@ void StatementImpl::CursorFree()
 		mCursorOpened = false;
 		if (mHandle != 0)
 		{
-			IBS status;
+			IBS status(mDriver);
 			(mDriver->m_dsql_free_statement)(status.Self(), &mHandle, DSQL_close);
 			if (status.Errors())
 				throw SQLExceptionImpl(status, "StatementImpl::CursorFree(DSQL_close)",
@@ -1275,9 +1277,9 @@ void StatementImpl::CursorFree()
 	}
 }
 
-StatementImpl::StatementImpl(DatabaseImpl* database, TransactionImpl* transaction,
+StatementImpl::StatementImpl(DriverImpl* drv, DatabaseImpl* database, TransactionImpl* transaction,
 	const std::string& sql)
-	: mRefCount(0), mHandle(0), mDatabase(0), mTransaction(0),
+	: mRefCount(0), mDriver(drv), mHandle(0), mDatabase(0), mTransaction(0),
 	mInRow(0), mOutRow(0),
 	mResultSetAvailable(false), mCursorOpened(false), mType(IBPP::stUnknown)
 {

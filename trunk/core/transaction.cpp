@@ -141,7 +141,7 @@ void TransactionImpl::Start()
 		teb[i].tpb_ptr = mTPBs[i]->Self();
 	}
 
-	IBS status;
+	IBS status(mDriver);
 	(mDriver->m_start_multiple)(status.Self(), &mHandle, (short)mDatabases.size(), teb);
 	delete [] teb;
 	if (status.Errors())
@@ -156,7 +156,7 @@ void TransactionImpl::Commit()
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Transaction::Commit", _("Transaction is not started."));
 		
-	IBS status;
+	IBS status(mDriver);
 
 	(mDriver->m_commit_transaction)(status.Self(), &mHandle);
 	if (status.Errors())
@@ -169,7 +169,7 @@ void TransactionImpl::CommitRetain()
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Transaction::CommitRetain", _("Transaction is not started."));
 
-	IBS status;
+	IBS status(mDriver);
 
 	(mDriver->m_commit_retaining)(status.Self(), &mHandle);
 	if (status.Errors())
@@ -180,7 +180,7 @@ void TransactionImpl::Rollback()
 {
 	if (mHandle == 0) return;	// Transaction not started anyway
 
-	IBS status;
+	IBS status(mDriver);
 
 	(mDriver->m_rollback_transaction)(status.Self(), &mHandle);
 	if (status.Errors())
@@ -193,7 +193,7 @@ void TransactionImpl::RollbackRetain()
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Transaction::RollbackRetain", _("Transaction is not started."));
 
-	IBS status;
+	IBS status(mDriver);
 
 	(mDriver->m_rollback_retaining)(status.Self(), &mHandle);
 	if (status.Errors())
@@ -346,9 +346,9 @@ void TransactionImpl::DetachDatabaseImpl(DatabaseImpl* dbi)
 	dbi->DetachTransactionImpl(this);
 }
 
-TransactionImpl::TransactionImpl(DatabaseImpl* db,
+TransactionImpl::TransactionImpl(DriverImpl* drv, DatabaseImpl* db,
 	IBPP::TAM am, IBPP::TIL il, IBPP::TLR lr, IBPP::TFF flags)
-	: mRefCount(0)
+	: mRefCount(0), mDriver(drv)
 {
 	Init();
 	AttachDatabaseImpl(db, am, il, lr, flags);

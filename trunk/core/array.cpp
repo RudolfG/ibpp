@@ -54,7 +54,7 @@ void ArrayImpl::Describe(const std::string& table, const std::string& column)
 
 	ResetId();	// Re-use this array object if was previously assigned
 
-	IBS status;
+	IBS status(mDriver);
 	(mDriver->m_array_lookup_bounds)(status.Self(), mDatabase->GetHandlePtr(),
 		mTransaction->GetHandlePtr(), const_cast<char*>(table.c_str()),
 			const_cast<char*>(column.c_str()), &mDesc);
@@ -203,7 +203,7 @@ void ArrayImpl::ReadTo(IBPP::ADT adtype, void* data, int datacount)
 	if (datacount != mElemCount)
 		throw LogicExceptionImpl("Array::ReadTo", _("Wrong count of array elements"));
 
-	IBS status;
+	IBS status(mDriver);
 	ISC_LONG lenbuf = mBufferSize;
 	(mDriver->m_array_get_slice)(status.Self(), mDatabase->GetHandlePtr(),
 		mTransaction->GetHandlePtr(), &mId, &mDesc, mBuffer, &lenbuf);
@@ -888,7 +888,7 @@ void ArrayImpl::WriteFrom(IBPP::ADT adtype, const void* data, int datacount)
 			throw LogicExceptionImpl("Array::WriteFrom", _("Unknown sql type."));
 	}
 
-	IBS status;
+	IBS status(mDriver);
 	ISC_LONG lenbuf = mBufferSize;
 	(mDriver->m_array_put_slice)(status.Self(), mDatabase->GetHandlePtr(),
 		mTransaction->GetHandlePtr(), &mId, &mDesc, mBuffer, &lenbuf);
@@ -1022,8 +1022,8 @@ void ArrayImpl::DetachTransactionImpl()
 	mTransaction = 0;
 }
 
-ArrayImpl::ArrayImpl(DatabaseImpl* database, TransactionImpl* transaction)
-	: mRefCount(0)
+ArrayImpl::ArrayImpl(DriverImpl* drv, DatabaseImpl* database, TransactionImpl* transaction)
+	: mRefCount(0), mDriver(drv)
 {
 	Init();
 	AttachDatabaseImpl(database);

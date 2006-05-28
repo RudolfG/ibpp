@@ -242,11 +242,16 @@ void DriverImpl::Unload()
 	}
 }
 
+void DriverImpl::GetVersion(std::string &version)
+{
+	version.erase();
+}
+
 IBPP::Service DriverImpl::ServiceFactory(const std::string& ServerName,
 				const std::string& UserName, const std::string& UserPassword)
 {
 	Load();			// Triggers the initialization, if needed
-	return new ServiceImpl(ServerName, UserName, UserPassword);
+	return new ServiceImpl(this, ServerName, UserName, UserPassword);
 }
 
 IBPP::Database DriverImpl::DatabaseFactory(const std::string& ServerName,
@@ -255,7 +260,7 @@ IBPP::Database DriverImpl::DatabaseFactory(const std::string& ServerName,
 		const std::string& CharSet, const std::string& CreateParams)
 {
 	Load();			// Triggers the initialization, if needed
-	return new DatabaseImpl(ServerName, DatabaseName, UserName,
+	return new DatabaseImpl(this, ServerName, DatabaseName, UserName,
 							UserPassword, RoleName, CharSet, CreateParams);
 }
 
@@ -263,7 +268,7 @@ IBPP::Transaction DriverImpl::TransactionFactory(IBPP::Database db, IBPP::TAM am
 					IBPP::TIL il, IBPP::TLR lr, IBPP::TFF flags)
 {
 	Load();			// Triggers the initialization, if needed
-	return new TransactionImpl(	dynamic_cast<DatabaseImpl*>(db.intf()),
+	return new TransactionImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()),
 								am, il, lr, flags);
 }
 
@@ -271,7 +276,7 @@ IBPP::Statement DriverImpl::StatementFactory(IBPP::Database db, IBPP::Transactio
 		const std::string& sql)
 {
 	Load();			// Triggers the initialization, if needed
-	return new StatementImpl(	dynamic_cast<DatabaseImpl*>(db.intf()),
+	return new StatementImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()),
 								dynamic_cast<TransactionImpl*>(tr.intf()),
 								sql);
 }
@@ -279,21 +284,21 @@ IBPP::Statement DriverImpl::StatementFactory(IBPP::Database db, IBPP::Transactio
 IBPP::Blob DriverImpl::BlobFactory(IBPP::Database db, IBPP::Transaction tr)
 {
 	Load();			// Triggers the initialization, if needed
-	return new BlobImpl(dynamic_cast<DatabaseImpl*>(db.intf()),
+	return new BlobImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()),
 						dynamic_cast<TransactionImpl*>(tr.intf()));
 }
 
 IBPP::Array DriverImpl::ArrayFactory(IBPP::Database db, IBPP::Transaction tr)
 {
 	Load();			// Triggers the initialization, if needed
-	return new ArrayImpl(dynamic_cast<DatabaseImpl*>(db.intf()),
+	return new ArrayImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()),
 						dynamic_cast<TransactionImpl*>(tr.intf()));
 }
 
 IBPP::Events DriverImpl::EventsFactory(IBPP::Database db)
 {
 	Load();			// Triggers the initialization, if needed
-	return new EventsImpl(dynamic_cast<DatabaseImpl*>(db.intf()));
+	return new EventsImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()));
 }
 
 IBPP::IDriver* DriverImpl::AddRef()

@@ -125,8 +125,8 @@ void EventsImpl::Drop(const std::string& eventname)
 
 	// 1) Find the event in the buffers
 	typedef EventBufferIterator<Buffer::iterator> EventIterator;
-	EventIterator eit(mEventBuffer.begin()+1);
-	EventIterator rit(mResultsBuffer.begin()+1);
+	EventIterator eit(mDriver, mEventBuffer.begin()+1);
+	EventIterator rit(mDriver, mResultsBuffer.begin()+1);
 
 	for (ObjRefs::iterator oit = mObjectReferences.begin();
 			oit != mObjectReferences.end();
@@ -151,7 +151,7 @@ void EventsImpl::List(std::vector<std::string>& events)
 	if (mEventBuffer.size() <= 1) return;	// Nothing to do, but not an error
 
 	typedef EventBufferIterator<Buffer::iterator> EventIterator;
-	EventIterator eit(mEventBuffer.begin()+1);
+	EventIterator eit(mDriver, mEventBuffer.begin()+1);
 
 	for (ObjRefs::iterator oit = mObjectReferences.begin();
 			oit != mObjectReferences.end();
@@ -213,18 +213,18 @@ void EventsImpl::Queue()
 			throw LogicExceptionImpl("EventsImpl::Queue",
 				  _("Database is not connected"));
 
-		IBS vector;
+		IBS status(mDriver);
 		mTrapped = false;
 		mQueued = true;
-		(mDriver->m_que_events)(vector.Self(), mDatabase->GetHandlePtr(), &mId,
+		(mDriver->m_que_events)(status.Self(), mDatabase->GetHandlePtr(), &mId,
 			short(mEventBuffer.size()), &mEventBuffer[0],
 				(isc_callback)EventHandler, (char*)this);
 
-		if (vector.Errors())
+		if (status.Errors())
 		{
 			mId = 0;	// Should be, but better be safe
 			mQueued = false;
-			throw SQLExceptionImpl(vector, "EventsImpl::Queue",
+			throw SQLExceptionImpl(status, "EventsImpl::Queue",
 				_("isc_que_events failed"));
 		}
 	}
@@ -237,7 +237,7 @@ void EventsImpl::Cancel()
 		if (mDatabase->GetHandle() == 0) throw LogicExceptionImpl("EventsImpl::Cancel",
 			_("Database is not connected"));
 
-		IBS vector;
+		IBS status(mDriver);
 
 		// A call to cancel_events will call *once* the handler routine, even
 		// though no events had fired. This is why we first set mEventsQueued
@@ -245,12 +245,12 @@ void EventsImpl::Cancel()
 		// subsequent to the execution of isc_cancel_events().
 		mTrapped = false;
 		mQueued = false;
-		(mDriver->m_cancel_events)(vector.Self(), mDatabase->GetHandlePtr(), &mId);
+		(mDriver->m_cancel_events)(status.Self(), mDatabase->GetHandlePtr(), &mId);
 
-	    if (vector.Errors())
+	    if (status.Errors())
 		{
 			mQueued = true;	// Need to restore this as cancel failed
-	    	throw SQLExceptionImpl(vector, "EventsImpl::Cancel",
+	    	throw SQLExceptionImpl(status, "EventsImpl::Cancel",
 	    		_("isc_cancel_events failed"));
 		}
 
@@ -263,15 +263,15 @@ void EventsImpl::FireActions()
 	if (mTrapped)
 	{
 		typedef EventBufferIterator<Buffer::iterator> EventIterator;
-		EventIterator eit(mEventBuffer.begin()+1);
-		EventIterator rit(mResultsBuffer.begin()+1);
+		EventIterator eit(mDriver, mEventBuffer.begin()+1);
+		EventIterator rit(mDriver, mResultsBuffer.begin()+1);
 
 		for (ObjRefs::iterator oit = mObjectReferences.begin();
 			 oit != mObjectReferences.end();
 				 ++oit, ++eit, ++rit)
 		{
-			if (eit == EventIterator(mEventBuffer.end())
-				  || rit == EventIterator(mResultsBuffer.end()))
+			if (eit == EventIterator(mDriver, mEventBuffer.end())
+				  || rit == EventIterator(mDriver, mResultsBuffer.end()))
 				throw LogicExceptionImpl("EventsImpl::FireActions", _("Internal buffer size error"));
 			uint32_t vnew = rit.get_count();
 			uint32_t vold = eit.get_count();
@@ -349,8 +349,8 @@ void EventsImpl::DetachDatabaseImpl()
 	mDatabase = 0;
 }
 
-EventsImpl::EventsImpl(DatabaseImpl* database)
-	: mRefCount(0)
+EventsImpl::EventsImpl(DriverImpl* drv, DatabaseImpl* database)
+	: mRefCount(0), mDriver(drv)
 {
 	mDatabase = 0;
 	mId = 0;
