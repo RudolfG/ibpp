@@ -1366,8 +1366,8 @@ public:
 template<class It>
 struct EventBufferIterator
 {
-	It mIt;
 	DriverImpl* mDriver;
+	It mIt;
 
 public:
 	EventBufferIterator& operator++()
