@@ -49,7 +49,7 @@ char* RB::FindToken(char token)
 		int len;
 
 		if (*p == token) return p;
-		len = (*gds.Call()->m_vax_integer)(p+1, 2);
+		len = (mDriver->m_vax_integer)(p+1, 2);
 		p += (len + 3);
 	}
 
@@ -67,18 +67,18 @@ char* RB::FindToken(char token, char subtoken)
 		if (*p == token)
 		{
 			// Found token, now find subtoken
-			int inlen = (*gds.Call()->m_vax_integer)(p+1, 2);
+			int inlen = (mDriver->m_vax_integer)(p+1, 2);
 			p += 3;
 			while (inlen > 0)
 			{
 				if (*p == subtoken) return p;
-				len = (*gds.Call()->m_vax_integer)(p+1, 2);
+				len = (mDriver->m_vax_integer)(p+1, 2);
 				p += (len + 3);
 				inlen -= (len + 3);
 			}
 			return 0;
 		}
-		len = (*gds.Call()->m_vax_integer)(p+1, 2);
+		len = (mDriver->m_vax_integer)(p+1, 2);
 		p += (len + 3);
 	}
 
@@ -94,9 +94,9 @@ int RB::GetValue(char token)
 	if (p == 0)
 		throw LogicExceptionImpl("RB::GetValue", _("Token not found."));
 
-	len = (*gds.Call()->m_vax_integer)(p+1, 2);
+	len = (mDriver->m_vax_integer)(p+1, 2);
 	if (len == 0) value = 0;
-	else value = (*gds.Call()->m_vax_integer)(p+3, (short)len);
+	else value = (mDriver->m_vax_integer)(p+3, (short)len);
 
 	return value;
 }
@@ -113,7 +113,7 @@ int RB::GetCountValue(char token)
 		throw LogicExceptionImpl("RB::GetCountValue", _("Token not found."));
 
 	// len is the number of bytes in the following array
-	len = (*gds.Call()->m_vax_integer)(p+1, 2);
+	len = (mDriver->m_vax_integer)(p+1, 2);
 	p += 3;
 	value = 0;
 	while (len > 0)
@@ -121,7 +121,7 @@ int RB::GetCountValue(char token)
 		// Each array item is 6 bytes : 2 bytes for the relation_id which
 		// we skip, and 4 bytes for the count value which we sum up accross
 		// all tables.
-		value += (*gds.Call()->m_vax_integer)(p+2, 4);
+		value += (mDriver->m_vax_integer)(p+2, 4);
 		p += 6;
 		len -= 6;
 	}
@@ -138,9 +138,9 @@ int RB::GetValue(char token, char subtoken)
 	if (p == 0)
 		throw LogicExceptionImpl("RB::GetValue", _("Token/Subtoken not found."));
 
-	len = (*gds.Call()->m_vax_integer)(p+1, 2);
+	len = (mDriver->m_vax_integer)(p+1, 2);
 	if (len == 0) value = 0;
-	else value = (*gds.Call()->m_vax_integer)(p+3, (short)len);
+	else value = (mDriver->m_vax_integer)(p+3, (short)len);
 
 	return value;
 }
@@ -153,7 +153,7 @@ bool RB::GetBool(char token)
 	if (p == 0)
 		throw LogicExceptionImpl("RB::GetBool", _("Token not found."));
 
-	value = (*gds.Call()->m_vax_integer)(p+1, 4);
+	value = (mDriver->m_vax_integer)(p+1, 4);
 
 	return value == 0 ? false : true;
 }
@@ -166,7 +166,7 @@ int RB::GetString(char token, std::string& data)
 	if (p == 0)
 		throw LogicExceptionImpl("RB::GetString", _("Token not found."));
 
-	len = (*gds.Call()->m_vax_integer)(p+1, 2);
+	len = (mDriver->m_vax_integer)(p+1, 2);
 	data = std::string(p+3, len);
 	return len;
 }

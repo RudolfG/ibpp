@@ -437,6 +437,7 @@ namespace IBPP
 
 	class IBlob;			typedef Ptr<IBlob> Blob;
 	class IArray;			typedef Ptr<IArray> Array;
+	class IDriver;			typedef Ptr<IDriver> Driver;
 	class IService;			typedef Ptr<IService> Service;
 	class IDatabase;		typedef Ptr<IDatabase> Database;
 	class ITransaction;		typedef Ptr<ITransaction> Transaction;
@@ -499,6 +500,58 @@ namespace IBPP
 		virtual ~IArray() { };
 	};
 
+	/* IDriver is the basic building block interface of IBPP. It is responsible for
+	 * loading a interface to a database engine and to factory the other interfaces
+	 * instances. */
+
+	class IDriver
+	{
+	public:
+		virtual void Load(const std::string& paths) = 0;
+		virtual void Load() = 0;
+		virtual bool Loaded() const = 0;
+		virtual void Unload() = 0;
+
+		virtual void GetVersion(std::string& version) = 0;
+
+		virtual Service ServiceFactory(const std::string& ServerName,
+							const std::string& UserName, const std::string& UserPassword) = 0;
+
+		virtual Database DatabaseFactory(const std::string& ServerName,
+							const std::string& DatabaseName, const std::string& UserName,
+								const std::string& UserPassword, const std::string& RoleName,
+									const std::string& CharSet, const std::string& CreateParams) = 0;
+
+		virtual Database DatabaseFactory(const std::string& ServerName,
+							const std::string& DatabaseName, const std::string& UserName,
+								const std::string& UserPassword) = 0;
+		/*
+		{ return DatabaseFactory(ServerName, DatabaseName, UserName, UserPassword, "", "", ""); }
+		*/
+
+		virtual Transaction TransactionFactory(Database db, TAM am = amWrite,
+								TIL il = ilConcurrency, TLR lr = lrWait, TFF flags = TFF(0)) = 0;
+
+		virtual Statement StatementFactory(Database db, Transaction tr,
+							const std::string& sql) = 0;
+
+		virtual Statement StatementFactory(Database db, Transaction tr) = 0;
+		/*
+		{ return StatementFactory(db, tr, ""); }
+		*/
+
+		virtual Blob BlobFactory(Database db, Transaction tr) = 0;
+		virtual Array ArrayFactory(Database db, Transaction tr) = 0;
+		virtual Events EventsFactory(Database db) = 0;
+
+		virtual IDriver* AddRef() = 0;
+		virtual void Release() = 0;
+
+		virtual ~IDriver() { };
+	};
+
+	Driver DriverFactory();		// Used to get an instance of a Driver interface
+
 	/* IService is the interface to the service capabilities of IBPP. Service is
 	 * the object class you actually use in your programming. With a Service
 	 * object, you can do some maintenance work of databases and servers
@@ -537,6 +590,8 @@ namespace IBPP
 
 		virtual const char* WaitMsg() = 0;	// With reporting (does not block)
 		virtual void Wait() = 0;			// Without reporting (does block)
+
+		virtual	Driver DriverPtr() const = 0;
 
 		virtual IService* AddRef() = 0;
 		virtual void Release() = 0;
@@ -578,6 +633,8 @@ namespace IBPP
 		virtual void Disconnect() = 0;
 		virtual void Drop() = 0;
 
+		virtual	Driver DriverPtr() const = 0;
+
 		virtual IDatabase* AddRef() = 0;
 		virtual void Release() = 0;
 
@@ -607,6 +664,8 @@ namespace IBPP
 	    virtual void Rollback() = 0;
 	    virtual void CommitRetain() = 0;
 		virtual void RollbackRetain() = 0;
+
+		virtual	Driver DriverPtr() const = 0;
 
 		virtual ITransaction* AddRef() = 0;
 		virtual void Release() = 0;
@@ -785,6 +844,7 @@ namespace IBPP
 
 		virtual	Database DatabasePtr() const = 0;
 		virtual Transaction TransactionPtr() const = 0;
+		virtual	Driver DriverPtr() const = 0;
 
 		virtual IStatement* AddRef() = 0;
 		virtual void Release() = 0;
@@ -818,6 +878,7 @@ namespace IBPP
 		virtual void Dispatch() = 0;			// Dispatch events (calls handlers)
 
 		virtual	Database DatabasePtr() const = 0;
+		virtual	Driver DriverPtr() const = 0;
 
 		virtual IEvents* AddRef() = 0;
 		virtual void Release() = 0;
@@ -837,46 +898,6 @@ namespace IBPP
 		virtual ~EventInterface() { };
 	};
 
-	//	--- Factories ---
-	//	These methods are the only way to get one of the above
-	//	Interfaces.  They are at the heart of how you program using IBPP.  For
-	//	instance, to get access to a database, you'll write code similar to this:
-	//	{
-	//		Database db = DatabaseFactory("server", "databasename",
-	//						"user", "password");
-	//		db->Connect();
-	//		...
-	//		db->Disconnect();
-	//	}
-
-	Service ServiceFactory(const std::string& ServerName,
-		const std::string& UserName, const std::string& UserPassword);
-
-	Database DatabaseFactory(const std::string& ServerName,
-		const std::string& DatabaseName, const std::string& UserName,
-			const std::string& UserPassword, const std::string& RoleName,
-				const std::string& CharSet, const std::string& CreateParams);
-
-	inline Database DatabaseFactory(const std::string& ServerName,
-		const std::string& DatabaseName, const std::string& UserName,
-			const std::string& UserPassword)
-		{ return DatabaseFactory(ServerName, DatabaseName, UserName, UserPassword, "", "", ""); }
-
-	Transaction TransactionFactory(Database db, TAM am = amWrite,
-		TIL il = ilConcurrency, TLR lr = lrWait, TFF flags = TFF(0));
-
-	Statement StatementFactory(Database db, Transaction tr,
-		const std::string& sql);
-
-	inline Statement StatementFactory(Database db, Transaction tr)
-		{ return StatementFactory(db, tr, ""); }
-
-	Blob BlobFactory(Database db, Transaction tr);
-
-	Array ArrayFactory(Database db, Transaction tr);
-
-	Events EventsFactory(Database db);
-
 	/* IBPP uses a self initialization system. Each time an object that may
 	 * require the usage of the Interbase client C-API library is used, the
 	 * library internal handling details are automatically initialized, if not
@@ -887,18 +908,6 @@ namespace IBPP
 
 	bool CheckVersion(uint32_t);
 	int GDSVersion();
-
-	/* On Win32 platform, ClientLibSearchPaths() allows to setup
-	 * one or multiple additional paths (separated with a ';') where IBPP
-	 * will look for the client library (before the default implicit search
-	 * locations). This is usefull for applications distributed with a 'private'
-	 * copy of Firebird, when the registry is useless to identify the location
-	 * from where to attempt loading the fbclient.dll / gds32.dll.
-	 * If called, this function must be called *early* by the application,
-	 * before *any* other function or object methods of IBPP.
-	 * Currently, this is a NO-OP on platforms other than Win32. */
-
-	void ClientLibSearchPaths(const std::string&);
 
 	/* Finally, here are some date and time conversion routines used by IBPP and
 	 * that may be helpful at the application level. They do not depend on

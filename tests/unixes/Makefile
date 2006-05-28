@@ -86,6 +86,7 @@ CORE_SRCS +=	array.cpp
 CORE_SRCS +=	blob.cpp
 CORE_SRCS +=	database.cpp
 CORE_SRCS +=	dbkey.cpp
+CORE_SRCS +=	driver.cpp
 CORE_SRCS +=	events.cpp
 CORE_SRCS +=	exception.cpp
 CORE_SRCS +=	service.cpp

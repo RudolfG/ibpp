@@ -98,6 +98,7 @@ class Test
 
 	bool _Success;				// if true after all tests, everything succeeded
 	int _WriteMode;				// 0 == default, 1 == speed, 2 == safety
+	IBPP::Driver driver;
 
 	void Test1();
 	void Test2();
@@ -126,7 +127,8 @@ void Test::RunTests()
 {
 	int NextTest = 1;
 
-	IBPP::ClientLibSearchPaths("C:\\integral_90\\firebird\\bin");
+	driver = IBPP::DriverFactory();
+	driver->Load("C:\\integral_90\\firebird\\bin");
 
 	printf(_("\nIBPP Test Suite (Version %d.%d.%d.%d)\n\n"),
 		(IBPP::Version & 0xFF000000) >> 24,
@@ -293,11 +295,11 @@ void Test::Test2()
 
 	IBPP::Database db1;
 	DeleteFile(DbName);
-	db1 = IBPP::DatabaseFactory(ServerName, DbName, UserName, Password,
+	db1 = driver->DatabaseFactory(ServerName, DbName, UserName, Password,
 		"", "WIN1252", "PAGE_SIZE 8192 DEFAULT CHARACTER SET WIN1252");
 	db1->Create(3);		// 3 is the dialect of the database (could have been 1)
 
-	IBPP::Service svc = IBPP::ServiceFactory(ServerName, UserName, Password);
+	IBPP::Service svc = driver->ServiceFactory(ServerName, UserName, Password);
 	svc->Connect();
 	svc->SetPageBuffers(DbName, 256);	// Instead of default 2048
 	svc->SetSweepInterval(DbName, 5000);	// instead of 20000 by default
@@ -346,16 +348,16 @@ void Test::Test3()
 	printf(_("Test 3 --- Exercise basic DDL operations and IBPP::Exceptions\n"));
 
 	IBPP::Database db1;
-	db1 = IBPP::DatabaseFactory(ServerName, DbName, UserName, Password);
+	db1 = driver->DatabaseFactory(ServerName, DbName, UserName, Password);
 	db1->Connect();
 
 	// The following transaction configuration values are the defaults and
 	// those parameters could have as well be omitted to simplify writing.
-	IBPP::Transaction tr1 = IBPP::TransactionFactory(db1,
+	IBPP::Transaction tr1 = driver->TransactionFactory(db1,
 							IBPP::amWrite, IBPP::ilConcurrency, IBPP::lrWait);
 	tr1->Start();
 
-	IBPP::Statement st1 = IBPP::StatementFactory(db1, tr1);
+	IBPP::Statement st1 = driver->StatementFactory(db1, tr1);
 
 	st1->ExecuteImmediate(	"CREATE TABLE TEST("
 							"N2 NUMERIC(9,2), "
@@ -410,23 +412,23 @@ void Test::Test4()
 	printf(_("Test 4 --- Populate database and exercise Blobs and Arrays (100 rows)\n"));
 
 	IBPP::Database db1;
-	db1 = IBPP::DatabaseFactory(ServerName, DbName, UserName, Password);
+	db1 = driver->DatabaseFactory(ServerName, DbName, UserName, Password);
 	db1->Connect();
 
 	// The following transaction configuration values are the defaults and
 	// those parameters could have as well be omitted to simplify writing.
-	IBPP::Transaction tr1 = IBPP::TransactionFactory(db1,
+	IBPP::Transaction tr1 = driver->TransactionFactory(db1,
 							IBPP::amWrite, IBPP::ilConcurrency, IBPP::lrWait);
 	tr1->Start();
 
-	IBPP::Statement st1 = IBPP::StatementFactory(db1, tr1);
+	IBPP::Statement st1 = driver->StatementFactory(db1, tr1);
 
-	IBPP::Blob b1 = IBPP::BlobFactory(st1->DatabasePtr(), st1->TransactionPtr());
-	IBPP::Blob bb = IBPP::BlobFactory(db1, tr1);
-	IBPP::Array ar1 = IBPP::ArrayFactory(db1, tr1);
-	IBPP::Array ar2 = IBPP::ArrayFactory(db1, tr1);
-	//IBPP::Array ar4 = IBPP::ArrayFactory(db1, tr1);
-	IBPP::Array da = IBPP::ArrayFactory(db1, tr1);
+	IBPP::Blob b1 = driver->BlobFactory(st1->DatabasePtr(), st1->TransactionPtr());
+	IBPP::Blob bb = driver->BlobFactory(db1, tr1);
+	IBPP::Array ar1 = driver->ArrayFactory(db1, tr1);
+	IBPP::Array ar2 = driver->ArrayFactory(db1, tr1);
+	//IBPP::Array ar4 = driver->ArrayFactory(db1, tr1);
+	IBPP::Array da = driver->ArrayFactory(db1, tr1);
 
 	// Checking the new date and time support
 	st1->ExecuteImmediate("insert into test(D, T, TS) "
@@ -479,18 +481,18 @@ void Test::Test4()
 	// Now simulating (more or less) a connection loss, and a re-connection using
 	// the same host variables. Let's consider the db1 "lost" and re-use it.
 
-	db1 = IBPP::DatabaseFactory(ServerName, DbName, UserName, Password);
+	db1 = driver->DatabaseFactory(ServerName, DbName, UserName, Password);
 	db1->Connect();
-	tr1 = IBPP::TransactionFactory(db1,
+	tr1 = driver->TransactionFactory(db1,
 							IBPP::amWrite, IBPP::ilConcurrency, IBPP::lrWait);
 	tr1->Start();
 
-	st1 = IBPP::StatementFactory(db1, tr1);
-	b1 = IBPP::BlobFactory(db1, tr1);
-	bb = IBPP::BlobFactory(db1, tr1);
-	ar1 = IBPP::ArrayFactory(db1, tr1);
-	ar2 = IBPP::ArrayFactory(db1, tr1);
-	da = IBPP::ArrayFactory(db1, tr1);
+	st1 = driver->StatementFactory(db1, tr1);
+	b1 = driver->BlobFactory(db1, tr1);
+	bb = driver->BlobFactory(db1, tr1);
+	ar1 = driver->ArrayFactory(db1, tr1);
+	ar2 = driver->ArrayFactory(db1, tr1);
+	da = driver->ArrayFactory(db1, tr1);
 
 	// Continue on to other tests...
 	st1->Prepare("insert into test(N2,N6,N5,D,B,BB,TF,ID,A1,A2,DA,TX,VX,TB,VB) "
@@ -643,9 +645,9 @@ void Test::Test4()
 	st1->Fetch(row);
 	IBPP::Row row2 = row->Clone();	// row2 is a real copy not a second pointer to same data
 
-	IBPP::Blob b2 = IBPP::BlobFactory(db1, tr1);
-	IBPP::Blob bb2 = IBPP::BlobFactory(db1, tr1);
-	IBPP::Array ar3 = IBPP::ArrayFactory(db1, tr1);
+	IBPP::Blob b2 = driver->BlobFactory(db1, tr1);
+	IBPP::Blob bb2 = driver->BlobFactory(db1, tr1);
+	IBPP::Array ar3 = driver->ArrayFactory(db1, tr1);
 	ar3->Describe("TEST", "A2");
 	char buffer[1024];
 	int size, largest, segments;
@@ -727,19 +729,19 @@ void Test::Test5()
 	printf(_("Test 5 --- Cocktail of DML statements (100 rows)\n"));
 
 	IBPP::Database db1;
-	db1 = IBPP::DatabaseFactory(ServerName, DbName, UserName, Password);
+	db1 = driver->DatabaseFactory(ServerName, DbName, UserName, Password);
 	db1->Connect();
 
 	// The following transaction configuration values are the defaults and
 	// those parameters could have as well be omitted to simplify writing.
-	IBPP::Transaction tr1 = IBPP::TransactionFactory(db1, IBPP::amWrite,
+	IBPP::Transaction tr1 = driver->TransactionFactory(db1, IBPP::amWrite,
 		IBPP::ilConcurrency, IBPP::lrWait, IBPP::tfNoAutoUndo);
 	tr1->AddReservation(db1, "TEST", IBPP::trProtectedWrite);
 	tr1->Start();
 
-	IBPP::Statement st1 = IBPP::StatementFactory(db1, tr1);
+	IBPP::Statement st1 = driver->StatementFactory(db1, tr1);
 
-	IBPP::Blob b1 = IBPP::BlobFactory(db1, tr1);
+	IBPP::Blob b1 = driver->BlobFactory(db1, tr1);
 
 	st1->Prepare("select ID, rdb$db_key, N2, D, TF, TX, VX from TEST FOR UPDATE");
 	st1->CursorExecute("MYCURSOR");
@@ -752,7 +754,7 @@ void Test::Test5()
 	}
 	*/
 
-	IBPP::Statement st2 = IBPP::StatementFactory(db1, tr1,
+	IBPP::Statement st2 = driver->StatementFactory(db1, tr1,
 		"UPDATE TEST set n2 = ?, TF = ? where current of MYCURSOR");
 	int incr = 0;
 	while (st1->Fetch())
@@ -882,7 +884,7 @@ void Test::Test6()
 {
 	printf(_("Test 6 --- Service APIs\n"));
 
-	IBPP::Service svc = IBPP::ServiceFactory(ServerName, UserName, Password);
+	IBPP::Service svc = driver->ServiceFactory(ServerName, UserName, Password);
 	svc->Connect();
 
 	try
@@ -921,7 +923,7 @@ void Test::Test6()
 	svc->Wait();
 
 	IBPP::Database db1;
-	db1 = IBPP::DatabaseFactory(ServerName, DbName, UserName, Password);
+	db1 = driver->DatabaseFactory(ServerName, DbName, UserName, Password);
 	db1->Connect();
 	db1->Drop();
 
@@ -970,9 +972,9 @@ void Test::Test6()
 	printf("\n");
 
 	// Connecting two users
-	db1 = IBPP::DatabaseFactory(ServerName, DbName, "EPOCMAN", "test");
+	db1 = driver->DatabaseFactory(ServerName, DbName, "EPOCMAN", "test");
 	db1->Connect();
-	IBPP::Database db2 = IBPP::DatabaseFactory(ServerName, DbName, UserName, Password);
+	IBPP::Database db2 = driver->DatabaseFactory(ServerName, DbName, UserName, Password);
 	db2->Connect();
 
 	// Checking their names
@@ -997,13 +999,13 @@ void Test::Test7()
 	printf(_("Test 7 --- Mass delete, AffectedRows() Statistics() and Counts()\n"));
 
 	IBPP::Database db1;
-	db1 = IBPP::DatabaseFactory(ServerName, DbName, UserName, Password);
+	db1 = driver->DatabaseFactory(ServerName, DbName, UserName, Password);
 	db1->Connect();
 
-	IBPP::Transaction tr1 = IBPP::TransactionFactory(db1, IBPP::amWrite);
+	IBPP::Transaction tr1 = driver->TransactionFactory(db1, IBPP::amWrite);
 	tr1->Start();
 
-	IBPP::Statement st1 = IBPP::StatementFactory(db1, tr1);
+	IBPP::Statement st1 = driver->StatementFactory(db1, tr1);
 	st1->Prepare("delete from test");
 	st1->Execute();
 	if (st1->AffectedRows() != 100)
@@ -1047,20 +1049,20 @@ void Test::Test8()
 	printf(_("Test 8 --- Events interface\n"));
 
 	IBPP::Database db1;
-	db1 = IBPP::DatabaseFactory(ServerName, DbName, UserName, Password);
+	db1 = driver->DatabaseFactory(ServerName, DbName, UserName, Password);
 	db1->Connect();
 
 	EventCatch catcher;
 
-	IBPP::Events ev = IBPP::EventsFactory(db1);
+	IBPP::Events ev = driver->EventsFactory(db1);
 
 	// The following transaction configuration values are the defaults and
 	// those parameters could have as well be omitted to simplify writing.
-	IBPP::Transaction tr1 = IBPP::TransactionFactory(db1,
+	IBPP::Transaction tr1 = driver->TransactionFactory(db1,
 							IBPP::amWrite, IBPP::ilConcurrency, IBPP::lrWait);
 	tr1->Start();
 
-	IBPP::Statement st1 = IBPP::StatementFactory(db1, tr1);
+	IBPP::Statement st1 = driver->StatementFactory(db1, tr1);
 	printf(_("           Adding a trigger to the test database...\n"));
 	st1->ExecuteImmediate(
         "CREATE TRIGGER TEST_TRIGGER FOR TEST ACTIVE AFTER INSERT AS\n"
@@ -1149,7 +1151,7 @@ void Test::Test8()
 	printf(_("           Re-registering a same event again...\n"));
 	printf(_("           You should see NO event trigger (else it would be a bug)\n"));
 
-	ev = IBPP::EventsFactory(db1);
+	ev = driver->EventsFactory(db1);
 	ev->Add("INSERT", &catcher);
 	for (i = 0; i < 20; i++)
 	{
