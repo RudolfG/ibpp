@@ -38,17 +38,17 @@ website at http://www.ibpp.org.
 
 ---------------------------------------------------------------------------
 
-Release Notes for Version 2.5 (April 4, 2006)
+Release Notes for Version 3.0 (July, 2006)
 
 
 1/ Introduction
 
 IBPP, where 'PP' stands for '++', is a C++ client interface for Firebird Server
-versions 1.0, 1.5 and further. It also works with InterBase(r) 6.0, though it is
-expected it might only support Firebird in the future. It is a class library,
-free of any specific development tool dependancies. It is not tied to any
-'visual' or 'RAD' tool. It was indeed developed to add Firebird access in any
-C++ application. Those applications using IBPP can be non-visual (CORBA/COM
+versions 1.0, 1.5, 2.0 and further. It still works with InterBase(r) 6.0, though
+it is expected it might only support Firebird in the future. It is a class
+library, free of any specific development tool dependancies. It is not tied to
+any 'visual' or 'RAD' tool. It was indeed developed to add Firebird access in
+any C++ application. Those applications using IBPP can be non-visual (CORBA/COM
 objects, other libraries of classes and functions, procedural 'legacy' code, for
 instance). But it can of course also be used in visual or RAD environments. IBPP
 is indeed purely a dynamic SQL interface to Firebird. In some easy to use C++
@@ -57,8 +57,8 @@ and manipulate the data. IBPP also offers access to most of the administrations
 tasks : creating a database, modifying its structure, performing online backups,
 administering user accounts on the server and so on.
 
-More background information on http://www.ibpp.org website.
-This website now holds full reference documentation.
+More information on http://www.ibpp.org website.
+This website holds full reference documentation.
 
 
 2/ Installation
@@ -70,7 +70,22 @@ productions.  Please refer to the file howtobuild.txt from this distribution
 for more complete instructions on how to do so.
 
 
-3/ New or Updated Features since Version 2.4
+3/ New or Updated Features since Version 2.5
+
+*** WORK IN PROGRESS ***
+
+
+4/ Comments, Acknowledgments
+
+This 2.5 version is considered the best IBPP version available to date and we
+recommend all its users to upgrade at their earliest opportunity.
+
+We have a lot of people to thank. The ibpp.h file cites some of them. But many
+people suggested various kind of enhancements or were invaluable for their
+mentoring or expertise in various fields.
+
+
+5/ History section - What was New or Updated between Version 2.5 and 2.4
 
 - Completely reworked the concepts of how to build IBPP : embed it in your
 own code and build procedure.  See howtobuild.txt for details.
@@ -120,17 +135,7 @@ Then to replace previous methods calls as such:
 The upgrade path is then nearly trivial.
 
 
-4/ Comments, Acknowledgments
-
-This 2.5 version is considered the best IBPP version available to date and we
-recommend all its users to upgrade at their earliest opportunity.
-
-We have a lot of people to thank. The ibpp.h file cites some of them. But many
-people suggested various kind of enhancements or were invaluable for their
-mentoring or expertise in various fields.
-
-
-5/ History section - What was New or Updated between Version 2.3 and 2.4
+6/ History section - What was New or Updated between Version 2.3 and 2.4
 
 Version 2.4 was initially meant essentially as a maintenance version. We chose
 to tag it 2.4 instead of 2.3.6 mostly because of the exception classes changes
@@ -211,7 +216,7 @@ So we ask users of IBPP not to start using IBPP::Row as is, consider it already
 deprecated in its current form. We will introduce something 'bigger' in the
 next major version (3.0).
 
-6/ History section - What was New or Updated between Version 2.2 and 2.3
+7/ History section - What was New or Updated between Version 2.2 and 2.3
 
 - The Service interface now support sweep action. See ibpp.h for details:
 	virtual void Sweep(const std::string& dbfile) = 0;
@@ -247,7 +252,7 @@ in the future.
 Studio .NET 2003. All is required is to open the 'ibpp.sln' and then hit build.
 
 
-7/ History section - What was New or Updated between Version 2.1 and 2.2
+8/ History section - What was New or Updated between Version 2.1 and 2.2
 
 - Dates valid range has been extended, both in the Date and Timestamp classes.
 IBPP now fully support the range extending from 1 JAN 0001 to 31 DEC 9999. The
