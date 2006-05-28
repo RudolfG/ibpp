@@ -44,6 +44,7 @@
 #include "database.cpp"
 #include "date.cpp"
 #include "dbkey.cpp"
+#include "driver.cpp"
 #include "events.cpp"
 #include "exception.cpp"
 #include "row.cpp"

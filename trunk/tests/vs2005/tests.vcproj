@@ -47,7 +47,6 @@
 				DisableLanguageExtensions="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
-				WarnAsError="true"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
@@ -456,6 +455,10 @@
 							PrecompiledHeaderFile="$(IntDir)\ibpp-core.pch"
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\core\driver.cpp"
+					>
 				</File>
 				<File
 					RelativePath="..\..\core\events.cpp"

@@ -53,7 +53,7 @@ void BlobImpl::Open()
 		throw LogicExceptionImpl("Blob::Open", _("Blob Id is not assigned."));
 
 	IBS status;
-	(*gds.Call()->m_open_blob2)(status.Self(), mDatabase->GetHandlePtr(),
+	(mDriver->m_open_blob2)(status.Self(), mDatabase->GetHandlePtr(),
 		mTransaction->GetHandlePtr(), &mHandle, &mId, 0, 0);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Blob::Open", _("isc_open_blob2 failed."));
@@ -70,7 +70,7 @@ void BlobImpl::Create()
 		throw LogicExceptionImpl("Blob::Create", _("No Transaction is attached."));
 
 	IBS status;
-	(*gds.Call()->m_create_blob2)(status.Self(), mDatabase->GetHandlePtr(),
+	(mDriver->m_create_blob2)(status.Self(), mDatabase->GetHandlePtr(),
 		mTransaction->GetHandlePtr(), &mHandle, &mId, 0, 0);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Blob::Create",
@@ -84,7 +84,7 @@ void BlobImpl::Close()
 	if (mHandle == 0) return;	// Not opened anyway
 
 	IBS status;
-	(*gds.Call()->m_close_blob)(status.Self(), &mHandle);
+	(mDriver->m_close_blob)(status.Self(), &mHandle);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Blob::Close", _("isc_close_blob failed."));
 	mHandle = 0;
@@ -98,7 +98,7 @@ void BlobImpl::Cancel()
 		throw LogicExceptionImpl("Blob::Cancel", _("Can't cancel a Blob opened for read"));
 
 	IBS status;
-	(*gds.Call()->m_cancel_blob)(status.Self(), &mHandle);
+	(mDriver->m_cancel_blob)(status.Self(), &mHandle);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Blob::Cancel", _("isc_cancel_blob failed."));
 	mHandle = 0;
@@ -116,7 +116,7 @@ int BlobImpl::Read(void* buffer, int size)
 
 	IBS status;
 	unsigned short bytesread;
-	int result = (*gds.Call()->m_get_segment)(status.Self(), &mHandle, &bytesread,
+	int result = (mDriver->m_get_segment)(status.Self(), &mHandle, &bytesread,
 					(unsigned short)size, (char*)buffer);
 	if (result == isc_segstr_eof) return 0;	// Fin du blob
 	if (result != isc_segment && status.Errors())
@@ -134,7 +134,7 @@ void BlobImpl::Write(const void* buffer, int size)
 		throw LogicExceptionImpl("Blob::Write", _("Invalid segment size (max 64Kb-1)"));
 
 	IBS status;
-	(*gds.Call()->m_put_segment)(status.Self(), &mHandle,
+	(mDriver->m_put_segment)(status.Self(), &mHandle,
 		(unsigned short)size, (char*)buffer);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Blob::Write", _("isc_put_segment failed."));
@@ -151,7 +151,7 @@ void BlobImpl::Info(int* Size, int* Largest, int* Segments)
 
 	IBS status;
 	RB result(100);
-	(*gds.Call()->m_blob_info)(status.Self(), &mHandle, sizeof(items), items,
+	(mDriver->m_blob_info)(status.Self(), &mHandle, sizeof(items), items,
 		(short)result.Size(), result.Self());
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Blob::GetInfo", _("isc_blob_info failed."));
@@ -171,7 +171,7 @@ void BlobImpl::Save(const std::string& data)
 		throw LogicExceptionImpl("Blob::Save", _("No Transaction is attached."));
 
 	IBS status;
-	(*gds.Call()->m_create_blob2)(status.Self(), mDatabase->GetHandlePtr(),
+	(mDriver->m_create_blob2)(status.Self(), mDatabase->GetHandlePtr(),
 		mTransaction->GetHandlePtr(), &mHandle, &mId, 0, 0);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Blob::Save",
@@ -185,7 +185,7 @@ void BlobImpl::Save(const std::string& data)
 	{
 		size_t blklen = (len < 32*1024-1) ? len : 32*1024-1;
 		status.Reset();
-		(*gds.Call()->m_put_segment)(status.Self(), &mHandle,
+		(mDriver->m_put_segment)(status.Self(), &mHandle,
 			(unsigned short)blklen, const_cast<char*>(data.data()+pos));
 		if (status.Errors())
 			throw SQLExceptionImpl(status, "Blob::Save",
@@ -195,7 +195,7 @@ void BlobImpl::Save(const std::string& data)
 	}
 	
 	status.Reset();
-	(*gds.Call()->m_close_blob)(status.Self(), &mHandle);
+	(mDriver->m_close_blob)(status.Self(), &mHandle);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Blob::Save", _("isc_close_blob failed."));
 	mHandle = 0;
@@ -213,7 +213,7 @@ void BlobImpl::Load(std::string& data)
 		throw LogicExceptionImpl("Blob::Load", _("Blob Id is not assigned."));
 
 	IBS status;
-	(*gds.Call()->m_open_blob2)(status.Self(), mDatabase->GetHandlePtr(),
+	(mDriver->m_open_blob2)(status.Self(), mDatabase->GetHandlePtr(),
 		mTransaction->GetHandlePtr(), &mHandle, &mId, 0, 0);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Blob::Load", _("isc_open_blob2 failed."));
@@ -228,7 +228,7 @@ void BlobImpl::Load(std::string& data)
 	{
 		status.Reset();
 		unsigned short bytesread;
-		int result = (*gds.Call()->m_get_segment)(status.Self(), &mHandle,
+		int result = (mDriver->m_get_segment)(status.Self(), &mHandle,
 						&bytesread, (unsigned short)blklen,
 							const_cast<char*>(data.data()+pos));
 		if (result == isc_segstr_eof) break;	// End of blob
@@ -242,7 +242,7 @@ void BlobImpl::Load(std::string& data)
 	data.resize(size);
 	
 	status.Reset();
-	(*gds.Call()->m_close_blob)(status.Self(), &mHandle);
+	(mDriver->m_close_blob)(status.Self(), &mHandle);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Blob::Load", _("isc_close_blob failed."));
 	mHandle = 0;

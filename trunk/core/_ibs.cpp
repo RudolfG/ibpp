@@ -41,7 +41,7 @@ using namespace ibpp_internals;
 
 int IBS::SqlCode() const
 {
-	return (int)(*gds.Call()->m_sqlcode)(&mVector[0]);
+	return (int)(mDriver->m_sqlcode)(&mVector[0]);
 }
 
 const char* IBS::ErrorMessage() const
@@ -53,10 +53,10 @@ const char* IBS::ErrorMessage() const
 
 	// Compiles the message (SQL part)
 	std::ostringstream message;
-	sqlcode = (*gds.Call()->m_sqlcode)(mVector);
+	sqlcode = (mDriver->m_sqlcode)(mVector);
 	if (sqlcode != -999)
 	{
-		(*gds.Call()->m_sql_interprete)((short)sqlcode, msg, sizeof(msg));
+		(mDriver->m_sql_interprete)((short)sqlcode, msg, sizeof(msg));
 		message<< _("SQL Message : ")<< sqlcode<< "\n"<< msg<< "\n\n";
 	}
 
@@ -64,12 +64,12 @@ const char* IBS::ErrorMessage() const
 
 	// Compiles the message (Engine part)
 	ISC_STATUS* error = &mVector[0];
-	try { (*gds.Call()->m_interprete)(msg, &error); }
+	try { (mDriver->m_interprete)(msg, &error); }
 	catch(...) { msg[0] = '\0'; }
 	message<< _("Engine Message :")<< "\n"<< msg;
 	try
 	{
-		while ((*gds.Call()->m_interprete)(msg, &error))
+		while ((mDriver->m_interprete)(msg, &error))
 			message<< "\n"<< msg;
 	}
 	catch (...) { }

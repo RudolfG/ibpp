@@ -385,92 +385,6 @@ typedef void        ISC_EXPORT proto_encode_timestamp (void *,
 					ISC_TIMESTAMP *);
 
 //
-//	Internal binding structure to the GDS32 DLL
-//
-
-struct GDS
-{
-	// Attributes
-	bool mReady;
-	int mGDSVersion; 		// Version of the GDS32.DLL (50 for 5.0, 60 for 6.0)
-
-#ifdef IBPP_WINDOWS
-	HMODULE mHandle;			// The GDS32.DLL HMODULE
-	std::string mSearchPaths;	// Optional additional search paths
-#endif
-
-	GDS* Call();
-
-	// GDS32 Entry Points
-	proto_create_database*			m_create_database;
-	proto_attach_database*			m_attach_database;
-	proto_detach_database*			m_detach_database;
-	proto_drop_database*			m_drop_database;
-	proto_database_info*			m_database_info;
-	proto_dsql_execute_immediate*	m_dsql_execute_immediate;
-	proto_open_blob2*				m_open_blob2;
-	proto_create_blob2*				m_create_blob2;
-	proto_close_blob*				m_close_blob;
-	proto_cancel_blob*				m_cancel_blob;
-	proto_get_segment*				m_get_segment;
-	proto_put_segment*				m_put_segment;
-	proto_blob_info*				m_blob_info;
-	proto_array_lookup_bounds*		m_array_lookup_bounds;
-	proto_array_get_slice*			m_array_get_slice;
-	proto_array_put_slice*			m_array_put_slice;
-
-	proto_vax_integer*				m_vax_integer;
-	proto_sqlcode*					m_sqlcode;
-	proto_sql_interprete*			m_sql_interprete;
-	proto_interprete*				m_interprete;
-	proto_que_events*				m_que_events;
-	proto_cancel_events* 			m_cancel_events;
-	proto_start_multiple*			m_start_multiple;
-	proto_commit_transaction*		m_commit_transaction;
-	proto_commit_retaining*			m_commit_retaining;
-	proto_rollback_transaction*		m_rollback_transaction;
-	proto_rollback_retaining*		m_rollback_retaining;
-	proto_dsql_allocate_statement*	m_dsql_allocate_statement;
-	proto_dsql_describe*			m_dsql_describe;
-	proto_dsql_describe_bind*		m_dsql_describe_bind;
-	proto_dsql_prepare*				m_dsql_prepare;
-	proto_dsql_execute*				m_dsql_execute;
-	proto_dsql_execute2*			m_dsql_execute2;
-	proto_dsql_fetch*				m_dsql_fetch;
-	proto_dsql_free_statement*		m_dsql_free_statement;
-	proto_dsql_set_cursor_name*		m_dsql_set_cursor_name;
-	proto_dsql_sql_info* 			m_dsql_sql_info;
-	//proto_decode_date*				m_decode_date;
-	//proto_encode_date*				m_encode_date;
-	//proto_add_user*					m_add_user;
-	//proto_delete_user*				m_delete_user;
-	//proto_modify_user*				m_modify_user;
-
-	proto_service_attach*			m_service_attach;
-	proto_service_detach*			m_service_detach;
-	proto_service_start*			m_service_start;
-	proto_service_query*			m_service_query;
-	//proto_decode_sql_date*			m_decode_sql_date;
-	//proto_decode_sql_time*			m_decode_sql_time;
-	//proto_decode_timestamp*			m_decode_timestamp;
-	//proto_encode_sql_date*			m_encode_sql_date;
-	//proto_encode_sql_time*			m_encode_sql_time;
-	//proto_encode_timestamp*			m_encode_timestamp;
-
-	// Constructor (No need for a specific destructor)
-	GDS()
-	{
-		mReady = false;
-		mGDSVersion = 0;
-#ifdef IBPP_WINDOWS
-		mHandle = 0;
-#endif
-	};
-};
-
-extern GDS gds;
-
-//
 //	Service Parameter Block (used to define a service)
 //
 
@@ -748,16 +662,141 @@ public:
 	virtual const char* what() const throw();
 };
 
+class DriverImpl : public IBPP::IDriver
+{
+	//	(((((((( OBJECT INTERNALS ))))))))
+
+private:
+	int mRefCount;			// Reference counter
+
+	std::string mPaths;		// Optional paths which where used to load the driver
+	bool mLoaded;			// Driver loaded?
+	int mGDSVersion; 		// Version of the GDS32.DLL (50 for 5.0, 60 for 6.0)
+
+#ifdef IBPP_WINDOWS
+	HMODULE mHandle;			// The GDS32.DLL HMODULE
+	std::string mSearchPaths;	// Optional additional search paths
+#endif
+
+public:
+
+	// GDS32 Entry Points
+	proto_create_database*			m_create_database;
+	proto_attach_database*			m_attach_database;
+	proto_detach_database*			m_detach_database;
+	proto_drop_database*			m_drop_database;
+	proto_database_info*			m_database_info;
+	proto_dsql_execute_immediate*	m_dsql_execute_immediate;
+	proto_open_blob2*				m_open_blob2;
+	proto_create_blob2*				m_create_blob2;
+	proto_close_blob*				m_close_blob;
+	proto_cancel_blob*				m_cancel_blob;
+	proto_get_segment*				m_get_segment;
+	proto_put_segment*				m_put_segment;
+	proto_blob_info*				m_blob_info;
+	proto_array_lookup_bounds*		m_array_lookup_bounds;
+	proto_array_get_slice*			m_array_get_slice;
+	proto_array_put_slice*			m_array_put_slice;
+
+	proto_vax_integer*				m_vax_integer;
+	proto_sqlcode*					m_sqlcode;
+	proto_sql_interprete*			m_sql_interprete;
+	proto_interprete*				m_interprete;
+	proto_que_events*				m_que_events;
+	proto_cancel_events* 			m_cancel_events;
+	proto_start_multiple*			m_start_multiple;
+	proto_commit_transaction*		m_commit_transaction;
+	proto_commit_retaining*			m_commit_retaining;
+	proto_rollback_transaction*		m_rollback_transaction;
+	proto_rollback_retaining*		m_rollback_retaining;
+	proto_dsql_allocate_statement*	m_dsql_allocate_statement;
+	proto_dsql_describe*			m_dsql_describe;
+	proto_dsql_describe_bind*		m_dsql_describe_bind;
+	proto_dsql_prepare*				m_dsql_prepare;
+	proto_dsql_execute*				m_dsql_execute;
+	proto_dsql_execute2*			m_dsql_execute2;
+	proto_dsql_fetch*				m_dsql_fetch;
+	proto_dsql_free_statement*		m_dsql_free_statement;
+	proto_dsql_set_cursor_name*		m_dsql_set_cursor_name;
+	proto_dsql_sql_info* 			m_dsql_sql_info;
+	//proto_decode_date*				m_decode_date;
+	//proto_encode_date*				m_encode_date;
+	//proto_add_user*					m_add_user;
+	//proto_delete_user*				m_delete_user;
+	//proto_modify_user*				m_modify_user;
+
+	proto_service_attach*			m_service_attach;
+	proto_service_detach*			m_service_detach;
+	proto_service_start*			m_service_start;
+	proto_service_query*			m_service_query;
+	//proto_decode_sql_date*			m_decode_sql_date;
+	//proto_decode_sql_time*			m_decode_sql_time;
+	//proto_decode_timestamp*			m_decode_timestamp;
+	//proto_encode_sql_date*			m_encode_sql_date;
+	//proto_encode_sql_time*			m_encode_sql_time;
+	//proto_encode_timestamp*			m_encode_timestamp;
+
+	const DriverImpl* operator->() const
+	{
+		return mLoaded ? this :
+			throw LogicExceptionImpl("Driver", "Driver instance has been unloaded"), this;
+	}
+
+	DriverImpl();
+    ~DriverImpl();
+
+	//	(((((((( OBJECT INTERFACE ))))))))
+
+public:
+	void Load(const std::string& paths);
+	void Load() { Load(""); }
+	bool Loaded() const { return mLoaded; }
+	void Unload();
+
+	void GetVersion(std::string& version);
+
+	IBPP::Service ServiceFactory(const std::string& ServerName,
+					const std::string& UserName, const std::string& UserPassword);
+
+	IBPP::Database DatabaseFactory(const std::string& ServerName,
+					const std::string& DatabaseName, const std::string& UserName,
+						const std::string& UserPassword, const std::string& RoleName,
+							const std::string& CharSet, const std::string& CreateParams);
+
+	IBPP::Database DatabaseFactory(const std::string& ServerName,
+					const std::string& DatabaseName, const std::string& UserName,
+						const std::string& UserPassword)
+		{ return DatabaseFactory(ServerName, DatabaseName, UserName, UserPassword, "", "", ""); }
+
+	IBPP::Transaction TransactionFactory(IBPP::Database db, IBPP::TAM am = IBPP::amWrite,
+						IBPP::TIL il = IBPP::ilConcurrency, IBPP::TLR lr = IBPP::lrWait,
+							IBPP::TFF flags = IBPP::TFF(0));
+
+	IBPP::Statement StatementFactory(IBPP::Database db, IBPP::Transaction tr,
+						const std::string& sql);
+
+	IBPP::Statement StatementFactory(IBPP::Database db, IBPP::Transaction tr)
+		{ return StatementFactory(db, tr, ""); }
+
+	IBPP::Blob BlobFactory(IBPP::Database db, IBPP::Transaction tr);
+	IBPP::Array ArrayFactory(IBPP::Database db, IBPP::Transaction tr);
+	IBPP::Events EventsFactory(IBPP::Database db);
+
+	IBPP::IDriver* AddRef();
+	void Release();
+};
+
 class ServiceImpl : public IBPP::IService
 {
 	//	(((((((( OBJECT INTERNALS ))))))))
 
 private:
 	int mRefCount;				// Reference counter
+	DriverImpl* mDriver;		// Driver
     isc_svc_handle mHandle;		// InterBase API Service Handle
-	std::string mServerName;	// Nom du serveur
-    std::string mUserName;		// Nom de l'utilisateur
-    std::string mUserPassword;	// Mot de passe de l'utilisateur
+	std::string mServerName;	// Server name
+    std::string mUserName;		// User name
+    std::string mUserPassword;	// User password
 	std::string mWaitMessage;	// Progress message returned by WaitMsg()
 
 	isc_svc_handle* GetHandlePtr() { return &mHandle; }
@@ -806,6 +845,8 @@ public:
 	const char* WaitMsg();
 	void Wait();
 
+	IBPP::Driver DriverPtr() const { return mDriver; }
+
 	IBPP::IService* AddRef();
 	void Release();
 };
@@ -815,6 +856,7 @@ class DatabaseImpl : public IBPP::IDatabase
 	//	(((((((( OBJECT INTERNALS ))))))))
 
 	int mRefCount;				// Reference counter
+	DriverImpl* mDriver;		// Driver
     isc_db_handle mHandle;		// InterBase API Session Handle
 	std::string mServerName;	// Server name
     std::string mDatabaseName;	// Database name (path/file)
@@ -879,6 +921,8 @@ public:
 	void Disconnect();
     void Drop();
 
+	IBPP::Driver DriverPtr() const { return mDriver; }
+
 	IBPP::IDatabase* AddRef();
 	void Release();
 };
@@ -889,6 +933,7 @@ class TransactionImpl : public IBPP::ITransaction
 
 private:
 	int mRefCount;					// Reference counter
+	DriverImpl* mDriver;		// Driver
     isc_tr_handle mHandle;			// Transaction InterBase
 
 	std::vector<DatabaseImpl*> mDatabases;   	// Tableau de IDatabase*
@@ -936,6 +981,8 @@ public:
     void CommitRetain();
 	void RollbackRetain();
 
+	IBPP::Driver DriverPtr() const { return mDriver; }
+
 	IBPP::ITransaction* AddRef();
 	void Release();
 };
@@ -946,6 +993,7 @@ class RowImpl : public IBPP::IRow
 
 private:
 	int mRefCount;					// Reference counter
+	DriverImpl* mDriver;		// Driver
 
 	XSQLDA* mDescrArea;				// XSQLDA descriptor itself
 	std::vector<double> mNumerics;	// Temporary storage for Numerics
@@ -1046,6 +1094,7 @@ public:
 
 	IBPP::Database DatabasePtr() const;
 	IBPP::Transaction TransactionPtr() const;
+	IBPP::Driver DriverPtr() const { return mDriver; }
 
 	IBPP::IRow* Clone();
 	IBPP::IRow* AddRef();
@@ -1060,6 +1109,7 @@ private:
 	friend class TransactionImpl;
 
 	int mRefCount;				// Reference counter
+	DriverImpl* mDriver;		// Driver
 	isc_stmt_handle mHandle;	// Statement Handle
 
 	DatabaseImpl* mDatabase;		// Attached database
@@ -1187,6 +1237,7 @@ public:
 
 	IBPP::Database DatabasePtr() const;
 	IBPP::Transaction TransactionPtr() const;
+	IBPP::Driver DriverPtr() const { return mDriver; }
 
 	IBPP::IStatement* AddRef();
 	void Release();
@@ -1200,6 +1251,7 @@ private:
 	friend class RowImpl;
 
 	int mRefCount;
+	DriverImpl*				mDriver;		// Driver
 	bool					mIdAssigned;
 	ISC_QUAD				mId;
 	isc_blob_handle			mHandle;
@@ -1237,6 +1289,7 @@ public:
 
 	IBPP::Database DatabasePtr() const;
 	IBPP::Transaction TransactionPtr() const;
+	IBPP::Driver DriverPtr() const { return mDriver; }
 
 	IBPP::IBlob* AddRef();
 	void Release();
@@ -1250,6 +1303,7 @@ private:
 	friend class RowImpl;
 
 	int					mRefCount;		// Reference counter
+	DriverImpl*			mDriver;		// Driver
 	bool				mIdAssigned;
 	ISC_QUAD			mId;
 	bool				mDescribed;
@@ -1292,6 +1346,7 @@ public:
 
 	IBPP::Database DatabasePtr() const;
 	IBPP::Transaction TransactionPtr() const;
+	IBPP::Driver DriverPtr() const { return mDriver; }
 
 	IBPP::IArray* AddRef();
 	void Release();
@@ -1326,7 +1381,7 @@ public:
 
 	uint32_t get_count() const
 	{
-		return (*gds.Call()->m_vax_integer)
+		return (mDriver->m_vax_integer)
 			(const_cast<char*>(&*(mIt + 1 + static_cast<int>(*mIt))), 4);
 	}
 
@@ -1350,7 +1405,8 @@ class EventsImpl : public IBPP::IEvents
 	Buffer mEventBuffer;
 	Buffer mResultsBuffer;
 
-	int mRefCount;		// Reference counter
+	int mRefCount;			// Reference counter
+	DriverImpl* mDriver;	// Driver
 
 	DatabaseImpl* mDatabase;
 	ISC_LONG mId;			// Firebird internal Id of these events
@@ -1381,6 +1437,7 @@ public:
 	void Dispatch();			// Dispatch NON async events
 
 	IBPP::Database DatabasePtr() const;
+	IBPP::Driver DriverPtr() const { return mDriver; }
 
 	IBPP::IEvents* AddRef();
 	void Release();
