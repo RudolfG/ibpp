@@ -384,6 +384,8 @@ typedef void        ISC_EXPORT proto_encode_sql_time (void *,
 typedef void        ISC_EXPORT proto_encode_timestamp (void *,
 					ISC_TIMESTAMP *);
 
+class DriverImpl;	// Forward declaration
+
 //
 //	Service Parameter Block (used to define a service)
 //
@@ -392,6 +394,7 @@ class SPB
 {
 	static const int BUFFERINCR;
 
+	DriverImpl* mDriver;
 	char* mBuffer;				// Dynamically allocated SPB structure
 	int mSize;  				// Its used size in bytes
 	int mAlloc;					// Its allocated size in bytes
@@ -407,7 +410,7 @@ public:
 	char* Self() { return mBuffer; }
 	short Size() { return (short)mSize; }
 
-	SPB() : mBuffer(0), mSize(0), mAlloc(0) { }
+	SPB(DriverImpl* drv) : mDriver(drv), mBuffer(0), mSize(0), mAlloc(0) { }
 	~SPB() { Reset(); }
 };
 
@@ -418,7 +421,8 @@ public:
 class DPB
 {
 	static const int BUFFERINCR;
-
+	
+	DriverImpl* mDriver;
 	char* mBuffer;				// Dynamically allocated DPB structure
 	int mSize;  				// Its used size in bytes
 	int mAlloc;					// Its allocated size in bytes
@@ -435,7 +439,7 @@ public:
 	char* Self() { return mBuffer; }
 	short Size() { return (short)mSize; }
 
-	DPB() : mBuffer(0), mSize(0), mAlloc(0) { }
+	DPB(DriverImpl* drv) : mDriver(drv), mBuffer(0), mSize(0), mAlloc(0) { }
 	~DPB() { Reset(); }
 };
 
@@ -470,6 +474,8 @@ public:
 
 class RB
 {
+	DriverImpl* mDriver;
+
 	char* mBuffer;
 	int mSize;
 
@@ -487,8 +493,8 @@ public:
 	char* Self() { return mBuffer; }
 	short Size() { return (short)mSize; }
 
-	RB();
-	RB(int Size);
+	RB(DriverImpl*);
+	RB(DriverImpl*, int Size);
 	~RB();
 };
 
@@ -498,6 +504,7 @@ public:
 
 class IBS
 {
+	DriverImpl* mDriver;
 	mutable ISC_STATUS mVector[20];
 	mutable std::string mMessage;
 
@@ -509,8 +516,8 @@ public:
 	int EngineCode() const { return (mVector[0] == 1) ? (int)mVector[1] : 0; }
 	void Reset();
 
-	IBS();
 	IBS(IBS&);	// Copy Constructor
+	IBS(DriverImpl*);
 	~IBS();
 };
 
@@ -671,7 +678,6 @@ private:
 
 	std::string mPaths;		// Optional paths which where used to load the driver
 	bool mLoaded;			// Driver loaded?
-	int mGDSVersion; 		// Version of the GDS32.DLL (50 for 5.0, 60 for 6.0)
 
 #ifdef IBPP_WINDOWS
 	HMODULE mHandle;			// The GDS32.DLL HMODULE
@@ -679,6 +685,7 @@ private:
 #endif
 
 public:
+	int mGDSVersion; 		// Version of the GDS32.DLL (50 for 5.0, 60 for 6.0)
 
 	// GDS32 Entry Points
 	proto_create_database*			m_create_database;
@@ -807,8 +814,8 @@ private:
 public:
 	isc_svc_handle GetHandle() { return mHandle; }
 
-	ServiceImpl(const std::string& ServerName, const std::string& UserName,
-					const std::string& UserPassword);
+	ServiceImpl(DriverImpl* drv, const std::string& ServerName,
+					const std::string& UserName, const std::string& UserPassword);
     ~ServiceImpl();
 
 	//	(((((((( OBJECT INTERFACE ))))))))
@@ -888,7 +895,7 @@ public:
 	void AttachEventsImpl(EventsImpl*);
 	void DetachEventsImpl(EventsImpl*);
 
-	DatabaseImpl(const std::string& ServerName, const std::string& DatabaseName,
+	DatabaseImpl(DriverImpl*, const std::string& ServerName, const std::string& DatabaseName,
 				const std::string& UserName, const std::string& UserPassword,
 				const std::string& RoleName, const std::string& CharSet,
 				const std::string& CreateParams);
@@ -959,7 +966,7 @@ public:
 			IBPP::TLR lr = IBPP::lrWait, IBPP::TFF flags = IBPP::TFF(0));
     void DetachDatabaseImpl(DatabaseImpl* dbi);
 
-	TransactionImpl(DatabaseImpl* db, IBPP::TAM am = IBPP::amWrite,
+	TransactionImpl(DriverImpl*, DatabaseImpl* db, IBPP::TAM am = IBPP::amWrite,
 		IBPP::TIL il = IBPP::ilConcurrency,
 		IBPP::TLR lr = IBPP::lrWait, IBPP::TFF flags = IBPP::TFF(0));
     ~TransactionImpl();
@@ -987,7 +994,7 @@ public:
 	void Release();
 };
 
-class RowImpl : public IBPP::IRow
+class RowImpl /* : public IBPP::IRow*/
 {
 	//	(((((((( OBJECT INTERNALS ))))))))
 
@@ -1022,7 +1029,7 @@ public:
 
 	RowImpl& operator=(const RowImpl& copied);
 	RowImpl(const RowImpl& copied);
-	RowImpl(int dialect, int size, DatabaseImpl* db, TransactionImpl* tr);
+	RowImpl(DriverImpl*, int dialect, int size, DatabaseImpl* db, TransactionImpl* tr);
     ~RowImpl();
 
 	//	(((((((( OBJECT INTERFACE ))))))))
@@ -1096,8 +1103,8 @@ public:
 	IBPP::Transaction TransactionPtr() const;
 	IBPP::Driver DriverPtr() const { return mDriver; }
 
-	IBPP::IRow* Clone();
-	IBPP::IRow* AddRef();
+	//IBPP::IRow* Clone();
+	void AddRef();
 	void Release();
 };
 
@@ -1134,7 +1141,7 @@ public:
 	void AttachTransactionImpl(TransactionImpl*);
 	void DetachTransactionImpl();
 
-	StatementImpl(DatabaseImpl*, TransactionImpl*, const std::string&);
+	StatementImpl(DriverImpl*, DatabaseImpl*, TransactionImpl*, const std::string&);
     ~StatementImpl();
 
 	//	(((((((( OBJECT INTERFACE ))))))))
@@ -1147,7 +1154,7 @@ public:
 	void CursorExecute(const std::string& cursor, const std::string& sql);
 	inline void CursorExecute(const std::string& cursor)	{ CursorExecute(cursor, std::string()); }
 	bool Fetch();
-	bool Fetch(IBPP::Row&);
+	//bool Fetch(IBPP::Row&);
 	int AffectedRows();
 	void Close();	// Free resources, attachments maintained
 	std::string& Sql() { return mSql; }
@@ -1270,7 +1277,7 @@ public:
 	void DetachTransactionImpl();
 
 	BlobImpl(const BlobImpl&);
-	BlobImpl(DatabaseImpl*, TransactionImpl* = 0);
+	BlobImpl(DriverImpl*, DatabaseImpl*, TransactionImpl* = 0);
 	~BlobImpl();
 
 	//	(((((((( OBJECT INTERFACE ))))))))
@@ -1328,7 +1335,7 @@ public:
 	void DetachTransactionImpl();
 
 	ArrayImpl(const ArrayImpl&);
-	ArrayImpl(DatabaseImpl*, TransactionImpl* = 0);
+	ArrayImpl(DriverImpl*, DatabaseImpl*, TransactionImpl* = 0);
 	~ArrayImpl();
 
 	//	(((((((( OBJECT INTERFACE ))))))))
@@ -1360,6 +1367,7 @@ template<class It>
 struct EventBufferIterator
 {
 	It mIt;
+	DriverImpl* mDriver;
 
 public:
 	EventBufferIterator& operator++()
@@ -1389,8 +1397,8 @@ public:
 	It begin()	{ return mIt; }
 	It end()	{ return mIt + 1 + static_cast<int>(*mIt) + 4; }
 
-	EventBufferIterator() {}
-	EventBufferIterator(It it) : mIt(it) {}
+	EventBufferIterator(DriverImpl* drv) : mDriver(drv) {}
+	EventBufferIterator(DriverImpl* drv, It it) : mDriver(drv), mIt(it) {}
 };
 
 class EventsImpl : public IBPP::IEvents
@@ -1424,7 +1432,7 @@ public:
 	void AttachDatabaseImpl(DatabaseImpl*);
 	void DetachDatabaseImpl();
 
-	EventsImpl(DatabaseImpl* dbi);
+	EventsImpl(DriverImpl*, DatabaseImpl* dbi);
 	~EventsImpl();
 
 	//	(((((((( OBJECT INTERFACE ))))))))

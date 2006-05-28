@@ -178,15 +178,17 @@ void RB::Reset()
 	memset(mBuffer, 255, mSize);
 }
 
-RB::RB()
+RB::RB(DriverImpl* drv)
 {
+	mDriver = drv;
 	mSize = 1024;
 	mBuffer = new char [1024];
 	memset(mBuffer, 255, mSize);
 }
 
-RB::RB(int Size)
+RB::RB(DriverImpl* drv, int Size)
 {
+	mDriver = drv;
 	mSize = Size;
 	mBuffer = new char [Size];
 	memset(mBuffer, 255, mSize);

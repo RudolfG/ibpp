@@ -85,7 +85,8 @@ void IBS::Reset()
 	mMessage.erase();
 }
 
-IBS::IBS()
+IBS::IBS(DriverImpl* drv)
+: mDriver(drv)
 {
 	Reset();
 }

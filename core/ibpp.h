@@ -443,7 +443,7 @@ namespace IBPP
 	class ITransaction;		typedef Ptr<ITransaction> Transaction;
 	class IStatement;		typedef Ptr<IStatement> Statement;
 	class IEvents;			typedef Ptr<IEvents> Events;
-	class IRow;				typedef Ptr<IRow> Row;
+	//class IRow;				typedef Ptr<IRow> Row;
 
 	/* IBlob is the interface to the blob capabilities of IBPP. Blob is the
 	 * object class you actually use in your programming. In Firebird, at the
@@ -677,6 +677,7 @@ namespace IBPP
 	 *	Class Row can hold all the values of a row (from a SELECT for instance).
 	 */
 
+	/*
 	class IRow
 	{
 	public:
@@ -751,6 +752,7 @@ namespace IBPP
 
 	    virtual ~IRow() {};
 	};
+	*/
 
 	/* IStatement is the interface to the statements execution in IBPP.
 	 * Statement is the object class you actually use in your programming. A
@@ -769,7 +771,7 @@ namespace IBPP
 		virtual void CursorExecute(const std::string& cursor) = 0;
 		virtual void CursorExecute(const std::string& cursor, const std::string&) = 0;
 		virtual bool Fetch() = 0;
-		virtual bool Fetch(Row&) = 0;
+		//virtual bool Fetch(Row&) = 0;
 		virtual int AffectedRows() = 0;
 		virtual void Close() = 0;
 		virtual std::string& Sql() = 0;
@@ -907,7 +909,6 @@ namespace IBPP
 	 * against a compatible version of the library. */
 
 	bool CheckVersion(uint32_t);
-	int GDSVersion();
 
 	/* Finally, here are some date and time conversion routines used by IBPP and
 	 * that may be helpful at the application level. They do not depend on

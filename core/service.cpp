@@ -50,7 +50,7 @@ void ServiceImpl::Connect()
 {
 	if (mHandle	!= 0) return;	// Already connected
 	
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mUserName.empty())
 		throw LogicExceptionImpl("Service::Connect", _("Unspecified user name."));
@@ -58,8 +58,8 @@ void ServiceImpl::Connect()
 		throw LogicExceptionImpl("Service::Connect", _("Unspecified user password."));
 
 	// Attach to the Service Manager
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 	std::string connect;
 
 	// Build a SPB based on	the	properties
@@ -89,10 +89,10 @@ void ServiceImpl::Disconnect()
 {
 	if (mHandle	== 0) return; // Already disconnected
 	
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 
-	IBS status;
+	IBS status(mDriver);
 
 	// Detach from the service manager
 	(mDriver->m_service_detach)(status.Self(), &mHandle);
@@ -108,14 +108,14 @@ void ServiceImpl::GetVersion(std::string& version)
 {
 	// Based on a patch provided by Torsten Martinsen (SourceForge 'bullestock')
 
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Service::GetVersion", _("Service is not connected."));
 
-	IBS status;
-	SPB spb;
-	RB result(250);
+	IBS status(mDriver);
+	SPB spb(mDriver);
+	RB result(mDriver, 250);
 
 	spb.Insert(isc_info_svc_server_version);
 
@@ -129,15 +129,15 @@ void ServiceImpl::GetVersion(std::string& version)
 
 void ServiceImpl::AddUser(const IBPP::User& user)
 {
-	if (gds.Call()->mGDSVersion >= 60 && mHandle == 0)
+	if (mDriver->mGDSVersion >= 60 && mHandle == 0)
 		throw LogicExceptionImpl("Service::AddUser", _("Service is not connected."));
 	if (user.username.empty())
 		throw LogicExceptionImpl("Service::AddUser", _("Username required."));
 	if (user.password.empty())
 		throw LogicExceptionImpl("Service::AddUser", _("Password required."));
 
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 	spb.Insert(isc_action_svc_add_user);
 	spb.InsertString(isc_spb_sec_username, 2, user.username.c_str());
 	spb.InsertString(isc_spb_sec_password, 2, user.password.c_str());
@@ -161,13 +161,13 @@ void ServiceImpl::AddUser(const IBPP::User& user)
 
 void ServiceImpl::ModifyUser(const IBPP::User& user)
 {
-	if (gds.Call()->mGDSVersion >= 60 && mHandle == 0)
+	if (mDriver->mGDSVersion >= 60 && mHandle == 0)
 		throw LogicExceptionImpl("Service::ModifyUser", _("Service is not connected."));
 	if (user.username.empty())
 		throw LogicExceptionImpl("Service::ModifyUser", _("Username required."));
 
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 
 	spb.Insert(isc_action_svc_modify_user);
 	spb.InsertString(isc_spb_sec_username, 2, user.username.c_str());
@@ -194,13 +194,13 @@ void ServiceImpl::ModifyUser(const IBPP::User& user)
 void ServiceImpl::RemoveUser(const std::string& username)
 {
 
-	if (gds.Call()->mGDSVersion >= 60 && mHandle == 0)
+	if (mDriver->mGDSVersion >= 60 && mHandle == 0)
 		throw LogicExceptionImpl("Service::RemoveUser", _("Service is not connected."));
 	if (username.empty())
 		throw LogicExceptionImpl("Service::RemoveUser", _("Username required."));
 
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 
 	spb.Insert(isc_action_svc_delete_user);
 	spb.InsertString(isc_spb_sec_username, 2, username.c_str());
@@ -214,23 +214,23 @@ void ServiceImpl::RemoveUser(const std::string& username)
 
 void ServiceImpl::GetUser(IBPP::User& user)
 {
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Service::GetUser", _("Service is not connected."));
 	if (user.username.empty())
 		throw LogicExceptionImpl("Service::GetUser", _("Username required."));
 
-	SPB spb;
+	SPB spb(mDriver);
 	spb.Insert(isc_action_svc_display_user);
 	spb.InsertString(isc_spb_sec_username, 2, user.username.c_str());
 
-	IBS status;
+	IBS status(mDriver);
 	(mDriver->m_service_start)(status.Self(), &mHandle, 0, spb.Size(), spb.Self());
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Service::GetUser", _("isc_service_start failed"));
 
-	RB result(8000);
+	RB result(mDriver, 8000);
 	char request[] = {isc_info_svc_get_users};
 	status.Reset();
 	(mDriver->m_service_query)(status.Self(), &mHandle, 0, 0, 0,
@@ -285,20 +285,20 @@ void ServiceImpl::GetUser(IBPP::User& user)
 
 void ServiceImpl::GetUsers(std::vector<IBPP::User>& users)
 {
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Service::GetUsers", _("Service is not connected."));
 
-	SPB spb;
+	SPB spb(mDriver);
 	spb.Insert(isc_action_svc_display_user);
 
-	IBS status;
+	IBS status(mDriver);
 	(mDriver->m_service_start)(status.Self(), &mHandle, 0, spb.Size(), spb.Self());
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Service::GetUsers", _("isc_service_start failed"));
 
-	RB result(8000);
+	RB result(mDriver, 8000);
 	char request[] = {isc_info_svc_get_users};
 	status.Reset();
 	(mDriver->m_service_query)(status.Self(), &mHandle, 0, 0, 0,
@@ -357,15 +357,15 @@ void ServiceImpl::GetUsers(std::vector<IBPP::User>& users)
 
 void ServiceImpl::SetPageBuffers(const std::string& dbfile, int buffers)
 {
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle	== 0)
 		throw LogicExceptionImpl("Service::SetPageBuffers", _("Service is not connected."));
 	if (dbfile.empty())
 		throw LogicExceptionImpl("Service::SetPageBuffers", _("Main database file must be specified."));
 
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 
 	spb.Insert(isc_action_svc_properties);
 	spb.InsertString(isc_spb_dbname, 2, dbfile.c_str());
@@ -380,15 +380,15 @@ void ServiceImpl::SetPageBuffers(const std::string& dbfile, int buffers)
 
 void ServiceImpl::SetSweepInterval(const std::string& dbfile, int sweep)
 {
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle	== 0)
 		throw LogicExceptionImpl("Service::SetSweepInterval", _("Service is not connected."));
 	if (dbfile.empty())
 		throw LogicExceptionImpl("Service::SetSweepInterval", _("Main database file must be specified."));
 
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 
 	spb.Insert(isc_action_svc_properties);
 	spb.InsertString(isc_spb_dbname, 2, dbfile.c_str());
@@ -403,15 +403,15 @@ void ServiceImpl::SetSweepInterval(const std::string& dbfile, int sweep)
 
 void ServiceImpl::SetSyncWrite(const std::string& dbfile, bool sync)
 {
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle	== 0)
 		throw LogicExceptionImpl("Service::SetSyncWrite", _("Service is not connected."));
 	if (dbfile.empty())
 		throw LogicExceptionImpl("Service::SetSyncWrite", _("Main database file must be specified."));
 
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 
 	spb.Insert(isc_action_svc_properties);
 	spb.InsertString(isc_spb_dbname, 2, dbfile.c_str());
@@ -427,15 +427,15 @@ void ServiceImpl::SetSyncWrite(const std::string& dbfile, bool sync)
 
 void ServiceImpl::SetReadOnly(const std::string& dbfile, bool readonly)
 {
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle	== 0)
 		throw LogicExceptionImpl("Service::SetReadOnly", _("Service is not connected."));
 	if (dbfile.empty())
 		throw LogicExceptionImpl("Service::SetReadOnly", _("Main database file must be specified."));
 
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 
 	spb.Insert(isc_action_svc_properties);
 	spb.InsertString(isc_spb_dbname, 2, dbfile.c_str());
@@ -451,15 +451,15 @@ void ServiceImpl::SetReadOnly(const std::string& dbfile, bool readonly)
 
 void ServiceImpl::SetReserveSpace(const std::string& dbfile, bool reserve)
 {
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle	== 0)
 		throw LogicExceptionImpl("Service::SetReserveSpace", _("Service is not connected."));
 	if (dbfile.empty())
 		throw LogicExceptionImpl("Service::SetReserveSpace", _("Main database file must be specified."));
 
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 
 	spb.Insert(isc_action_svc_properties);
 	spb.InsertString(isc_spb_dbname, 2, dbfile.c_str());
@@ -475,15 +475,15 @@ void ServiceImpl::SetReserveSpace(const std::string& dbfile, bool reserve)
 
 void ServiceImpl::Shutdown(const std::string& dbfile, IBPP::DSM mode, int sectimeout)
 {
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle	== 0)
 		throw LogicExceptionImpl("Service::Shutdown", _("Service is not connected."));
 	if (dbfile.empty())
 		throw LogicExceptionImpl("Service::Shutdown", _("Main database file must be specified."));
 
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 
 	spb.Insert(isc_action_svc_properties);
 	spb.InsertString(isc_spb_dbname, 2, dbfile.c_str());
@@ -509,15 +509,15 @@ void ServiceImpl::Shutdown(const std::string& dbfile, IBPP::DSM mode, int sectim
 
 void ServiceImpl::Restart(const std::string& dbfile)
 {
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle	== 0)
 		throw LogicExceptionImpl("Service::Restart", _("Service is not connected."));
 	if (dbfile.empty())
 		throw LogicExceptionImpl("Service::Restart", _("Main database file must be specified."));
 
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 
 	spb.Insert(isc_action_svc_properties);
 	spb.InsertString(isc_spb_dbname, 2, dbfile.c_str());
@@ -532,15 +532,15 @@ void ServiceImpl::Restart(const std::string& dbfile)
 
 void ServiceImpl::Sweep(const std::string& dbfile)
 {
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle	== 0)
 		throw LogicExceptionImpl("Service::Sweep", _("Service is not connected."));
 	if (dbfile.empty())
 		throw LogicExceptionImpl("Service::Sweep", _("Main database file must be specified."));
 
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 
 	spb.Insert(isc_action_svc_repair);
 	spb.InsertString(isc_spb_dbname, 2, dbfile.c_str());
@@ -555,15 +555,15 @@ void ServiceImpl::Sweep(const std::string& dbfile)
 
 void ServiceImpl::Repair(const std::string& dbfile, IBPP::RPF flags)
 {
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle	== 0)
 		throw LogicExceptionImpl("Service::Repair", _("Service is not connected."));
 	if (dbfile.empty())
 		throw LogicExceptionImpl("Service::Repair", _("Main database file must be specified."));
 
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 
 	spb.Insert(isc_action_svc_repair);
 	spb.InsertString(isc_spb_dbname, 2, dbfile.c_str());
@@ -591,7 +591,7 @@ void ServiceImpl::Repair(const std::string& dbfile, IBPP::RPF flags)
 void ServiceImpl::StartBackup(const std::string& dbfile,
 	const std::string& bkfile, IBPP::BRF flags)
 {
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle	== 0)
 		throw LogicExceptionImpl("Service::Backup", _("Service is not connected."));
@@ -600,8 +600,8 @@ void ServiceImpl::StartBackup(const std::string& dbfile,
 	if (bkfile.empty())
 		throw LogicExceptionImpl("Service::Backup", _("Backup file must be specified."));
 
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 
 	spb.Insert(isc_action_svc_backup);
 	spb.InsertString(isc_spb_dbname, 2, dbfile.c_str());
@@ -625,7 +625,7 @@ void ServiceImpl::StartBackup(const std::string& dbfile,
 void ServiceImpl::StartRestore(const std::string& bkfile, const std::string& dbfile,
 	int	pagesize, IBPP::BRF flags)
 {
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 	if (mHandle	== 0)
 		throw LogicExceptionImpl("Service::Restore", _("Service is not connected."));
@@ -634,8 +634,8 @@ void ServiceImpl::StartRestore(const std::string& bkfile, const std::string& dbf
 	if (dbfile.empty())
 		throw LogicExceptionImpl("Service::Restore", _("Main database file must be specified."));
 
-	IBS status;
-	SPB spb;
+	IBS status(mDriver);
+	SPB spb(mDriver);
 
 	spb.Insert(isc_action_svc_restore);
 	spb.InsertString(isc_spb_bkp_file, 2, bkfile.c_str());
@@ -661,11 +661,11 @@ void ServiceImpl::StartRestore(const std::string& bkfile, const std::string& dbf
 
 const char* ServiceImpl::WaitMsg()
 {
-	IBS status;
-	SPB req;
-	RB result(1024);
+	IBS status(mDriver);
+	SPB req(mDriver);
+	RB result(mDriver, 1024);
 
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 
 	req.Insert(isc_info_svc_line);	// Request one line of textual output
@@ -686,12 +686,12 @@ const char* ServiceImpl::WaitMsg()
 
 void ServiceImpl::Wait()
 {
-	IBS status;
-	SPB spb;
-	RB result(1024);
+	IBS status(mDriver);
+	SPB spb(mDriver);
+	RB result(mDriver, 1024);
 	std::string msg;
 
-	if (gds.Call()->mGDSVersion < 60)
+	if (mDriver->mGDSVersion < 60)
 		throw LogicExceptionImpl("Service", _("Requires the version 6 of GDS32.DLL"));
 
 	spb.Insert(isc_info_svc_line);
@@ -756,9 +756,9 @@ void ServiceImpl::SetUserPassword(const char* newPassword)
 	else mUserPassword = newPassword;
 }
 
-ServiceImpl::ServiceImpl(const std::string& ServerName,
+ServiceImpl::ServiceImpl(DriverImpl* drv, const std::string& ServerName,
 			const std::string& UserName, const std::string& UserPassword)
-	:	mRefCount(0), mHandle(0),
+	:	mRefCount(0), mDriver(drv), mHandle(0),
 		mServerName(ServerName), mUserName(UserName), mUserPassword(UserPassword)
 {
 }

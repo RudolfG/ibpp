@@ -52,7 +52,7 @@ void BlobImpl::Open()
 	if (! mIdAssigned)
 		throw LogicExceptionImpl("Blob::Open", _("Blob Id is not assigned."));
 
-	IBS status;
+	IBS status(mDriver);
 	(mDriver->m_open_blob2)(status.Self(), mDatabase->GetHandlePtr(),
 		mTransaction->GetHandlePtr(), &mHandle, &mId, 0, 0);
 	if (status.Errors())
@@ -69,7 +69,7 @@ void BlobImpl::Create()
 	if (mTransaction == 0)
 		throw LogicExceptionImpl("Blob::Create", _("No Transaction is attached."));
 
-	IBS status;
+	IBS status(mDriver);
 	(mDriver->m_create_blob2)(status.Self(), mDatabase->GetHandlePtr(),
 		mTransaction->GetHandlePtr(), &mHandle, &mId, 0, 0);
 	if (status.Errors())
@@ -83,7 +83,7 @@ void BlobImpl::Close()
 {
 	if (mHandle == 0) return;	// Not opened anyway
 
-	IBS status;
+	IBS status(mDriver);
 	(mDriver->m_close_blob)(status.Self(), &mHandle);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Blob::Close", _("isc_close_blob failed."));
@@ -97,7 +97,7 @@ void BlobImpl::Cancel()
 	if (! mWriteMode)
 		throw LogicExceptionImpl("Blob::Cancel", _("Can't cancel a Blob opened for read"));
 
-	IBS status;
+	IBS status(mDriver);
 	(mDriver->m_cancel_blob)(status.Self(), &mHandle);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Blob::Cancel", _("isc_cancel_blob failed."));
@@ -114,7 +114,7 @@ int BlobImpl::Read(void* buffer, int size)
 	if (size < 1 || size > (64*1024-1))
 		throw LogicExceptionImpl("Blob::Read", _("Invalid segment size (max 64Kb-1)"));
 
-	IBS status;
+	IBS status(mDriver);
 	unsigned short bytesread;
 	int result = (mDriver->m_get_segment)(status.Self(), &mHandle, &bytesread,
 					(unsigned short)size, (char*)buffer);
@@ -133,7 +133,7 @@ void BlobImpl::Write(const void* buffer, int size)
 	if (size < 1 || size > (64*1024-1))
 		throw LogicExceptionImpl("Blob::Write", _("Invalid segment size (max 64Kb-1)"));
 
-	IBS status;
+	IBS status(mDriver);
 	(mDriver->m_put_segment)(status.Self(), &mHandle,
 		(unsigned short)size, (char*)buffer);
 	if (status.Errors())
@@ -149,8 +149,8 @@ void BlobImpl::Info(int* Size, int* Largest, int* Segments)
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Blob::GetInfo", _("The Blob is not opened"));
 
-	IBS status;
-	RB result(100);
+	IBS status(mDriver);
+	RB result(mDriver, 100);
 	(mDriver->m_blob_info)(status.Self(), &mHandle, sizeof(items), items,
 		(short)result.Size(), result.Self());
 	if (status.Errors())
@@ -170,7 +170,7 @@ void BlobImpl::Save(const std::string& data)
 	if (mTransaction == 0)
 		throw LogicExceptionImpl("Blob::Save", _("No Transaction is attached."));
 
-	IBS status;
+	IBS status(mDriver);
 	(mDriver->m_create_blob2)(status.Self(), mDatabase->GetHandlePtr(),
 		mTransaction->GetHandlePtr(), &mHandle, &mId, 0, 0);
 	if (status.Errors())
@@ -212,7 +212,7 @@ void BlobImpl::Load(std::string& data)
 	if (! mIdAssigned)
 		throw LogicExceptionImpl("Blob::Load", _("Blob Id is not assigned."));
 
-	IBS status;
+	IBS status(mDriver);
 	(mDriver->m_open_blob2)(status.Self(), mDatabase->GetHandlePtr(),
 		mTransaction->GetHandlePtr(), &mHandle, &mId, 0, 0);
 	if (status.Errors())
@@ -348,8 +348,8 @@ void BlobImpl::DetachTransactionImpl()
 	mTransaction = 0;
 }
 
-BlobImpl::BlobImpl(DatabaseImpl* database, TransactionImpl* transaction)
-	: mRefCount(0)
+BlobImpl::BlobImpl(DriverImpl* drv, DatabaseImpl* database, TransactionImpl* transaction)
+	: mRefCount(0), mDriver(drv)
 {
 	Init();
 	AttachDatabaseImpl(database);

@@ -68,7 +68,7 @@ void DatabaseImpl::Create(int dialect)
 
 	// Call ExecuteImmediate to create the database
 	isc_tr_handle tr_handle = 0;
-	IBS status;
+	IBS status(mDriver);
     (mDriver->m_dsql_execute_immediate)(status.Self(), &mHandle, &tr_handle,
     	0, const_cast<char*>(create.c_str()), short(dialect), NULL);
     if (status.Errors())
@@ -87,7 +87,7 @@ void DatabaseImpl::Connect()
 		throw LogicExceptionImpl("Database::Connect", _("Unspecified user name."));
 
     // Build a DPB based on the properties
-	DPB dpb;
+	DPB dpb(mDriver);
     dpb.Insert(isc_dpb_user_name, mUserName.c_str());
     dpb.Insert(isc_dpb_password, mUserPassword.c_str());
     if (! mRoleName.empty()) dpb.Insert(isc_dpb_sql_role_name, mRoleName.c_str());
@@ -98,7 +98,7 @@ void DatabaseImpl::Connect()
 		connect.assign(mServerName).append(":");
 	connect.append(mDatabaseName);
 
-	IBS status;
+	IBS status(mDriver);
 	(mDriver->m_attach_database)(status.Self(), (short)connect.size(),
 		const_cast<char*>(connect.c_str()), &mHandle, dpb.Size(), dpb.Self());
     if (status.Errors())
@@ -115,7 +115,7 @@ void DatabaseImpl::Connect()
 	char items[] = {isc_info_ods_version,
 					isc_info_db_SQL_dialect,
 					isc_info_end};
-	RB result(100);
+	RB result(mDriver, 100);
 
 	status.Reset();
 	(mDriver->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
@@ -161,7 +161,7 @@ void DatabaseImpl::Inactivate()
 {
 	if (mHandle == 0) return;	// Not connected anyway
 
-    IBS status;
+    IBS status(mDriver);
 
     // Rollback any started transaction...
 	for (unsigned i = 0; i < mTransactions.size(); i++)
@@ -203,7 +203,7 @@ void DatabaseImpl::Disconnect()
 	Inactivate();
 
 	// Detach from the server
-	IBS status;
+	IBS status(mDriver);
     (mDriver->m_detach_database)(status.Self(), &mHandle);
 
     // Should we throw, set mHandle to 0 first, because Disconnect() may
@@ -221,10 +221,10 @@ void DatabaseImpl::Drop()
 	// Put the connection to a rest
 	Inactivate();
 
-	IBS vector;
-	(mDriver->m_drop_database)(vector.Self(), &mHandle);
-    if (vector.Errors())
-    	throw SQLExceptionImpl(vector, "Database::Drop", _("isc_drop_database failed"));
+	IBS status(mDriver);
+	(mDriver->m_drop_database)(status.Self(), &mHandle);
+    if (status.Errors())
+    	throw SQLExceptionImpl(status, "Database::Drop", _("isc_drop_database failed"));
 
     mHandle = 0;
 }
@@ -245,8 +245,8 @@ void DatabaseImpl::Info(int* ODSMajor, int* ODSMinor,
 					isc_info_forced_writes,
 					isc_info_no_reserve,
 					isc_info_end};
-    IBS status;
-	RB result(256);
+    IBS status(mDriver);
+	RB result(mDriver, 256);
 
 	status.Reset();
 	(mDriver->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
@@ -276,8 +276,8 @@ void DatabaseImpl::Statistics(int* Fetches, int* Marks, int* Reads, int* Writes)
 					isc_info_reads,
 					isc_info_writes,
 					isc_info_end};
-    IBS status;
-	RB result(128);
+    IBS status(mDriver);
+	RB result(mDriver, 128);
 
 	status.Reset();
 	(mDriver->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
@@ -303,8 +303,8 @@ void DatabaseImpl::Counts(int* Insert, int* Update, int* Delete,
 					isc_info_read_idx_count,
 					isc_info_read_seq_count,
 					isc_info_end};
-    IBS status;
-	RB result(1024);
+    IBS status(mDriver);
+	RB result(mDriver, 1024);
 
 	status.Reset();
 	(mDriver->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
@@ -326,8 +326,8 @@ void DatabaseImpl::Users(std::vector<std::string>& users)
 
 	char items[] = {isc_info_user_names,
 					isc_info_end};
-    IBS status;
-	RB result(8000);
+    IBS status(mDriver);
+	RB result(mDriver, 8000);
 
 	status.Reset();
 	(mDriver->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
@@ -459,12 +459,12 @@ void DatabaseImpl::DetachEventsImpl(EventsImpl* ev)
 	mEvents.erase(std::find(mEvents.begin(), mEvents.end(), ev));
 }
 
-DatabaseImpl::DatabaseImpl(const std::string& ServerName, const std::string& DatabaseName,
+DatabaseImpl::DatabaseImpl(DriverImpl* drv, const std::string& ServerName, const std::string& DatabaseName,
 						   const std::string& UserName, const std::string& UserPassword,
 						   const std::string& RoleName, const std::string& CharSet,
 						   const std::string& CreateParams) :
 
-	mRefCount(0), mHandle(0),
+	mRefCount(0), mDriver(drv), mHandle(0),
 	mServerName(ServerName), mDatabaseName(DatabaseName),
 	mUserName(UserName), mUserPassword(UserPassword), mRoleName(RoleName),
 	mCharSet(CharSet), mCreateParams(CreateParams),

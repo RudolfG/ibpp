@@ -641,9 +641,9 @@ void Test::Test4()
 	printf("\n");
 
 	st1->Execute();
-	IBPP::Row row;
-	st1->Fetch(row);
-	IBPP::Row row2 = row->Clone();	// row2 is a real copy not a second pointer to same data
+	//IBPP::Row row;
+	st1->Fetch();
+	//IBPP::Row row2 = row->Clone();	// row2 is a real copy not a second pointer to same data
 
 	IBPP::Blob b2 = driver->BlobFactory(db1, tr1);
 	IBPP::Blob bb2 = driver->BlobFactory(db1, tr1);
@@ -652,7 +652,7 @@ void Test::Test4()
 	char buffer[1024];
 	int size, largest, segments;
 
-	row2->Get(1, b2);
+	st1->Get(1, b2);
 	b2->Open();
 	b2->Info(&size, &largest, &segments);
 	if (size != total)
@@ -668,10 +668,10 @@ void Test::Test4()
 	std::string bbs;
 	//row2->Get(2, bb2);
 	//bb2->Load(bbs);
-	row2->Get(2, bbs);
+	st1->Get(2, bbs);
 	//printf("Size = %d\n", bbs.size());
 
-	row2->Get(3, ar3);
+	st1->Get(3, ar3);
 	char a3[2][2][31] = {	{"", ""},
 							{"", ""} };
 	// The stored array is 4 x 4 (0:3 by 1:4).
@@ -853,6 +853,7 @@ void Test::Test5()
 		}
 	}
 
+	/*
     //	printf(_("Testing IBPP::Row...\n"));
 	std::vector<IBPP::Row> rows;
 	IBPP::Row r;
@@ -875,6 +876,7 @@ void Test::Test5()
 	st1->Execute("select N2, N6 from test");
 	for (unsigned i = 0; i < rows.size()-1; i++)
 		st1->Fetch();
+	*/
 
 	// And commit
 	tr1->Commit();
