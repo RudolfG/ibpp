@@ -23,6 +23,13 @@ under the License.
 The most recent addition to this file is always on top and has the highest
 item number.
 
+22. July 18, 2006
+
+- Added in packaging/debian a patch file to configure the project properly
+in order to build it as a Debian package. Thanks to Pavel Stingl for
+contributing this.
+
+
 21. May 12, 2006
 
 - Back ported a small addition from HEAD branch. When IBPP attempts to load
