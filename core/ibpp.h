@@ -449,8 +449,6 @@ namespace IBPP
 	class IInterface
 	{
 	public:
-		virtual IInterface* AddRef() = 0;
-		virtual void Release() = 0;
 		virtual ~IInterface() { };
 	};
 
