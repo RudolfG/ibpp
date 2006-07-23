@@ -331,6 +331,10 @@ namespace IBPP
 		bool operator!=(const Timestamp& rv) const
 			{ return (mDate != rv.GetDate()) || (mTime != rv.GetTime()); }
 
+		bool operator<(const Timestamp& rv) const
+			{ return (mDate < rv.GetDate()) ||
+				(mDate == rv.GetDate() && mTime < rv.GetTime()); }
+
 		bool operator>(const Timestamp& rv) const
 			{ return (mDate > rv.GetDate()) ||
 				(mDate == rv.GetDate() && mTime > rv.GetTime()); }
