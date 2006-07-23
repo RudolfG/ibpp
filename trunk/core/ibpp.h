@@ -244,8 +244,10 @@ namespace IBPP
 		Date& operator=(const Timestamp&);			// Timestamp Assignment operator
 		Date& operator=(const Date&);				// Date Assignment operator
 
-		bool operator==(const Date& rv)	{ return mDate == rv.GetDate(); }
-		bool operator<(const Date& rv) { return mDate < rv.GetDate(); }
+		bool operator==(const Date& rv)	const { return mDate == rv.GetDate(); }
+		bool operator!=(const Date& rv)	const { return mDate != rv.GetDate(); }
+		bool operator<(const Date& rv) const { return mDate < rv.GetDate(); }
+		bool operator>(const Date& rv) const { return mDate > rv.GetDate(); }
 
 		virtual ~Date() { };
 	};
@@ -277,8 +279,10 @@ namespace IBPP
 		Time& operator=(const Timestamp&);			// Timestamp Assignment operator
 		Time& operator=(const Time&);				// Time Assignment operator
 
-		bool operator==(const Time& rv)	{ return mTime == rv.GetTime(); }
-		bool operator<(const Time& rv) { return mTime < rv.GetTime(); }
+		bool operator==(const Time& rv)	const { return mTime == rv.GetTime(); }
+		bool operator!=(const Time& rv)	const { return mTime != rv.GetTime(); }
+		bool operator<(const Time& rv) const { return mTime < rv.GetTime(); }
+		bool operator>(const Time& rv) const { return mTime > rv.GetTime(); }
 
 		virtual ~Time() { };
 	};
@@ -321,12 +325,19 @@ namespace IBPP
 		Timestamp& operator=(const Time& rv)		// Time Assignment operator
 			{ mTime = rv.GetTime(); return *this; }
 
-		bool operator==(const Timestamp& rv)
+		bool operator==(const Timestamp& rv) const
 			{ return (mDate == rv.GetDate()) && (mTime == rv.GetTime()); }
 
-		bool operator<(const Timestamp& rv)
+		bool operator!=(const Timestamp& rv) const
+			{ return (mDate != rv.GetDate()) || (mTime != rv.GetTime()); }
+
+		bool operator<(const Timestamp& rv) const
 			{ return (mDate < rv.GetDate()) ||
 				(mDate == rv.GetDate() && mTime < rv.GetTime()); }
+
+		bool operator>(const Timestamp& rv) const
+			{ return (mDate > rv.GetDate()) ||
+				(mDate == rv.GetDate() && mTime > rv.GetTime()); }
 
 		~Timestamp() { }
 	};
