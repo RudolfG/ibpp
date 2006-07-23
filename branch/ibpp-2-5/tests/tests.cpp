@@ -716,7 +716,7 @@ void Test::Test4()
 	tr1->Start();
 	st1->Prepare("select B, BB, A2 from test where ID = 1 for update");
 	st1->CursorExecute("name");
-	//st1->Fetch();
+	st1->Fetch();
 	tr1->Commit();	// This used to be an issue with CursorFree()
 
 	db1->Disconnect();

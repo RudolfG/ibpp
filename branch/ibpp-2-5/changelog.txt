@@ -23,6 +23,13 @@ under the License.
 The most recent addition to this file is always on top and has the highest
 item number.
 
+23. July 23, 2006
+
+- Fix mCursorOpened / CursorFree
+- Added const to operator== and operator< on Date, Time, Timestamp
+- Added operator!= and operator> on Data, Time, Timestamp
+(Thanks Milan!)
+
 22. July 18, 2006
 
 - Added in packaging/debian a patch file to configure the project properly

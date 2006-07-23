@@ -95,7 +95,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (2<<8) + 2; // Version == 2.5.2.2
+	const uint32_t Version = (2<<24) + (5<<16) + (2<<8) + 3; // Version == 2.5.2.3
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
@@ -244,8 +244,10 @@ namespace IBPP
 		Date& operator=(const Timestamp&);			// Timestamp Assignment operator
 		Date& operator=(const Date&);				// Date Assignment operator
 
-		bool operator==(const Date& rv)	{ return mDate == rv.GetDate(); }
-		bool operator<(const Date& rv) { return mDate < rv.GetDate(); }
+		bool operator==(const Date& rv)	const { return mDate == rv.GetDate(); }
+		bool operator!=(const Date& rv)	const { return mDate != rv.GetDate(); }
+		bool operator<(const Date& rv) const { return mDate < rv.GetDate(); }
+		bool operator>(const Date& rv) const { return mDate > rv.GetDate(); }
 
 		virtual ~Date() { };
 	};
@@ -277,8 +279,10 @@ namespace IBPP
 		Time& operator=(const Timestamp&);			// Timestamp Assignment operator
 		Time& operator=(const Time&);				// Time Assignment operator
 
-		bool operator==(const Time& rv)	{ return mTime == rv.GetTime(); }
-		bool operator<(const Time& rv) { return mTime < rv.GetTime(); }
+		bool operator==(const Time& rv)	const { return mTime == rv.GetTime(); }
+		bool operator!=(const Time& rv)	const { return mTime != rv.GetTime(); }
+		bool operator<(const Time& rv) const { return mTime < rv.GetTime(); }
+		bool operator>(const Time& rv) const { return mTime > rv.GetTime(); }
 
 		virtual ~Time() { };
 	};
@@ -321,12 +325,15 @@ namespace IBPP
 		Timestamp& operator=(const Time& rv)		// Time Assignment operator
 			{ mTime = rv.GetTime(); return *this; }
 
-		bool operator==(const Timestamp& rv)
+		bool operator==(const Timestamp& rv) const
 			{ return (mDate == rv.GetDate()) && (mTime == rv.GetTime()); }
 
-		bool operator<(const Timestamp& rv)
-			{ return (mDate < rv.GetDate()) ||
-				(mDate == rv.GetDate() && mTime < rv.GetTime()); }
+		bool operator!=(const Timestamp& rv) const
+			{ return (mDate != rv.GetDate()) || (mTime != rv.GetTime()); }
+
+		bool operator>(const Timestamp& rv) const
+			{ return (mDate > rv.GetDate()) ||
+				(mDate == rv.GetDate() && mTime > rv.GetTime()); }
 
 		~Timestamp() { }
 	};
