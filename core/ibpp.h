@@ -446,6 +446,14 @@ namespace IBPP
 	 * itself), you'll never have to care about AddRef/Release and you'll never
 	 * have to care about deleting your objects. */
 
+	class IInterface
+	{
+	public:
+		virtual IInterface* AddRef() = 0;
+		virtual void Release() = 0;
+		virtual ~IInterface() { };
+	};
+
 	class IBlob;			typedef Ptr<IBlob> Blob;
 	class IArray;			typedef Ptr<IArray> Array;
 	class IDriver;			typedef Ptr<IDriver> Driver;
@@ -462,7 +470,7 @@ namespace IBPP
 	 * database. Blob allows you to retrieve such a handle and then read from or
 	 * write to the blob, much in the same manner than you would do with a file. */
 
-	class IBlob
+	class IBlob : public IInterface
 	{
 	public:
 		virtual void Create() = 0;
@@ -489,7 +497,7 @@ namespace IBPP
 	* object class you actually use in your programming. With an Array object, you
 	* can create, read and write Interbase Arrays, as a whole or in slices. */
 
-	class IArray
+	class IArray : public IInterface
 	{
 	public:
 		virtual void Describe(const std::string& table, const std::string& column) = 0;
@@ -515,7 +523,7 @@ namespace IBPP
 	 * loading a interface to a database engine and to factory the other interfaces
 	 * instances. */
 
-	class IDriver
+	class IDriver : public IInterface
 	{
 	public:
 		virtual void Load(const std::string& paths) = 0;
@@ -568,7 +576,7 @@ namespace IBPP
 	 * object, you can do some maintenance work of databases and servers
 	 * (backup, restore, create/update users, ...) */
 
-	class IService
+	class IService : public IInterface
 	{
 	public:
 	    virtual void Connect() = 0;
@@ -616,7 +624,7 @@ namespace IBPP
 
 	class EventInterface;	// Cross-reference between EventInterface and IDatabase
 
-	class IDatabase
+	class IDatabase : public IInterface
 	{
 	public:
 		virtual const char* ServerName() const = 0;
@@ -660,7 +668,7 @@ namespace IBPP
 	 * programming interfaces to Firebird that allows you to support distributed
 	 * transactions. */
 
-	class ITransaction
+	class ITransaction : public IInterface
 	{
 	public:
 	    virtual void AttachDatabase(Database db, TAM am = amWrite,
@@ -689,7 +697,7 @@ namespace IBPP
 	 */
 
 	/*
-	class IRow
+	class IRow : public IInterface
 	{
 	public:
 		virtual void SetNull(int) = 0;
@@ -772,7 +780,7 @@ namespace IBPP
 	 * set of a query (when the statement is such), one row at a time and in
 	 * strict forward direction. */
 
-	class IStatement
+	class IStatement : public IInterface
 	{
 	public:
 		virtual void Prepare(const std::string&) = 0;
@@ -881,7 +889,7 @@ namespace IBPP
 		virtual bool Get(const std::string&, double*) = 0;	// DEPRECATED
 	};
 
-	class IEvents
+	class IEvents : public IInterface
 	{
 	public:
 		virtual void Add(const std::string&, EventInterface*) = 0;

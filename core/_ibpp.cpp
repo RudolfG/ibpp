@@ -93,11 +93,6 @@ namespace IBPP
 				(IBPP::Version & 0xFFFFFF00) ? true : false;
 	}
 
-	Driver DriverFactory()
-	{
-		return new DriverImpl();
-	}
-
 }
 
 //

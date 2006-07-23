@@ -62,6 +62,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <set>
 #include <sstream>
 #include <cstdarg>
 
@@ -679,6 +680,8 @@ private:
 	std::string mPaths;		// Optional paths which where used to load the driver
 	bool mLoaded;			// Driver loaded?
 
+	std::set<IBPP::IInterface*> mInterfaces;
+
 #ifdef IBPP_WINDOWS
 	HMODULE mHandle;			// The GDS32.DLL HMODULE
 	std::string mSearchPaths;	// Optional additional search paths
@@ -748,6 +751,8 @@ public:
 		return mLoaded ? this :
 			throw LogicExceptionImpl("Driver", "Driver instance has been unloaded"), this;
 	}
+
+	void Detach(IBPP::IInterface*);
 
 	DriverImpl();
     ~DriverImpl();

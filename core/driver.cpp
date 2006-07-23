@@ -37,6 +37,8 @@
 #pragma hdrstop
 #endif
 
+#include <iostream>
+
 #ifdef IBPP_WINDOWS
 // New (optional) Registry Keys introduced by Firebird Server 1.5
 #define REG_KEY_ROOT_INSTANCES	"SOFTWARE\\Firebird Project\\Firebird Server\\Instances"
@@ -230,10 +232,24 @@ void DriverImpl::Unload()
 {
 	if (mLoaded)
 	{
+		std::set<IBPP::IInterface*>::iterator it = mInterfaces.begin();
+		while (it != mInterfaces.end())
+		{
+			DatabaseImpl* db = dynamic_cast<DatabaseImpl*>(*it);
+			if (db != 0 && db->Connected())
+				db->Disconnect();
+			else
+			{
+				ServiceImpl* sv = dynamic_cast<ServiceImpl*>(*it);
+				if (sv != 0 && sv->Connected())
+					sv->Disconnect();
+			}
+			it++;
+		}
+
 #ifdef IBPP_WINDOWS
 		if (mHandle != 0)
 		{
-			/* TODO: actually release DLL by disabling all IBPP objects using it */
 			FreeLibrary(mHandle);
 			mHandle = 0;
 		}
@@ -251,7 +267,9 @@ IBPP::Service DriverImpl::ServiceFactory(const std::string& ServerName,
 				const std::string& UserName, const std::string& UserPassword)
 {
 	Load();			// Triggers the initialization, if needed
-	return new ServiceImpl(this, ServerName, UserName, UserPassword);
+	IBPP::IService* pi = new ServiceImpl(this, ServerName, UserName, UserPassword);
+	mInterfaces.insert(pi);
+	return pi;
 }
 
 IBPP::Database DriverImpl::DatabaseFactory(const std::string& ServerName,
@@ -260,45 +278,57 @@ IBPP::Database DriverImpl::DatabaseFactory(const std::string& ServerName,
 		const std::string& CharSet, const std::string& CreateParams)
 {
 	Load();			// Triggers the initialization, if needed
-	return new DatabaseImpl(this, ServerName, DatabaseName, UserName,
-							UserPassword, RoleName, CharSet, CreateParams);
+	IBPP::IDatabase* pi = new DatabaseImpl(this, ServerName, DatabaseName, UserName,
+								UserPassword, RoleName, CharSet, CreateParams);
+	mInterfaces.insert(pi);
+	return pi;
 }
 
 IBPP::Transaction DriverImpl::TransactionFactory(IBPP::Database db, IBPP::TAM am,
 					IBPP::TIL il, IBPP::TLR lr, IBPP::TFF flags)
 {
 	Load();			// Triggers the initialization, if needed
-	return new TransactionImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()),
-								am, il, lr, flags);
+	IBPP::ITransaction* pi = new TransactionImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()),
+									am, il, lr, flags);
+	mInterfaces.insert(pi);
+	return pi;
 }
 
 IBPP::Statement DriverImpl::StatementFactory(IBPP::Database db, IBPP::Transaction tr,
 		const std::string& sql)
 {
 	Load();			// Triggers the initialization, if needed
-	return new StatementImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()),
-								dynamic_cast<TransactionImpl*>(tr.intf()),
-								sql);
+	IBPP::IStatement* pi = new StatementImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()),
+									dynamic_cast<TransactionImpl*>(tr.intf()),
+										sql);
+	mInterfaces.insert(pi);
+	return pi;
 }
 
 IBPP::Blob DriverImpl::BlobFactory(IBPP::Database db, IBPP::Transaction tr)
 {
 	Load();			// Triggers the initialization, if needed
-	return new BlobImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()),
-						dynamic_cast<TransactionImpl*>(tr.intf()));
+	IBPP::IBlob* pi = new BlobImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()),
+							dynamic_cast<TransactionImpl*>(tr.intf()));
+	mInterfaces.insert(pi);
+	return pi;
 }
 
 IBPP::Array DriverImpl::ArrayFactory(IBPP::Database db, IBPP::Transaction tr)
 {
 	Load();			// Triggers the initialization, if needed
-	return new ArrayImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()),
-						dynamic_cast<TransactionImpl*>(tr.intf()));
+	IBPP::IArray* pi = new ArrayImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()),
+							dynamic_cast<TransactionImpl*>(tr.intf()));
+	mInterfaces.insert(pi);
+	return pi;
 }
 
 IBPP::Events DriverImpl::EventsFactory(IBPP::Database db)
 {
 	Load();			// Triggers the initialization, if needed
-	return new EventsImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()));
+	IBPP::IEvents* pi = new EventsImpl(this, dynamic_cast<DatabaseImpl*>(db.intf()));
+	mInterfaces.insert(pi);
+	return pi;
 }
 
 IBPP::IDriver* DriverImpl::AddRef()
@@ -317,7 +347,20 @@ void DriverImpl::Release()
 		catch (...) { }
 }
 
+namespace IBPP
+{
+	Driver DriverFactory()
+	{
+		return new DriverImpl();
+	}
+}
+
 //	(((((((( OBJECT INTERNAL METHODS ))))))))
+
+void DriverImpl::Detach(IBPP::IInterface* pi)
+{
+	mInterfaces.erase(pi);
+}
 
 DriverImpl::DriverImpl()
 : mRefCount(0)
@@ -331,6 +374,7 @@ DriverImpl::DriverImpl()
 
 DriverImpl::~DriverImpl()
 {
+	Unload();
 }
 
 //
