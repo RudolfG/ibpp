@@ -340,6 +340,7 @@ void Test::Test2()
 	printf("           Reserve   %s\n", Reserve ? _("true") : _("false"));
 	/**/
 
+	driver->Unload();
     db1->Disconnect();
 }
 

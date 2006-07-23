@@ -732,8 +732,15 @@ void ServiceImpl::Release()
 	// Release cannot throw, except in DEBUG builds on assertion
 	ASSERTION(mRefCount >= 0);
 	--mRefCount;
-	try { if (mRefCount <= 0) delete this; }
-		catch (...) { }
+	try
+	{
+		if (mRefCount <= 0)
+		{
+			mDriver->Detach(this);
+			delete this;
+		}
+	}
+	catch (...) { }
 }
 
 //	(((((((( OBJECT INTERNAL METHODS ))))))))

@@ -23,13 +23,17 @@ under the License.
 The most recent addition to this file is always on top and has the highest
 item number.
 
-6. May 28, 2006
+6. July 23, 2006
 
 ********
 
 - Work in progress regarding the introduction of the Driver interface.
 The code found in the HEAD of trunk is not complete and not meant to work (yet)
 if it was compiling (by any chance).
+
+- Added management of interfaces and proper driver unloading (disconnecting
+databases and services cleanly if required). A critical section around
+DriverImpl::mInterfaces (std::set) handling is required but not implemented yet.
 
 ********
 
