@@ -285,7 +285,11 @@ void StatementImpl::Execute(const std::string& sql)
 			throw SQLExceptionImpl(status, context.c_str(),
 				_("isc_dsql_execute failed"));
 		}
-		if (mOutRow != 0) mResultSetAvailable = true;
+		if (mOutRow != 0)
+		{
+			mResultSetAvailable = true;
+			mCursorOpened = true;
+		}
 	}
 	else
 	{
