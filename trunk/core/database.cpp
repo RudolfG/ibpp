@@ -161,8 +161,6 @@ void DatabaseImpl::Inactivate()
 {
 	if (mHandle == 0) return;	// Not connected anyway
 
-    IBS status(mDriver);
-
     // Rollback any started transaction...
 	for (unsigned i = 0; i < mTransactions.size(); i++)
 	{
