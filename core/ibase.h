@@ -686,7 +686,7 @@ ISC_LONG FB_API_DEPRECATED ISC_EXPORT isc_interprete(ISC_SCHAR*,
 
 /* This const params version used in the engine and other places. */
 ISC_LONG ISC_EXPORT fb_interpret(ISC_SCHAR*,
-								 int,
+								 unsigned int,
 								 const ISC_STATUS**);
 
 ISC_STATUS ISC_EXPORT isc_open_blob(ISC_STATUS*,
