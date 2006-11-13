@@ -599,6 +599,7 @@ const ISC_LONG isc_array_convert_error              = 335544861L;
 const ISC_LONG isc_record_lock_not_supp             = 335544862L;
 const ISC_LONG isc_partner_idx_not_found            = 335544863L;
 const ISC_LONG isc_tra_num_exc                      = 335544864L;
+const ISC_LONG isc_field_disappeared                = 335544865L;
 const ISC_LONG isc_gfix_db_name                     = 335740929L;
 const ISC_LONG isc_gfix_invalid_sw                  = 335740930L;
 const ISC_LONG isc_gfix_incmp_sw                    = 335740932L;
@@ -817,7 +818,7 @@ const ISC_LONG isc_gstat_unexpected_eof             = 336920580L;
 const ISC_LONG isc_gstat_open_err                   = 336920605L;
 const ISC_LONG isc_gstat_read_err                   = 336920606L;
 const ISC_LONG isc_gstat_sysmemex                   = 336920607L;
-const ISC_LONG isc_err_max                          = 762;
+const ISC_LONG isc_err_max                          = 763;
 
 #else /* c definitions */
 
@@ -1386,6 +1387,7 @@ const ISC_LONG isc_err_max                          = 762;
 #define isc_record_lock_not_supp             335544862L
 #define isc_partner_idx_not_found            335544863L
 #define isc_tra_num_exc                      335544864L
+#define isc_field_disappeared                335544865L
 #define isc_gfix_db_name                     335740929L
 #define isc_gfix_invalid_sw                  335740930L
 #define isc_gfix_incmp_sw                    335740932L
@@ -1604,7 +1606,7 @@ const ISC_LONG isc_err_max                          = 762;
 #define isc_gstat_open_err                   336920605L
 #define isc_gstat_read_err                   336920606L
 #define isc_gstat_sysmemex                   336920607L
-#define isc_err_max                          762
+#define isc_err_max                          763
 
 #endif
 
