@@ -23,6 +23,10 @@ under the License.
 The most recent addition to this file is always on top and has the highest
 item number.
 
+25. February 21, 2007
+
+- Released as 2.5.3.1 to the SF download area.
+
 24. November 08, 2006
 
 - Removed an unused variable in Database::Inactivate
