@@ -93,6 +93,11 @@ void TPB::Reset()
 	}
 }
 
+TPB::~TPB()
+{
+	try { Reset(); } catch (...) { }
+}
+
 //
 //	EOF
 //

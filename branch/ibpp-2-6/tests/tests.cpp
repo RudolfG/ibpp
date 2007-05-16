@@ -441,10 +441,10 @@ void Test::Test4()
 	}
 	st1->Fetch();
 	IBPP::Date dt;
-	IBPP::Time tm;
+	IBPP::Time tim;
 	IBPP::Timestamp ts;
 	st1->Get(1, dt);
-	st1->Get(2, tm);
+	st1->Get(2, tim);
 	st1->Get(3, ts);
 	
 	int y, m, d, h, min, s, t;
@@ -456,7 +456,7 @@ void Test::Test4()
 		return;
 	}
 	
-	tm.GetTime(h, min, s, t);
+	tim.GetTime(h, min, s, t);
 	if (h != 10 || min != 11 || s != 12 || t != 1314)
 	{
 		_Success = false;
@@ -565,40 +565,49 @@ void Test::Test4()
 	int somebytes[10] = { 1, 2, 3, 0, 5, 6, 7, 8, 0, 10 };
 
 	FILE* file = fopen("blob.txt", "w");
-	for (i = 0; i < 1000; i++)
-		fputs(_("Dummy blob data for running some blob input/output tests.\n"), file);
-	fclose(file);
+	if (file != 0)
+	{	
+		for (i = 0; i < 1000; i++)
+			fputs(_("Dummy blob data for running some blob input/output tests.\n"), file);
+		fclose(file);
+	}
 	for (i = 0; i < 100; i++)
 	{
 		// Writing a blob, using the low-level interface
 		char buffer[10240];
 		int len;
 		b1->Create();
-		FILE* file = fopen("blob.txt", "r");
-		while ((len = (int)fread(buffer, 1, 10240, file)) == 10240)
+		FILE* rfile = fopen("blob.txt", "r");
+		if (rfile != 0)
 		{
-			b1->Write(buffer, 10240);
-			total += 10240;
+			while ((len = (int)fread(buffer, 1, 10240, rfile)) == 10240)
+			{
+				b1->Write(buffer, 10240);
+				total += 10240;
+			}
+			b1->Write(buffer, len);
+			total += len;
+			fclose(rfile);
 		}
-		b1->Write(buffer, len);
-		total += len;
 		b1->Close();
-		fclose(file);
 		st1->Set(5, b1);
 
 		// Writing a blob, using the std:string interface
 		std::string bbs;
 		file = fopen("blob.txt", "r");
-		bbs.resize(40000);
-		fread(const_cast<char*>(bbs.data()), 1, 40000, file);
-		fclose(file);
+		if (file != 0)
+		{
+			bbs.resize(40000);
+			fread(const_cast<char*>(bbs.data()), 1, 40000, file);
+			fclose(file);
+		}
 		//bb->Save(bbs);
 		//st1->Set(6, bb);
 
 		// Third, direct way of writing a std::string to a blob
 		st1->Set(6, bbs);
 
-		st1->Set(7, (i%2) != 0);
+		st1->Set(7, (bool)((i%2) != 0));
 #ifdef __DMC__
 		st1->Set(8, (int32_t)i);
 #else
@@ -644,7 +653,7 @@ void Test::Test4()
 	IBPP::Row row2 = row->Clone();	// row2 is a real copy not a second pointer to same data
 
 	IBPP::Blob b2 = IBPP::BlobFactory(db1, tr1);
-	IBPP::Blob bb2 = IBPP::BlobFactory(db1, tr1);
+	//IBPP::Blob bb2 = IBPP::BlobFactory(db1, tr1);
 	IBPP::Array ar3 = IBPP::ArrayFactory(db1, tr1);
 	ar3->Describe("TEST", "A2");
 	char buffer[1024];
@@ -739,7 +748,7 @@ void Test::Test5()
 
 	IBPP::Statement st1 = IBPP::StatementFactory(db1, tr1);
 
-	IBPP::Blob b1 = IBPP::BlobFactory(db1, tr1);
+	//IBPP::Blob b1 = IBPP::BlobFactory(db1, tr1);
 
 	st1->Prepare("select ID, rdb$db_key, N2, D, TF, TX, VX from TEST FOR UPDATE");
 	st1->CursorExecute("MYCURSOR");
@@ -772,10 +781,10 @@ void Test::Test5()
 		d3.GetDate(y, m, d);
 		//printf("%d, %d, %d ",  y, m, d);
 		double tmp;
-		st1->Get(3, &tmp);
+		st1->Get(3, tmp);
 		st2->Set(1, tmp*40.0);
 		bool b;
-		st1->Get(5, &b);
+		st1->Get(5, b);
 		bool c;
 		st1->Get(5, c);
 		if (b != c)
@@ -788,7 +797,9 @@ void Test::Test5()
 		printf("%s\n", row->Get("TF"));
 		printf("%d\n", row->Get("ID"));
 		*/
-		st1->Get(6, cstring);
+		int size = sizeof(cstring)-1;
+		st1->Get(6, cstring, size);
+		cstring[sizeof(cstring)-1] = '\0';
 		st1->Get(7, stdstring);
 
 		st2->Set(2, ! b);
@@ -845,8 +856,8 @@ void Test::Test5()
 		while (st1->Fetch())
 		{
 			double n2, n6;
- 			st1->Get(1, &n2);
-			st1->Get(2, &n6);
+ 			st1->Get(1, n2);
+			st1->Get(2, n6);
 			//printf("%g, %g\n", n2, n6);
 		}
 	}
@@ -878,6 +889,7 @@ void Test::Test5()
 	tr1->Commit();
 }
 
+//lint -e{655} bit-wise operation uses compatible enum is expected in this function
 void Test::Test6()
 {
 	printf(_("Test 6 --- Service APIs\n"));

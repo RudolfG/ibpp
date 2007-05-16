@@ -185,10 +185,10 @@ RB::RB()
 	memset(mBuffer, 255, mSize);
 }
 
-RB::RB(int Size)
+RB::RB(int size)
 {
-	mSize = Size;
-	mBuffer = new char [Size];
+	mSize = size;
+	mBuffer = new char[size];
 	memset(mBuffer, 255, mSize);
 }
 

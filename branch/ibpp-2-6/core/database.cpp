@@ -69,7 +69,7 @@ void DatabaseImpl::Create(int dialect)
 	// Call ExecuteImmediate to create the database
 	isc_tr_handle tr_handle = 0;
 	IBS status;
-    (*gds.Call()->m_dsql_execute_immediate)(status.Self(), &mHandle, &tr_handle,
+    (void)(*gds.Call()->m_dsql_execute_immediate)(status.Self(), &mHandle, &tr_handle,
     	0, const_cast<char*>(create.c_str()), short(dialect), NULL);
     if (status.Errors())
 		throw SQLExceptionImpl(status, "Database::Create", _("isc_dsql_execute_immediate failed"));
@@ -93,14 +93,14 @@ void DatabaseImpl::Connect()
     if (! mRoleName.empty()) dpb.Insert(isc_dpb_sql_role_name, mRoleName.c_str());
     if (! mCharSet.empty()) dpb.Insert(isc_dpb_lc_ctype, mCharSet.c_str());
 
-	std::string connect;
+	std::string conn;
 	if (! mServerName.empty())
-		connect.assign(mServerName).append(":");
-	connect.append(mDatabaseName);
+		conn.assign(mServerName).append(":");
+	conn.append(mDatabaseName);
 
 	IBS status;
-	(*gds.Call()->m_attach_database)(status.Self(), (short)connect.size(),
-		const_cast<char*>(connect.c_str()), &mHandle, dpb.Size(), dpb.Self());
+	(void)(*gds.Call()->m_attach_database)(status.Self(), (short)conn.size(),
+		const_cast<char*>(conn.c_str()), &mHandle, dpb.Size(), dpb.Self());
     if (status.Errors())
     {
         mHandle = 0;     // Should be, but better be sure...
@@ -112,27 +112,27 @@ void DatabaseImpl::Connect()
 	// If ODS major is 10 or higher, this is at least an InterBase 6.x Server
 	// OR FireBird 1.x Server.
 
-	char items[] = {isc_info_ods_version,
-					isc_info_db_SQL_dialect,
-					isc_info_end};
+	char items[] = {(char)isc_info_ods_version,
+					(char)isc_info_db_SQL_dialect,
+					(char)isc_info_end};
 	RB result(100);
 
 	status.Reset();
-	(*gds.Call()->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
+	(void)(*gds.Call()->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
 		result.Size(), result.Self());
 	if (status.Errors())
 	{
 		status.Reset();
-	    (*gds.Call()->m_detach_database)(status.Self(), &mHandle);
+	    (void)(*gds.Call()->m_detach_database)(status.Self(), &mHandle);
         mHandle = 0;     // Should be, but better be sure...
 		throw SQLExceptionImpl(status, "Database::Connect", _("isc_database_info failed"));
 	}
 
-	int ODS = result.GetValue(isc_info_ods_version);
+	int ODS = result.GetValue((char)isc_info_ods_version);
 	if (ODS <= 9)
 	{
 		status.Reset();
-	    (*gds.Call()->m_detach_database)(status.Self(), &mHandle);
+	    (void)(*gds.Call()->m_detach_database)(status.Self(), &mHandle);
         mHandle = 0;     // Should be, but better be sure...
 		throw LogicExceptionImpl("Database::Connect",
 			_("Unsupported Server : wrong ODS version (%d), at least '10' required."), ODS);
@@ -142,7 +142,7 @@ void DatabaseImpl::Connect()
 	if (mDialect != 1 && mDialect != 3)
 	{
 		status.Reset();
-	    (*gds.Call()->m_detach_database)(status.Self(), &mHandle);
+	    (void)(*gds.Call()->m_detach_database)(status.Self(), &mHandle);
         mHandle = 0;     // Should be, but better be sure...
 		throw LogicExceptionImpl("Database::Connect", _("Dialect 1 or 3 required"));
 	}
@@ -151,7 +151,7 @@ void DatabaseImpl::Connect()
 	if (ODS >= 10 && gds.Call()->mGDSVersion < 60)
 	{
 		status.Reset();
-	    (*gds.Call()->m_detach_database)(status.Self(), &mHandle);
+	    (void)(*gds.Call()->m_detach_database)(status.Self(), &mHandle);
         mHandle = 0;     // Should be, but better be sure...
 		throw LogicExceptionImpl("Database::Connect", _("GDS32.DLL version 5 against IBSERVER 6"));
 	}
@@ -202,7 +202,7 @@ void DatabaseImpl::Disconnect()
 
 	// Detach from the server
 	IBS status;
-    (*gds.Call()->m_detach_database)(status.Self(), &mHandle);
+    (void)(*gds.Call()->m_detach_database)(status.Self(), &mHandle);
 
     // Should we throw, set mHandle to 0 first, because Disconnect() may
 	// be called from Database destructor (keeps the object coherent).
@@ -220,7 +220,7 @@ void DatabaseImpl::Drop()
 	Inactivate();
 
 	IBS vector;
-	(*gds.Call()->m_drop_database)(vector.Self(), &mHandle);
+	(void)(*gds.Call()->m_drop_database)(vector.Self(), &mHandle);
     if (vector.Errors())
     	throw SQLExceptionImpl(vector, "Database::Drop", _("isc_drop_database failed"));
 
@@ -234,34 +234,34 @@ void DatabaseImpl::Info(int* ODSMajor, int* ODSMinor,
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Database::Info", _("Database is not connected."));
 
-	char items[] = {isc_info_ods_version,
-					isc_info_ods_minor_version,
-					isc_info_page_size,
-					isc_info_allocation,
-					isc_info_num_buffers,
-					isc_info_sweep_interval,
-					isc_info_forced_writes,
-					isc_info_no_reserve,
-					isc_info_end};
+	char items[] = {(char)isc_info_ods_version,
+					(char)isc_info_ods_minor_version,
+					(char)isc_info_page_size,
+					(char)isc_info_allocation,
+					(char)isc_info_num_buffers,
+					(char)isc_info_sweep_interval,
+					(char)isc_info_forced_writes,
+					(char)isc_info_no_reserve,
+					(char)isc_info_end};
     IBS status;
 	RB result(256);
 
 	status.Reset();
-	(*gds.Call()->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
+	(void)(*gds.Call()->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
 		result.Size(), result.Self());
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Database::Info", _("isc_database_info failed"));
 
-	if (ODSMajor != 0) *ODSMajor = result.GetValue(isc_info_ods_version);
-	if (ODSMinor != 0) *ODSMinor = result.GetValue(isc_info_ods_minor_version);
-	if (PageSize != 0) *PageSize = result.GetValue(isc_info_page_size);
-	if (Pages != 0) *Pages = result.GetValue(isc_info_allocation);
-	if (Buffers != 0) *Buffers = result.GetValue(isc_info_num_buffers);
-	if (Sweep != 0) *Sweep = result.GetValue(isc_info_sweep_interval);
+	if (ODSMajor != 0) *ODSMajor = result.GetValue((char)isc_info_ods_version);
+	if (ODSMinor != 0) *ODSMinor = result.GetValue((char)isc_info_ods_minor_version);
+	if (PageSize != 0) *PageSize = result.GetValue((char)isc_info_page_size);
+	if (Pages != 0) *Pages = result.GetValue((char)isc_info_allocation);
+	if (Buffers != 0) *Buffers = result.GetValue((char)isc_info_num_buffers);
+	if (Sweep != 0) *Sweep = result.GetValue((char)isc_info_sweep_interval);
 	if (Sync != 0)
-		*Sync = result.GetValue(isc_info_forced_writes) == 1 ? true : false;
+		*Sync = result.GetValue((char)isc_info_forced_writes) == 1 ? true : false;
 	if (Reserve != 0)
-		*Reserve = result.GetValue(isc_info_no_reserve) == 1 ? false : true;
+		*Reserve = result.GetValue((char)isc_info_no_reserve) == 1 ? false : true;
 }
 
 void DatabaseImpl::Statistics(int* Fetches, int* Marks, int* Reads, int* Writes)
@@ -269,24 +269,24 @@ void DatabaseImpl::Statistics(int* Fetches, int* Marks, int* Reads, int* Writes)
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Database::Statistics", _("Database is not connected."));
 
-	char items[] = {isc_info_fetches,
-					isc_info_marks,
-					isc_info_reads,
-					isc_info_writes,
-					isc_info_end};
+	char items[] = {(char)isc_info_fetches,
+					(char)isc_info_marks,
+					(char)isc_info_reads,
+					(char)isc_info_writes,
+					(char)isc_info_end};
     IBS status;
 	RB result(128);
 
 	status.Reset();
-	(*gds.Call()->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
+	(void)(*gds.Call()->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
 		result.Size(), result.Self());
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Database::Statistics", _("isc_database_info failed"));
 
-	if (Fetches != 0) *Fetches = result.GetValue(isc_info_fetches);
-	if (Marks != 0) *Marks = result.GetValue(isc_info_marks);
-	if (Reads != 0) *Reads = result.GetValue(isc_info_reads);
-	if (Writes != 0) *Writes = result.GetValue(isc_info_writes);
+	if (Fetches != 0) *Fetches = result.GetValue((char)isc_info_fetches);
+	if (Marks != 0) *Marks = result.GetValue((char)isc_info_marks);
+	if (Reads != 0) *Reads = result.GetValue((char)isc_info_reads);
+	if (Writes != 0) *Writes = result.GetValue((char)isc_info_writes);
 }
 
 void DatabaseImpl::Counts(int* Insert, int* Update, int* Delete, 
@@ -295,26 +295,26 @@ void DatabaseImpl::Counts(int* Insert, int* Update, int* Delete,
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Database::Counts", _("Database is not connected."));
 
-	char items[] = {isc_info_insert_count,
-					isc_info_update_count,
-					isc_info_delete_count,
-					isc_info_read_idx_count,
-					isc_info_read_seq_count,
-					isc_info_end};
+	char items[] = {(char)isc_info_insert_count,
+					(char)isc_info_update_count,
+					(char)isc_info_delete_count,
+					(char)isc_info_read_idx_count,
+					(char)isc_info_read_seq_count,
+					(char)isc_info_end};
     IBS status;
 	RB result(1024);
 
 	status.Reset();
-	(*gds.Call()->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
+	(void)(*gds.Call()->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
 		result.Size(), result.Self());
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Database::Counts", _("isc_database_info failed"));
 
-	if (Insert != 0) *Insert = result.GetCountValue(isc_info_insert_count);
-	if (Update != 0) *Update = result.GetCountValue(isc_info_update_count);
-	if (Delete != 0) *Delete = result.GetCountValue(isc_info_delete_count);
-	if (ReadIdx != 0) *ReadIdx = result.GetCountValue(isc_info_read_idx_count);
-	if (ReadSeq != 0) *ReadSeq = result.GetCountValue(isc_info_read_seq_count);
+	if (Insert != 0) *Insert = result.GetCountValue((char)isc_info_insert_count);
+	if (Update != 0) *Update = result.GetCountValue((char)isc_info_update_count);
+	if (Delete != 0) *Delete = result.GetCountValue((char)isc_info_delete_count);
+	if (ReadIdx != 0) *ReadIdx = result.GetCountValue((char)isc_info_read_idx_count);
+	if (ReadSeq != 0) *ReadSeq = result.GetCountValue((char)isc_info_read_seq_count);
 }
 
 void DatabaseImpl::Users(std::vector<std::string>& users)
@@ -322,13 +322,13 @@ void DatabaseImpl::Users(std::vector<std::string>& users)
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Database::Users", _("Database is not connected."));
 
-	char items[] = {isc_info_user_names,
-					isc_info_end};
+	char items[] = {(char)isc_info_user_names,
+					(char)isc_info_end};
     IBS status;
 	RB result(8000);
 
 	status.Reset();
-	(*gds.Call()->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
+	(void)(*gds.Call()->m_database_info)(status.Self(), &mHandle, sizeof(items), items,
 		result.Size(), result.Self());
 	if (status.Errors())
 	{
@@ -338,7 +338,7 @@ void DatabaseImpl::Users(std::vector<std::string>& users)
 
 	users.clear();
 	char* p = result.Self();
-	while (*p == isc_info_user_names)
+	while (*p == (char)isc_info_user_names)
 	{
 		p += 3;		// Get to the length byte (there are two undocumented bytes which we skip)
 		int len = (int)(*p);
@@ -457,23 +457,27 @@ void DatabaseImpl::DetachEventsImpl(EventsImpl* ev)
 	mEvents.erase(std::find(mEvents.begin(), mEvents.end(), ev));
 }
 
-DatabaseImpl::DatabaseImpl(const std::string& ServerName, const std::string& DatabaseName,
-						   const std::string& UserName, const std::string& UserPassword,
-						   const std::string& RoleName, const std::string& CharSet,
-						   const std::string& CreateParams) :
+DatabaseImpl::DatabaseImpl(const std::string& serverName, const std::string& databaseName,
+						   const std::string& userName, const std::string& userPassword,
+						   const std::string& roleName, const std::string& charSet,
+						   const std::string& createParams) :
 
 	mRefCount(0), mHandle(0),
-	mServerName(ServerName), mDatabaseName(DatabaseName),
-	mUserName(UserName), mUserPassword(UserPassword), mRoleName(RoleName),
-	mCharSet(CharSet), mCreateParams(CreateParams),
+	mServerName(serverName), mDatabaseName(databaseName),
+	mUserName(userName), mUserPassword(userPassword), mRoleName(roleName),
+	mCharSet(charSet), mCreateParams(createParams),
 	mDialect(3)
 {
 }
 
 DatabaseImpl::~DatabaseImpl()
 {
-	try { if (Connected()) Disconnect(); }
-		catch(...) { }
+	try
+	{
+		if (DatabaseImpl::Connected())
+			DatabaseImpl::Disconnect();
+	}
+	catch(...) { }
 }
 
 //

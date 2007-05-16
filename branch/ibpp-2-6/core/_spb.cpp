@@ -109,6 +109,11 @@ void SPB::Reset()
     }
 }
 
+SPB::~SPB()
+{
+	try { Reset(); } catch(...) {}
+}
+
 /*
 void SPB::Insert(char type, short data)
 {

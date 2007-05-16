@@ -136,7 +136,7 @@ typedef FB_API_HANDLE isc_req_handle;
 typedef FB_API_HANDLE isc_stmt_handle;
 typedef FB_API_HANDLE isc_svc_handle;
 typedef FB_API_HANDLE isc_tr_handle;
-typedef void (* isc_callback) ();
+typedef void (* isc_callback)();
 typedef ISC_LONG isc_resv_handle;
 
 typedef void (*ISC_PRINT_CALLBACK) (void*, ISC_SHORT, const char*);
@@ -641,6 +641,7 @@ void ISC_EXPORT isc_encode_sql_time(const void*,
 void ISC_EXPORT isc_encode_timestamp(const void*,
 									 ISC_TIMESTAMP*);
 
+//lint -e{579} parameter preceding ellipsis should be one subject to promotions
 ISC_LONG ISC_EXPORT_VARARG isc_event_block(ISC_UCHAR**,
 										   ISC_UCHAR**,
 										   unsigned short, ...);
@@ -748,6 +749,7 @@ ISC_STATUS ISC_EXPORT isc_start_multiple(ISC_STATUS *,
 										 short,
 										 void *);
 
+//lint -e{579} parameter preceding ellipsis should be one subject to promotions
 ISC_STATUS ISC_EXPORT_VARARG isc_start_transaction(ISC_STATUS *,
 												   isc_tr_handle *,
 												   short, ...);

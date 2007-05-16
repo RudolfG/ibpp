@@ -64,7 +64,7 @@ const char* IBS::ErrorMessage() const
 
 	// Compiles the message (Engine part)
 	ISC_STATUS* error = &mVector[0];
-	try { (*gds.Call()->m_interprete)(msg, &error); }
+	try { (void)(*gds.Call()->m_interprete)(msg, &error); }
 	catch(...) { msg[0] = '\0'; }
 	message<< _("Engine Message :")<< "\n"<< msg;
 	try

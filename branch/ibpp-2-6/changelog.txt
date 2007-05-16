@@ -23,6 +23,21 @@ under the License.
 The most recent addition to this file is always on top and has the highest
 item number.
 
+26. May 15, 2007
+
+- Did a big bunch of changes such as to eliminate all errors or warnings
+reported by FlexeLint.  A ton of informational messages can still be reported
+but very few hold really useful information for IBPP code quality.
+
+- All "deprecated" methods whose fate was set for version 3.0 have already
+been dropped.
+
+25. November 26, 2006
+
+- Branched 2-5 to 2-6 to better track them. Version 2.6 will officially use the
+header files from Firebird 2.0 (final released version).  Some new capabilities
+will be added too, to perfectly match FB 2.0.
+
 24. November 08, 2006
 
 - Removed an unused variable in Database::Inactivate

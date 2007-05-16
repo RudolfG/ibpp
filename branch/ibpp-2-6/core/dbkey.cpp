@@ -84,8 +84,11 @@ const char* IBPP::DBKey::AsString() const
 	if (mString.empty())
 	{
 		std::ostringstream hexkey;
-		hexkey.setf(std::ios::hex, std::ios::basefield);
-		hexkey.setf(std::ios::uppercase);
+		//lint -e{641} Converting enum to int: expected and valid
+		{
+			hexkey.setf(std::ios::hex, std::ios::basefield);
+			hexkey.setf(std::ios::uppercase);
+		}
 
 		const uint32_t* key = reinterpret_cast<const uint32_t*>(mDBKey.data());
 		int n = (int)mDBKey.size() / 8;
@@ -110,8 +113,11 @@ IBPP::DBKey::DBKey(const DBKey& copied)
 
 IBPP::DBKey& IBPP::DBKey::operator=(const IBPP::DBKey& assigned)
 {
-	mDBKey = assigned.mDBKey;
-	mString = assigned.mString;
+	if (&assigned != this)
+	{
+		mDBKey = assigned.mDBKey;
+		mString = assigned.mString;
+	}
 	return *this;
 }
 

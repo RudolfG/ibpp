@@ -138,6 +138,7 @@ IBPP::Date& IBPP::Date::operator=(const IBPP::Timestamp& assigned)
 	return *this;
 }
 
+//lint -e{1529} operator= not first checking for assignment to this: not a problem here
 IBPP::Date& IBPP::Date::operator=(const IBPP::Date& assigned)
 {
 	mDate = assigned.mDate;

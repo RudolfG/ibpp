@@ -62,7 +62,7 @@ void StatementImpl::Prepare(const std::string& sql)
 	// Free all resources currently attached to this Statement, then allocate
 	// a new statement descriptor.
 	Close();
-	(*gds.Call()->m_dsql_allocate_statement)(status.Self(), mDatabase->GetHandlePtr(), &mHandle);
+	(void)(*gds.Call()->m_dsql_allocate_statement)(status.Self(), mDatabase->GetHandlePtr(), &mHandle);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Statement::Prepare",
 			_("isc_dsql_allocate_statement failed"));
@@ -92,7 +92,7 @@ void StatementImpl::Prepare(const std::string& sql)
 	mOutRow->AddRef();
 
 	status.Reset();
-	(*gds.Call()->m_dsql_prepare)(status.Self(), mTransaction->GetHandlePtr(),
+	(void)(*gds.Call()->m_dsql_prepare)(status.Self(), mTransaction->GetHandlePtr(),
 		&mHandle, (short)sql.length(), const_cast<char*>(sql.c_str()),
 			short(mDatabase->Dialect()), mOutRow->Self());
 	if (status.Errors())
@@ -108,7 +108,7 @@ void StatementImpl::Prepare(const std::string& sql)
 	status.Reset();
 	char itemsReq[] = {isc_info_sql_stmt_type};
 	char itemsRes[8];
-	(*gds.Call()->m_dsql_sql_info)(status.Self(), &mHandle, 1, itemsReq,
+	(void)(*gds.Call()->m_dsql_sql_info)(status.Self(), &mHandle, 1, itemsReq,
 		sizeof(itemsRes), itemsRes);
 	if (status.Errors())
 	{
@@ -143,7 +143,8 @@ void StatementImpl::Prepare(const std::string& sql)
 	{
 		// Get rid of the output descriptor, if it wasn't required (no output)
 		mOutRow->Release();
-		mOutRow = 0;
+		/*lint -e{423}*/ mOutRow = 0;	// There is NO memory leak here (see Release() above);
+
 		/*
 		DebugStream()<< _("Dropped output descriptor which was not required")<< fds;
 		*/
@@ -161,7 +162,7 @@ void StatementImpl::Prepare(const std::string& sql)
 
 		mOutRow->Resize(mOutRow->Columns());
 		status.Reset();
-		(*gds.Call()->m_dsql_describe)(status.Self(), &mHandle, 1, mOutRow->Self());
+		(void)(*gds.Call()->m_dsql_describe)(status.Self(), &mHandle, 1, mOutRow->Self());
 		if (status.Errors())
 		{
 			Close();
@@ -177,7 +178,7 @@ void StatementImpl::Prepare(const std::string& sql)
 		mInRow->AddRef();
 
 		status.Reset();
-		(*gds.Call()->m_dsql_describe_bind)(status.Self(), &mHandle, 1, mInRow->Self());
+		(void)(*gds.Call()->m_dsql_describe_bind)(status.Self(), &mHandle, 1, mInRow->Self());
 		if (status.Errors())
 		{
 			Close();
@@ -189,7 +190,8 @@ void StatementImpl::Prepare(const std::string& sql)
 		{
 			// Get rid of the input descriptor, if it wasn't required (no parameters)
 			mInRow->Release();
-			mInRow = 0;
+			/*lint -e{423}*/ mInRow = 0;	// There is NO memory leak here (see Release() above);
+
 			/*
 			DebugStream()<< _("Dropped input descriptor which was not required")<< fds;
 			*/
@@ -208,7 +210,7 @@ void StatementImpl::Prepare(const std::string& sql)
 
 			mInRow->Resize(mInRow->Columns());
 			status.Reset();
-			(*gds.Call()->m_dsql_describe_bind)(status.Self(), &mHandle, 1, mInRow->Self());
+			(void)(*gds.Call()->m_dsql_describe_bind)(status.Self(), &mHandle, 1, mInRow->Self());
 			if (status.Errors())
 			{
 				Close();
@@ -247,7 +249,7 @@ void StatementImpl::Plan(std::string& plan)
 	RB result(4096);
 	char itemsReq[] = {isc_info_sql_get_plan};
 
-	(*gds.Call()->m_dsql_sql_info)(status.Self(), &mHandle, 1, itemsReq,
+	(void)(*gds.Call()->m_dsql_sql_info)(status.Self(), &mHandle, 1, itemsReq,
 								   result.Size(), result.Self());
 	if (status.Errors()) throw SQLExceptionImpl(status,
 								"Statement::Plan", _("isc_dsql_sql_info failed."));
@@ -275,7 +277,7 @@ void StatementImpl::Execute(const std::string& sql)
 	if (mType == IBPP::stSelect)
 	{
 		// Could return a result set (none, single or multi rows)
-		(*gds.Call()->m_dsql_execute)(status.Self(), mTransaction->GetHandlePtr(),
+		(void)(*gds.Call()->m_dsql_execute)(status.Self(), mTransaction->GetHandlePtr(),
 			&mHandle, 1, mInRow == 0 ? 0 : mInRow->Self());
 		if (status.Errors())
 		{
@@ -294,7 +296,7 @@ void StatementImpl::Execute(const std::string& sql)
 	else
 	{
 		// Should return at most a single row
-		(*gds.Call()->m_dsql_execute2)(status.Self(), mTransaction->GetHandlePtr(),
+		(void)(*gds.Call()->m_dsql_execute2)(status.Self(), mTransaction->GetHandlePtr(),
 			&mHandle, 1, mInRow == 0 ? 0 : mInRow->Self(),
 			mOutRow == 0 ? 0 : mOutRow->Self());
 		if (status.Errors())
@@ -330,7 +332,7 @@ void StatementImpl::CursorExecute(const std::string& cursor, const std::string& 
 	CursorFree();	// Free a previous 'cursor' if any
 
 	IBS status;
-	(*gds.Call()->m_dsql_execute)(status.Self(), mTransaction->GetHandlePtr(),
+	(void)(*gds.Call()->m_dsql_execute)(status.Self(), mTransaction->GetHandlePtr(),
 		&mHandle, 1, mInRow == 0 ? 0 : mInRow->Self());
 	if (status.Errors())
 	{
@@ -342,7 +344,7 @@ void StatementImpl::CursorExecute(const std::string& cursor, const std::string& 
 	}
 
 	status.Reset();
-	(*gds.Call()->m_dsql_set_cursor_name)(status.Self(), &mHandle, const_cast<char*>(cursor.c_str()), 0);
+	(void)(*gds.Call()->m_dsql_set_cursor_name)(status.Self(), &mHandle, const_cast<char*>(cursor.c_str()), 0);
 	if (status.Errors())
 	{
 		//Close();	Commented because Execute error should not free the statement
@@ -369,7 +371,7 @@ void StatementImpl::ExecuteImmediate(const std::string& sql)
 
 	IBS status;
 	Close();
-    (*gds.Call()->m_dsql_execute_immediate)(status.Self(), mDatabase->GetHandlePtr(),
+    (void)(*gds.Call()->m_dsql_execute_immediate)(status.Self(), mDatabase->GetHandlePtr(),
     	mTransaction->GetHandlePtr(), 0, const_cast<char*>(sql.c_str()),
     		short(mDatabase->Dialect()), 0);
     if (status.Errors())
@@ -395,7 +397,7 @@ int StatementImpl::AffectedRows()
 	RB result;
 	char itemsReq[] = {isc_info_sql_records};
 
-	(*gds.Call()->m_dsql_sql_info)(status.Self(), &mHandle, 1, itemsReq,
+	(void)(*gds.Call()->m_dsql_sql_info)(status.Self(), &mHandle, 1, itemsReq,
 		result.Size(), result.Self());
 	if (status.Errors()) throw SQLExceptionImpl(status,
 			"Statement::AffectedRows", _("isc_dsql_sql_info failed."));
@@ -420,7 +422,7 @@ bool StatementImpl::Fetch()
 			_("No statement has been executed or no result set available."));
 
 	IBS status;
-	int code = (*gds.Call()->m_dsql_fetch)(status.Self(), &mHandle, 1, mOutRow->Self());
+	int code = (*gds.Call()->m_dsql_fetch)(status.Self(), &mHandle, 1, mOutRow == 0 ? 0 : mOutRow->Self());
 	if (code == 100)	// This special code means "no more rows"
 	{
 		mResultSetAvailable = false;
@@ -445,6 +447,10 @@ bool StatementImpl::Fetch(IBPP::Row& row)
 	if (! mResultSetAvailable)
 		throw LogicExceptionImpl("Statement::Fetch(row)",
 			_("No statement has been executed or no result set available."));
+
+	if (mOutRow == 0)
+		throw LogicExceptionImpl("Statement::Fetch(row)",
+			_("Internal consistency error, mOutRow is null."));
 
 	RowImpl* rowimpl = new RowImpl(*mOutRow);
 	row = rowimpl;
@@ -478,8 +484,8 @@ void StatementImpl::Close()
 	// Free all statement resources.
 	// Used before preparing a new statement or from destructor.
 
-	if (mInRow != 0) { mInRow->Release(); mInRow = 0; }
-	if (mOutRow != 0) { mOutRow->Release(); mOutRow = 0; }
+	if (mInRow != 0) { mInRow->Release();	/*lint -e{423}*/ mInRow = 0; }	// Yes Lint, No leaks here
+	if (mOutRow != 0) { mOutRow->Release();	/*lint -e{423}*/ mOutRow = 0; }	// Yes Lint, No leaks here
 
 	mResultSetAvailable = false;
 	mCursorOpened = false;
@@ -488,7 +494,7 @@ void StatementImpl::Close()
 	if (mHandle != 0)
 	{
 		IBS status;
-		(*gds.Call()->m_dsql_free_statement)(status.Self(), &mHandle, DSQL_drop);
+		(void)(*gds.Call()->m_dsql_free_statement)(status.Self(), &mHandle, DSQL_drop);
 		mHandle = 0;
 		if (status.Errors())
 			throw SQLExceptionImpl(status, "Statement::Close(DSQL_drop)",
@@ -556,12 +562,12 @@ void StatementImpl::Set(int param, int16_t value)
 	mInRow->Set(param, value);
 }
 
-void StatementImpl::Set(int param, int32_t value)
+void StatementImpl::Set(int param, int value)
 {
 	if (mHandle == 0)
-		throw LogicExceptionImpl("Statement::Set[int32_t]", _("No statement has been prepared."));
+		throw LogicExceptionImpl("Statement::Set[int]", _("No statement has been prepared."));
 	if (mInRow == 0)
-		throw LogicExceptionImpl("Statement::Set[int32_t]", _("The statement does not take parameters."));
+		throw LogicExceptionImpl("Statement::Set[int]", _("The statement does not take parameters."));
 
 	mInRow->Set(param, value);
 }
@@ -676,16 +682,6 @@ bool StatementImpl::IsNull(int column)
 	return mOutRow->IsNull(column);
 }
 
-bool StatementImpl::Get(int column, bool* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(column, *retvalue);
-}
-
 bool StatementImpl::Get(int column, bool& retvalue)
 {
 	if (mOutRow == 0)
@@ -694,6 +690,7 @@ bool StatementImpl::Get(int column, bool& retvalue)
 	return mOutRow->Get(column, retvalue);
 }
 
+/*
 bool StatementImpl::Get(int column, char* retvalue)
 {
 	if (mOutRow == 0)
@@ -701,6 +698,7 @@ bool StatementImpl::Get(int column, char* retvalue)
 
 	return mOutRow->Get(column, retvalue);
 }
+*/
 
 bool StatementImpl::Get(int column, void* bindata, int& userlen)
 {
@@ -718,16 +716,6 @@ bool StatementImpl::Get(int column, std::string& retvalue)
 	return mOutRow->Get(column, retvalue);
 }
 
-bool StatementImpl::Get(int column, int16_t* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(column, *retvalue);
-}
-
 bool StatementImpl::Get(int column, int16_t& retvalue)
 {
 	if (mOutRow == 0)
@@ -736,32 +724,12 @@ bool StatementImpl::Get(int column, int16_t& retvalue)
 	return mOutRow->Get(column, retvalue);
 }
 
-bool StatementImpl::Get(int column, int32_t* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(column, *retvalue);
-}
-
-bool StatementImpl::Get(int column, int32_t& retvalue)
+bool StatementImpl::Get(int column, int& retvalue)
 {
 	if (mOutRow == 0)
 		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
 
 	return mOutRow->Get(column, retvalue);
-}
-
-bool StatementImpl::Get(int column, int64_t* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(column, *retvalue);
 }
 
 bool StatementImpl::Get(int column, int64_t& retvalue)
@@ -772,32 +740,12 @@ bool StatementImpl::Get(int column, int64_t& retvalue)
 	return mOutRow->Get(column, retvalue);
 }
 
-bool StatementImpl::Get(int column, float* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(column, *retvalue);
-}
-
 bool StatementImpl::Get(int column, float& retvalue)
 {
 	if (mOutRow == 0)
 		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
 
 	return mOutRow->Get(column, retvalue);
-}
-
-bool StatementImpl::Get(int column, double* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(column, *retvalue);
 }
 
 bool StatementImpl::Get(int column, double& retvalue)
@@ -874,16 +822,6 @@ bool StatementImpl::IsNull(const std::string& name)
 	return mOutRow->IsNull(name);
 }
 
-bool StatementImpl::Get(const std::string& name, bool* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(name, *retvalue);
-}
-
 bool StatementImpl::Get(const std::string& name, bool& retvalue)
 {
 	if (mOutRow == 0)
@@ -892,6 +830,7 @@ bool StatementImpl::Get(const std::string& name, bool& retvalue)
 	return mOutRow->Get(name, retvalue);
 }
 
+/*
 bool StatementImpl::Get(const std::string& name, char* retvalue)
 {
 	if (mOutRow == 0)
@@ -899,6 +838,7 @@ bool StatementImpl::Get(const std::string& name, char* retvalue)
 
 	return mOutRow->Get(name, retvalue);
 }
+*/
 
 bool StatementImpl::Get(const std::string& name, void* retvalue, int& count)
 {
@@ -916,16 +856,6 @@ bool StatementImpl::Get(const std::string& name, std::string& retvalue)
 	return mOutRow->Get(name, retvalue);
 }
 
-bool StatementImpl::Get(const std::string& name, int16_t* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(name, *retvalue);
-}
-
 bool StatementImpl::Get(const std::string& name, int16_t& retvalue)
 {
 	if (mOutRow == 0)
@@ -934,32 +864,12 @@ bool StatementImpl::Get(const std::string& name, int16_t& retvalue)
 	return mOutRow->Get(name, retvalue);
 }
 
-bool StatementImpl::Get(const std::string& name, int32_t* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(name, *retvalue);
-}
-
-bool StatementImpl::Get(const std::string& name, int32_t& retvalue)
+bool StatementImpl::Get(const std::string& name, int& retvalue)
 {
 	if (mOutRow == 0)
 		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
 
 	return mOutRow->Get(name, retvalue);
-}
-
-bool StatementImpl::Get(const std::string& name, int64_t* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(name, *retvalue);
 }
 
 bool StatementImpl::Get(const std::string& name, int64_t& retvalue)
@@ -970,32 +880,12 @@ bool StatementImpl::Get(const std::string& name, int64_t& retvalue)
 	return mOutRow->Get(name, retvalue);
 }
 
-bool StatementImpl::Get(const std::string& name, float* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(name, *retvalue);
-}
-
 bool StatementImpl::Get(const std::string& name, float& retvalue)
 {
 	if (mOutRow == 0)
 		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
 
 	return mOutRow->Get(name, retvalue);
-}
-
-bool StatementImpl::Get(const std::string& name, double* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(name, *retvalue);
 }
 
 bool StatementImpl::Get(const std::string& name, double& retvalue)
@@ -1271,7 +1161,7 @@ void StatementImpl::CursorFree()
 		if (mHandle != 0)
 		{
 			IBS status;
-			(*gds.Call()->m_dsql_free_statement)(status.Self(), &mHandle, DSQL_close);
+			(void)(*gds.Call()->m_dsql_free_statement)(status.Self(), &mHandle, DSQL_close);
 			if (status.Errors())
 				throw SQLExceptionImpl(status, "StatementImpl::CursorFree(DSQL_close)",
 					_("isc_dsql_free_statement failed."));
@@ -1287,12 +1177,12 @@ StatementImpl::StatementImpl(DatabaseImpl* database, TransactionImpl* transactio
 {
 	AttachDatabaseImpl(database);
 	if (transaction != 0) AttachTransactionImpl(transaction);
-	if (! sql.empty()) Prepare(sql);
+	if (! sql.empty()) StatementImpl::Prepare(sql);
 }
 
 StatementImpl::~StatementImpl()
 {
-	try { Close(); }
+	try { StatementImpl::Close(); }
 		catch (...) { }
 	try { if (mTransaction != 0) mTransaction->DetachStatementImpl(this); }
 		catch (...) { }

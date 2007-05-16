@@ -173,31 +173,30 @@ namespace IBPP
 	class Exception : public std::exception
 	{
 	public:
-		virtual const char* Origin() const throw() = 0;
-		virtual const char* ErrorMessage() const throw() = 0;	// Deprecated, use what()
-		virtual const char* what() const throw() = 0;
-		virtual ~Exception() throw();
+		virtual const char* Origin() const = 0;
+		virtual const char* what() const = 0;
+		virtual ~Exception();
 	};
 
 	class LogicException : public Exception
 	{
 	public:
-		virtual ~LogicException() throw();
+		virtual ~LogicException();
 	};
 
 	class SQLException : public Exception
 	{
 	public:
-		virtual int SqlCode() const throw() = 0;
-		virtual int EngineCode() const throw() = 0;
+		virtual int SqlCode() const = 0;
+		virtual int EngineCode() const = 0;
 		
-		virtual ~SQLException() throw();
+		virtual ~SQLException();
 	};
 
 	class WrongType : public LogicException
 	{
 	public:
-		virtual ~WrongType() throw();
+		virtual ~WrongType();
 	};
 	
 	/* Classes Date, Time, Timestamp and DBKey are 'helper' classes.  They help
@@ -237,7 +236,7 @@ namespace IBPP
 		void StartOfMonth();
 		void EndOfMonth();
 	
-		Date()			{ Clear(); };
+		Date()			{ Date::Clear(); };
 		Date(int dt)	{ SetDate(dt); }
 		Date(int year, int month, int day);
 		Date(const Date&);							// Copy Constructor
@@ -272,8 +271,8 @@ namespace IBPP
 		int Minutes() const;
 		int Seconds() const;
 		int SubSeconds() const;		// Actually tenthousandths of seconds
-		Time()			{ Clear(); }
-		Time(int tm)	{ SetTime(tm); }
+		Time()			{ Time::Clear(); }
+		Time(int t)		{ SetTime(t); }
 		Time(int hour, int minute, int second, int tenthousandths = 0);
 		Time(const Time&);							// Copy Constructor
 		Time& operator=(const Timestamp&);			// Timestamp Assignment operator
@@ -295,11 +294,13 @@ namespace IBPP
 	class Timestamp : public Date, public Time
 	{
 	public:
+		//lint -e1511 member hides non-virtual member: expected
 		void Clear()	{ Date::Clear(); Time::Clear(); }
 		void Today()	{ Date::Today(); Time::Clear(); }
 		void Now()		{ Date::Today(); Time::Now(); }
+		//lint +e1511
 
-		Timestamp()		{ Clear(); }
+		Timestamp()		{ Timestamp::Clear(); }
 
 	  	Timestamp(int y, int m, int d)
 	  		{ Date::SetDate(y, m, d); Time::Clear(); }
@@ -316,25 +317,32 @@ namespace IBPP
 		Timestamp(const Time& rv)
 			{ mDate = 0; mTime = rv.GetTime(); }
 
+		//lint -e{1529} not first checking for assignment to this (no need to)
 		Timestamp& operator=(const Timestamp& rv)	// Timestamp Assignment operator
 			{ mDate = rv.mDate; mTime = rv.mTime; return *this; }
 
+		//lint -e{1539} member mTime not assigned by assignment operator
 		Timestamp& operator=(const Date& rv)		// Date Assignment operator
 			{ mDate = rv.GetDate(); return *this; }
 
+		//lint -e{1539} member mDate not assigned by assignment operator
 		Timestamp& operator=(const Time& rv)		// Time Assignment operator
 			{ mTime = rv.GetTime(); return *this; }
 
+		//lint -e{1511} member hides non-virtual member: expected
 		bool operator==(const Timestamp& rv) const
 			{ return (mDate == rv.GetDate()) && (mTime == rv.GetTime()); }
 
+		//lint -e{1511} member hides non-virtual member: expected
 		bool operator!=(const Timestamp& rv) const
 			{ return (mDate != rv.GetDate()) || (mTime != rv.GetTime()); }
 
+		//lint -e{1511} member hides non-virtual member: expected
 		bool operator<(const Timestamp& rv) const
 			{ return (mDate < rv.GetDate()) ||
 				(mDate == rv.GetDate() && mTime < rv.GetTime()); }
 
+		//lint -e{1511} member hides non-virtual member: expected
 		bool operator>(const Timestamp& rv) const
 			{ return (mDate > rv.GetDate()) ||
 				(mDate == rv.GetDate() && mTime > rv.GetTime()); }
@@ -384,7 +392,7 @@ namespace IBPP
 
 	public:
 		void clear();
-		User& operator=(const User& r)	{ copyfrom(r); return *this; }
+		User& operator=(const User& r)	{ if (&r == this) return *this; copyfrom(r); return *this; }
 		User(const User& r)				{ copyfrom(r); }
 		User() : userid(0), groupid(0)	{ }
 		~User() { };
@@ -421,13 +429,19 @@ namespace IBPP
 
 		Ptr& operator=(const Ptr& r)
 		{
-			// AddRef _before_ Release gives correct behaviour on self-assigns
-			T* tmp = (r.intf() == 0 ? 0 : r->AddRef());// Take care of 0
-			if (mObject != 0) mObject->Release();
-			mObject = tmp; return *this;
+			if (&r != this)
+			{
+				//lint -e{613} Lint does not see that r-> is valid if r.intf() != 0
+				T* tmp = (r.intf() == 0 ? 0 : r->AddRef());// Take care of 0
+				if (mObject != 0) mObject->Release();
+				mObject = tmp;
+			}
+			return *this;
 		}
 
 		Ptr(T* p) : mObject(p == 0 ? 0 : p->AddRef()) { }
+
+		//lint -e{613} Lint does not see that r-> is valid if r.intf() != 0
 		Ptr(const Ptr& r) : mObject(r.intf() == 0 ? 0 : r->AddRef()) {  }
 
 		Ptr() : mObject(0) { }
@@ -638,7 +652,7 @@ namespace IBPP
 		virtual void Set(int, const char*) = 0;				// c-string
 		virtual void Set(int, const std::string&) = 0;
 		virtual void Set(int, int16_t) = 0;
-		virtual void Set(int, int32_t) = 0;
+		virtual void Set(int, int) = 0;
 		virtual void Set(int, int64_t) = 0;
 		virtual void Set(int, float) = 0;
 		virtual void Set(int, double) = 0;
@@ -654,7 +668,7 @@ namespace IBPP
 		virtual bool Get(int, void*, int&) = 0;	// byte buffers
 		virtual bool Get(int, std::string&) = 0;
 		virtual bool Get(int, int16_t&) = 0;
-		virtual bool Get(int, int32_t&) = 0;
+		virtual bool Get(int, int&) = 0;
 		virtual bool Get(int, int64_t&) = 0;
 		virtual bool Get(int, float&) = 0;
 		virtual bool Get(int, double&) = 0;
@@ -670,7 +684,7 @@ namespace IBPP
 		virtual bool Get(const std::string&, void*, int&) = 0;	// byte buffers
 		virtual bool Get(const std::string&, std::string&) = 0;
 		virtual bool Get(const std::string&, int16_t&) = 0;
-		virtual bool Get(const std::string&, int32_t&) = 0;
+		virtual bool Get(const std::string&, int&) = 0;
 		virtual bool Get(const std::string&, int64_t&) = 0;
 		virtual bool Get(const std::string&, float&) = 0;
 		virtual bool Get(const std::string&, double&) = 0;
@@ -724,7 +738,7 @@ namespace IBPP
 		virtual bool Fetch(Row&) = 0;
 		virtual int AffectedRows() = 0;
 		virtual void Close() = 0;
-		virtual std::string& Sql() = 0;
+		virtual std::string Sql() = 0;
 		virtual STT Type() = 0;
 
 		virtual void SetNull(int) = 0;
@@ -733,7 +747,7 @@ namespace IBPP
 		virtual void Set(int, const char*) = 0;				// c-string
 		virtual void Set(int, const std::string&) = 0;
 		virtual void Set(int, int16_t value) = 0;
-		virtual void Set(int, int32_t value) = 0;
+		virtual void Set(int, int value) = 0;
 		virtual void Set(int, int64_t value) = 0;
 		virtual void Set(int, float value) = 0;
 		virtual void Set(int, double value) = 0;
@@ -749,7 +763,7 @@ namespace IBPP
 		virtual bool Get(int, void*, int&) = 0;	// byte buffers
 		virtual bool Get(int, std::string&) = 0;
 		virtual bool Get(int, int16_t&) = 0;
-		virtual bool Get(int, int32_t&) = 0;
+		virtual bool Get(int, int&) = 0;
 		virtual bool Get(int, int64_t&) = 0;
 		virtual bool Get(int, float&) = 0;
 		virtual bool Get(int, double&) = 0;
@@ -765,7 +779,7 @@ namespace IBPP
 		virtual bool Get(const std::string&, void*, int&) = 0;	// byte buffers
 		virtual bool Get(const std::string&, std::string&) = 0;
 		virtual bool Get(const std::string&, int16_t&) = 0;
-		virtual bool Get(const std::string&, int32_t&) = 0;
+		virtual bool Get(const std::string&, int&) = 0;
 		virtual bool Get(const std::string&, int64_t&) = 0;
 		virtual bool Get(const std::string&, float&) = 0;
 		virtual bool Get(const std::string&, double&) = 0;
@@ -801,22 +815,6 @@ namespace IBPP
 		virtual void Release() = 0;
 
 	    virtual ~IStatement() { };
-
-		// DEPRECATED METHODS (WON'T BE AVAILABLE IN VERSIONS 3.x)
-		virtual bool Get(int, char*) = 0;			  		// DEPRECATED
-		virtual bool Get(const std::string&, char*) = 0;	// DEPRECATED
-		virtual bool Get(int, bool*) = 0;					// DEPRECATED
-		virtual bool Get(const std::string&, bool*) = 0;	// DEPRECATED
-		virtual bool Get(int, int16_t*) = 0;				// DEPRECATED
-		virtual bool Get(const std::string&, int16_t*) = 0;	// DEPRECATED
-		virtual bool Get(int, int32_t*) = 0;				// DEPRECATED
-		virtual bool Get(const std::string&, int32_t*) = 0;	// DEPRECATED
-		virtual bool Get(int, int64_t*) = 0;				// DEPRECATED
-		virtual bool Get(const std::string&, int64_t*) = 0;	// DEPRECATED
-		virtual bool Get(int, float*) = 0;					// DEPRECATED
-		virtual bool Get(const std::string&, float*) = 0;	// DEPRECATED
-		virtual bool Get(int, double*) = 0;					// DEPRECATED
-		virtual bool Get(const std::string&, double*) = 0;	// DEPRECATED
 	};
 	
 	class IEvents

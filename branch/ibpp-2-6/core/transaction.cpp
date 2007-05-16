@@ -142,7 +142,7 @@ void TransactionImpl::Start()
 	}
 
 	IBS status;
-	(*gds.Call()->m_start_multiple)(status.Self(), &mHandle, (short)mDatabases.size(), teb);
+	(void)(*gds.Call()->m_start_multiple)(status.Self(), &mHandle, (short)mDatabases.size(), teb);
 	delete [] teb;
 	if (status.Errors())
 	{
@@ -158,7 +158,7 @@ void TransactionImpl::Commit()
 		
 	IBS status;
 
-	(*gds.Call()->m_commit_transaction)(status.Self(), &mHandle);
+	(void)(*gds.Call()->m_commit_transaction)(status.Self(), &mHandle);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Transaction::Commit");
 	mHandle = 0;	// Should be, better be sure
@@ -171,7 +171,7 @@ void TransactionImpl::CommitRetain()
 
 	IBS status;
 
-	(*gds.Call()->m_commit_retaining)(status.Self(), &mHandle);
+	(void)(*gds.Call()->m_commit_retaining)(status.Self(), &mHandle);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Transaction::CommitRetain");
 }
@@ -182,7 +182,7 @@ void TransactionImpl::Rollback()
 
 	IBS status;
 
-	(*gds.Call()->m_rollback_transaction)(status.Self(), &mHandle);
+	(void)(*gds.Call()->m_rollback_transaction)(status.Self(), &mHandle);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Transaction::Rollback");
 	mHandle = 0;	// Should be, better be sure
@@ -195,7 +195,7 @@ void TransactionImpl::RollbackRetain()
 
 	IBS status;
 
-	(*gds.Call()->m_rollback_retaining)(status.Self(), &mHandle);
+	(void)(*gds.Call()->m_rollback_retaining)(status.Self(), &mHandle);
 	if (status.Errors())
 		throw SQLExceptionImpl(status, "Transaction::RollbackRetain");
 }
@@ -312,14 +312,19 @@ void TransactionImpl::AttachDatabaseImpl(DatabaseImpl* dbi,
     if (lr == IBPP::lrNoWait) tpb->Insert(isc_tpb_nowait);
     else tpb->Insert(isc_tpb_wait);
 
-	if (flags & IBPP::tfIgnoreLimbo)	tpb->Insert(isc_tpb_ignore_limbo);
-	if (flags & IBPP::tfAutoCommit)		tpb->Insert(isc_tpb_autocommit);
-	if (flags & IBPP::tfNoAutoUndo)		tpb->Insert(isc_tpb_no_auto_undo);
+	//lint -e{655} bit-wise operation uses compatible enum
+	{
+		if (flags & IBPP::tfIgnoreLimbo)	tpb->Insert(isc_tpb_ignore_limbo);
+		if (flags & IBPP::tfAutoCommit)		tpb->Insert(isc_tpb_autocommit);
+		if (flags & IBPP::tfNoAutoUndo)		tpb->Insert(isc_tpb_no_auto_undo);
+	}
 
 	mTPBs.push_back(tpb);
 
 	// Signals the Database object that it has been attached to the Transaction
 	dbi->AttachTransactionImpl(this);
+
+	//lint -e{429} custodial tpb pointer is not freed or returned, it has been stored in mTPBs
 }
 
 void TransactionImpl::DetachDatabaseImpl(DatabaseImpl* dbi)
@@ -357,7 +362,7 @@ TransactionImpl::TransactionImpl(DatabaseImpl* db,
 TransactionImpl::~TransactionImpl()
 {
 	// Rollback the transaction if it was Started
-	try { if (Started()) Rollback(); }
+	try { if (TransactionImpl::Started()) TransactionImpl::Rollback(); }
 		catch (...) { }
 
 	// Let's detach cleanly all Blobs from this Transaction.

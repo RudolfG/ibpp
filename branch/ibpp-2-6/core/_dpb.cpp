@@ -113,6 +113,11 @@ void DPB::Reset()
     }
 }
 
+DPB::~DPB()
+{
+	try { Reset(); } catch(...) { }
+}
+
 //
 //	EOF
 //
