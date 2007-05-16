@@ -6,7 +6,7 @@ History of Changes
 
 ---------------------------------------------------------------------------
 
-(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 
 The contents of this file are subject to the IBPP License (the "License");
 you may not use this file except in compliance with the License.  You may
@@ -22,6 +22,17 @@ under the License.
 
 The most recent addition to this file is always on top and has the highest
 item number.
+
+27. May 16, 2007
+
+- Added an optional parameter to Database::Info to return wether the database
+is currently in read-only mode or not.
+
+- Updated release notes.  Updated copyright years in file headers.
+
+- Changed the way the source code zip is built such as the zip does not unzip
+anymore to the current directory but to a subdirectory.  This was often noted
+by linux developers.
 
 26. May 15, 2007
 

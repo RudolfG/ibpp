@@ -5,7 +5,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+//	(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 //
 //	The contents of this file are subject to the IBPP License (the "License");
 //	you may not use this file except in compliance with the License.  You may
@@ -872,7 +872,7 @@ public:
 
 	void Info(int* ODSMajor, int* ODSMinor,
 		int* PageSize, int* Pages, int* Buffers, int* Sweep,
-		bool* SyncWrites, bool* Reserve);
+		bool* SyncWrites, bool* Reserve, bool* ReadOnly = 0);
 	void Statistics(int* Fetches, int* Marks, int* Reads, int* Writes);
 	void Counts(int* Insert, int* Update, int* Delete,
 		int* ReadIdx, int* ReadSeq);

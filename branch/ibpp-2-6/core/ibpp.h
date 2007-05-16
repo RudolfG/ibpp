@@ -6,7 +6,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+//	(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 //
 //	The contents of this file are subject to the IBPP License (the "License");
 //	you may not use this file except in compliance with the License.  You may
@@ -95,7 +95,7 @@ namespace IBPP
 {
 	//	Typically you use this constant in a call IBPP::CheckVersion as in:
 	//	if (! IBPP::CheckVersion(IBPP::Version)) { throw .... ; }
-	const uint32_t Version = (2<<24) + (5<<16) + (3<<8) + 1; // Version == 2.5.3.1
+	const uint32_t Version = (2<<24) + (6<<16) + (0<<8) + 0; // Version == 2.6.0.0
 
 	//	Dates range checking
 	const int MinDate = -693594;	//  1 JAN 0001
@@ -588,7 +588,7 @@ namespace IBPP
 
 		virtual void Info(int* ODS, int* ODSMinor, int* PageSize,
 			int* Pages,	int* Buffers, int* Sweep, bool* Sync,
-			bool* Reserve) = 0;
+			bool* Reserve, bool* ReadOnly = 0) = 0;
 		virtual void Statistics(int* Fetches, int* Marks,
 			int* Reads, int* Writes) = 0;
 		virtual void Counts(int* Insert, int* Update, int* Delete, 

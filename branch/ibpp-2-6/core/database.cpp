@@ -5,7 +5,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+//	(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 //
 //	The contents of this file are subject to the IBPP License (the "License");
 //	you may not use this file except in compliance with the License.  You may
@@ -229,7 +229,7 @@ void DatabaseImpl::Drop()
 
 void DatabaseImpl::Info(int* ODSMajor, int* ODSMinor,
 	int* PageSize, int* Pages, int* Buffers, int* Sweep,
-	bool* Sync, bool* Reserve)
+	bool* Sync, bool* Reserve, bool* ReadOnly)
 {
 	if (mHandle == 0)
 		throw LogicExceptionImpl("Database::Info", _("Database is not connected."));
@@ -242,6 +242,7 @@ void DatabaseImpl::Info(int* ODSMajor, int* ODSMinor,
 					(char)isc_info_sweep_interval,
 					(char)isc_info_forced_writes,
 					(char)isc_info_no_reserve,
+					(char)isc_info_db_read_only,
 					(char)isc_info_end};
     IBS status;
 	RB result(256);
@@ -262,6 +263,8 @@ void DatabaseImpl::Info(int* ODSMajor, int* ODSMinor,
 		*Sync = result.GetValue((char)isc_info_forced_writes) == 1 ? true : false;
 	if (Reserve != 0)
 		*Reserve = result.GetValue((char)isc_info_no_reserve) == 1 ? false : true;
+	if (ReadOnly != 0)
+		*ReadOnly = result.GetValue((char)isc_info_db_read_only) == 1 ? true : false;
 }
 
 void DatabaseImpl::Statistics(int* Fetches, int* Marks, int* Reads, int* Writes)

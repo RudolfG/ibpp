@@ -5,7 +5,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+//	(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 //
 //	The contents of this file are subject to the IBPP License (the "License");
 //	you may not use this file except in compliance with the License.  You may
@@ -289,7 +289,7 @@ void Test::Test2()
 	printf(_("Test 2 --- Exercise empty database creation & connection\n"));
 
 	int Major, Minor, PageSize, Pages, Buffers, Sweep;
-	bool Sync, Reserve;
+	bool Sync, Reserve, ReadOnly;
 
 	IBPP::Database db1;
 	DeleteFile(DbName);
@@ -308,7 +308,7 @@ void Test::Test2()
 
 	db1->Connect();	// A create, does not imply connection
 
-	db1->Info(&Major, &Minor, &PageSize, &Pages, &Buffers, &Sweep, &Sync, &Reserve);
+	db1->Info(&Major, &Minor, &PageSize, &Pages, &Buffers, &Sweep, &Sync, &Reserve, &ReadOnly);
 	if (Sync && _WriteMode == 1)
 	{
 		_Success = false;
@@ -336,6 +336,7 @@ void Test::Test2()
 	printf("           Buffers   %d\n", Buffers);
 	printf("           Sweep     %d\n", Sweep);
 	printf("           Reserve   %s\n", Reserve ? _("true") : _("false"));
+	printf("           Read-Only %s\n", ReadOnly ? _("true") : _("false"));
 	/**/
 
     db1->Disconnect();

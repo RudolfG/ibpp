@@ -1,7 +1,7 @@
 IBPP License v1.1
 -----------------
 
-(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 
 Permission is hereby granted, free of charge, to any person or organization
 ("You") obtaining a copy of this software and associated documentation files
