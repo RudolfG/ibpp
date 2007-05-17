@@ -532,6 +532,18 @@ void StatementImpl::Set(int param, const void* bindata, int len)
 	mInRow->Set(param, bindata, len);
 }
 
+void StatementImpl::Set(int param, const char* s)
+{
+	if (mHandle == 0)
+		throw LogicExceptionImpl("Statement::Set[char*]", _("No statement has been prepared."));
+	if (mInRow == 0)
+		throw LogicExceptionImpl("Statement::Set[char*]", _("The statement does not take parameters."));
+
+	int len = 0;
+	try { len = (int)strlen(s); } catch (...) { }
+	mInRow->Set(param, s, len);
+}
+
 void StatementImpl::Set(int param, const std::string& s)
 {
 	if (mHandle == 0)

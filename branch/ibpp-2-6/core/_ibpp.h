@@ -1111,6 +1111,7 @@ public:
 	void SetNull(int);
 	void Set(int, bool);
 	void Set(int, const void*, int);		// byte buffers
+	void Set(int, const char*);				// pointer to c-string
 	void Set(int, const std::string&);
 	void Set(int, int16_t);
 	void Set(int, int);

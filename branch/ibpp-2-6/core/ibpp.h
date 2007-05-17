@@ -743,6 +743,7 @@ namespace IBPP
 		virtual void SetNull(int) = 0;
 		virtual void Set(int, bool) = 0;
 		virtual void Set(int, const void*, int) = 0;		// byte buffers
+		virtual void Set(int, const char*) = 0;				// pointer to c-string
 
 		// char buffers use this template wrapper to automatically check limits
 		template <const size_t n> void Set(int p, const char (&s)[n])
