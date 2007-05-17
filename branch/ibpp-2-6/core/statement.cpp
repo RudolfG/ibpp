@@ -522,16 +522,6 @@ void StatementImpl::Set(int param, bool value)
 	mInRow->Set(param, value);
 }
 
-void StatementImpl::Set(int param, const char* cstring)
-{
-	if (mHandle == 0)
-		throw LogicExceptionImpl("Statement::Set[char*]", _("No statement has been prepared."));
-	if (mInRow == 0)
-		throw LogicExceptionImpl("Statement::Set[char*]", _("The statement does not take parameters."));
-
-	mInRow->Set(param, cstring);
-}
-
 void StatementImpl::Set(int param, const void* bindata, int len)
 {
 	if (mHandle == 0)
@@ -690,16 +680,6 @@ bool StatementImpl::Get(int column, bool& retvalue)
 	return mOutRow->Get(column, retvalue);
 }
 
-/*
-bool StatementImpl::Get(int column, char* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-
-	return mOutRow->Get(column, retvalue);
-}
-*/
-
 bool StatementImpl::Get(int column, void* bindata, int& userlen)
 {
 	if (mOutRow == 0)
@@ -829,16 +809,6 @@ bool StatementImpl::Get(const std::string& name, bool& retvalue)
 
 	return mOutRow->Get(name, retvalue);
 }
-
-/*
-bool StatementImpl::Get(const std::string& name, char* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get[char*]", _("The row is not initialized."));
-
-	return mOutRow->Get(name, retvalue);
-}
-*/
 
 bool StatementImpl::Get(const std::string& name, void* retvalue, int& count)
 {

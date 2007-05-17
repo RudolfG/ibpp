@@ -649,7 +649,6 @@ namespace IBPP
 		virtual void SetNull(int) = 0;
 		virtual void Set(int, bool) = 0;
 		virtual void Set(int, const void*, int) = 0;		// byte buffers
-		virtual void Set(int, const char*) = 0;				// c-string
 		virtual void Set(int, const std::string&) = 0;
 		virtual void Set(int, int16_t) = 0;
 		virtual void Set(int, int) = 0;
@@ -744,7 +743,15 @@ namespace IBPP
 		virtual void SetNull(int) = 0;
 		virtual void Set(int, bool) = 0;
 		virtual void Set(int, const void*, int) = 0;		// byte buffers
-		virtual void Set(int, const char*) = 0;				// c-string
+
+		// char buffers use this template wrapper to automatically check limits
+		template <const size_t n> void Set(int p, const char (&s)[n])
+		{
+			int count = 0;
+			while (count < n && s[count] != '\0') count++;
+			return Set(p, s, count);
+		}
+
 		virtual void Set(int, const std::string&) = 0;
 		virtual void Set(int, int16_t value) = 0;
 		virtual void Set(int, int value) = 0;
@@ -761,6 +768,16 @@ namespace IBPP
 		virtual bool IsNull(int) = 0;
 		virtual bool Get(int, bool&) = 0;
 		virtual bool Get(int, void*, int&) = 0;	// byte buffers
+
+		// char buffers use this template wrapper to automatically enforce terminating '\0'
+		template <const size_t n> bool Get(int p, char (&s)[n])
+		{
+			int i = n-1;
+			bool ret = Get(p, s, i);
+			s[i] = '\0';
+			return ret;
+		}
+
 		virtual bool Get(int, std::string&) = 0;
 		virtual bool Get(int, int16_t&) = 0;
 		virtual bool Get(int, int&) = 0;
@@ -777,6 +794,16 @@ namespace IBPP
 		virtual bool IsNull(const std::string&) = 0;
 		virtual bool Get(const std::string&, bool&) = 0;
 		virtual bool Get(const std::string&, void*, int&) = 0;	// byte buffers
+
+		// char buffers use this template wrapper to automatically enforce terminating '\0'
+		template <const size_t n> bool Get(const std::string& p, char (&s)[n])
+		{
+			int i = n-1;
+			bool ret = Get(p, s, i);
+			s[i] = '\0';
+			return ret;
+		}
+
 		virtual bool Get(const std::string&, std::string&) = 0;
 		virtual bool Get(const std::string&, int16_t&) = 0;
 		virtual bool Get(const std::string&, int&) = 0;

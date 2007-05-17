@@ -67,17 +67,6 @@ void RowImpl::Set(int param, bool value)
 	mUpdated[param-1] = true;
 }
 
-void RowImpl::Set(int param, const char* cstring)
-{
-	if (mDescrArea == 0)
-		throw LogicExceptionImpl("Row::Set[char*]", _("The row is not initialized."));
-	if (cstring == 0)
-		throw LogicExceptionImpl("Row::Set[char*]", _("null char* pointer detected."));
-
-	SetValue(param, ivByte, cstring, (int)strlen(cstring));
-	mUpdated[param-1] = true;
-}
-
 void RowImpl::Set(int param, const void* bindata, int len)
 {
 	if (mDescrArea == 0)

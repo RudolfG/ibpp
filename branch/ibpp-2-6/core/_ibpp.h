@@ -990,7 +990,6 @@ public:
 public:
 	void SetNull(int);
 	void Set(int, bool);
-	void Set(int, const char*);				// c-strings
 	void Set(int, const void*, int);		// byte buffers
 	void Set(int, const std::string&);
 	void Set(int, int16_t);
@@ -1111,7 +1110,6 @@ public:
 
 	void SetNull(int);
 	void Set(int, bool);
-	void Set(int, const char*);				// c-strings
 	void Set(int, const void*, int);		// byte buffers
 	void Set(int, const std::string&);
 	void Set(int, int16_t);

@@ -83,7 +83,7 @@
 #else
 	const char* DbName = "C:/test.fdb";	// FDB extension (GDB is hacked by Windows Me/XP "System Restore")
 	const char* BkName = "C:/test.fbk";
-	const std::string ServerName = "localhost";	// Change to "" for local protocol / embedded
+	const std::string ServerName = "localhost/31600";	// Change to "" for local protocol / embedded
 #endif
 
 //	The tests use by default the well-known default of SYSDBA/masterkey
@@ -128,7 +128,8 @@ void Test::RunTests()
 
 	//IBPP::ClientLibSearchPaths("C:\\integral_90\\firebird\\bin");
 
-	printf(_("\nIBPP Test Suite (Version %d.%d.%d.%d)\n\n"),
+	//lint -e{572} zeroes in the version number would trigger this warning
+	printf(_("\nIBPP Test Suite (Version %u.%u.%u.%u)\n\n"),
 		(IBPP::Version & 0xFF000000) >> 24,
 		(IBPP::Version & 0x00FF0000) >> 16,
 		(IBPP::Version & 0x0000FF00) >> 8,
@@ -623,6 +624,7 @@ void Test::Test4()
 		st1->Set(11, da);
 
 		st1->Set(12, "C-STRING");
+
 		st1->Set(13, stdstring);
 
 		st1->Set(14, (char*)somebytes, 40);
@@ -771,7 +773,7 @@ void Test::Test5()
 		IBPP::Date d3;
 		int y, m, d;
 		int temp;
-		char cstring[31];
+		char charbuffer[41];	// Larger by 10, in order to better test Get()
 		std::string stdstring;
 
 		st1->Get(4, d2);
@@ -798,9 +800,14 @@ void Test::Test5()
 		printf("%s\n", row->Get("TF"));
 		printf("%d\n", row->Get("ID"));
 		*/
-		int size = sizeof(cstring)-1;
-		st1->Get(6, cstring, size);
-		cstring[sizeof(cstring)-1] = '\0';
+
+		st1->Get(6, charbuffer);
+		if (strcmp(charbuffer, "C-STRING                      ") != 0)
+		{
+			_Success = false;
+			printf(_("Statement::Get(int, char[]&) is not working.\n"));
+		}
+
 		st1->Get(7, stdstring);
 
 		st2->Set(2, ! b);
