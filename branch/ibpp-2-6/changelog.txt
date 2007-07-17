@@ -23,6 +23,14 @@ under the License.
 The most recent addition to this file is always on top and has the highest
 item number.
 
+
+27. July, 2007
+
+- Fixed a bug in AddReservation where the engine would silently ignore wrongly
+formatted extensions to the TPBs.  Effectively ignoring the reservations and
+still not reporting any error.
+
+
 26. May, 2007
 
 - Methods Set/Get on char* have been dropped for security.  Though to ease the
@@ -38,14 +46,15 @@ is currently in read-only mode or not.
 
 - Changed the way the source code zip is built such as the zip does not unzip
 anymore to the current directory but to a subdirectory.  This was often noted
-by linux developers.
+by linux developers, specifically, thanks Milan :-)
 
 - Did a big bunch of changes such as to eliminate all errors or warnings
 reported by FlexeLint.  A ton of informational messages can still be reported
 but very few hold really useful information for IBPP code quality.
 
 - All "deprecated" methods whose fate was set for version 3.0 have already
-been dropped.
+been dropped, in advance.
+
 
 1. November, 2006
 

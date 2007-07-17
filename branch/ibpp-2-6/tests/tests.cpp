@@ -83,7 +83,7 @@
 #else
 	const char* DbName = "C:/test.fdb";	// FDB extension (GDB is hacked by Windows Me/XP "System Restore")
 	const char* BkName = "C:/test.fbk";
-	const std::string ServerName = "localhost/31600";	// Change to "" for local protocol / embedded
+	const std::string ServerName = "localhost";	// Change to "" for local protocol / embedded
 #endif
 
 //	The tests use by default the well-known default of SYSDBA/masterkey
