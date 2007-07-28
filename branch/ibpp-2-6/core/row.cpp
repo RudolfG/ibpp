@@ -38,6 +38,7 @@
 #endif
 
 #include <time.h>
+#include <math.h>
 
 using namespace ibpp_internals;
 

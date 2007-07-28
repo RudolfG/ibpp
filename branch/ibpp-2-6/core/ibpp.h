@@ -174,14 +174,14 @@ namespace IBPP
 	{
 	public:
 		virtual const char* Origin() const = 0;
-		virtual const char* what() const = 0;
-		virtual ~Exception();
+		virtual const char* what() const throw() = 0;
+		virtual ~Exception() throw();
 	};
 
 	class LogicException : public Exception
 	{
 	public:
-		virtual ~LogicException();
+		virtual ~LogicException() throw();
 	};
 
 	class SQLException : public Exception
@@ -190,13 +190,13 @@ namespace IBPP
 		virtual int SqlCode() const = 0;
 		virtual int EngineCode() const = 0;
 		
-		virtual ~SQLException();
+		virtual ~SQLException() throw();
 	};
 
 	class WrongType : public LogicException
 	{
 	public:
-		virtual ~WrongType();
+		virtual ~WrongType() throw();
 	};
 	
 	/* Classes Date, Time, Timestamp and DBKey are 'helper' classes.  They help

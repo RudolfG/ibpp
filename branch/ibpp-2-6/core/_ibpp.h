@@ -679,7 +679,7 @@ public:
 	LogicExceptionImpl& operator=(const LogicExceptionImpl& copied);
 	LogicExceptionImpl(const std::string& context, const char* message = 0, ...);
 
-	virtual ~LogicExceptionImpl();
+	virtual ~LogicExceptionImpl() throw();
 
 	//	(((((((( OBJECT INTERFACE ))))))))
 	//
@@ -689,7 +689,7 @@ public:
 public:
     virtual const char* Origin() const;
     virtual const char* ErrorMessage() const;
-	virtual const char* what() const;
+	virtual const char* what() const throw();
 };
 
 class SQLExceptionImpl : public IBPP::SQLException, public ExceptionBase
@@ -711,7 +711,7 @@ public:
 	SQLExceptionImpl(const IBS& status, const std::string& context,
 						const char* message = 0, ...);
 
-	virtual ~SQLExceptionImpl() throw ();
+	virtual ~SQLExceptionImpl() throw();
 
 	//	(((((((( OBJECT INTERFACE ))))))))
 	//
@@ -721,7 +721,7 @@ public:
 public:
     virtual const char* Origin() const;
     virtual const char* ErrorMessage() const;
-	virtual const char* what() const;
+	virtual const char* what() const throw();
 	virtual int SqlCode() const;
 	virtual int EngineCode() const;
 };
@@ -741,7 +741,7 @@ public:
 	WrongTypeImpl(const std::string& context, int sqlType, IITYPE varType,
 					const char* message = 0, ...);
 
-	virtual ~WrongTypeImpl() throw ();
+	virtual ~WrongTypeImpl() throw();
 
 	//	(((((((( OBJECT INTERFACE ))))))))
 	//
@@ -751,7 +751,7 @@ public:
 public:
     virtual const char* Origin() const;
     virtual const char* ErrorMessage() const;
-	virtual const char* what() const;
+	virtual const char* what() const throw();
 };
 
 class ServiceImpl : public IBPP::IService
