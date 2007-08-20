@@ -84,24 +84,24 @@ void TransactionImpl::AddReservation(IBPP::Database db,
 		switch (tr)
 		{
 			case IBPP::trSharedWrite :
-					tpb->Insert(isc_tpb_shared);
 					tpb->Insert(isc_tpb_lock_write);
 					tpb->Insert(table);
+					tpb->Insert(isc_tpb_shared);
 					break;
 			case IBPP::trSharedRead :
-					tpb->Insert(isc_tpb_shared);
 					tpb->Insert(isc_tpb_lock_read);
 					tpb->Insert(table);
+					tpb->Insert(isc_tpb_shared);
 					break;
 			case IBPP::trProtectedWrite :
-					tpb->Insert(isc_tpb_protected);
 					tpb->Insert(isc_tpb_lock_write);
 					tpb->Insert(table);
+					tpb->Insert(isc_tpb_protected);
 					break;
 			case IBPP::trProtectedRead :
-					tpb->Insert(isc_tpb_protected);
 					tpb->Insert(isc_tpb_lock_read);
 					tpb->Insert(table);
+					tpb->Insert(isc_tpb_protected);
 					break;
 			default :
 					throw LogicExceptionImpl("Transaction::AddReservation",
