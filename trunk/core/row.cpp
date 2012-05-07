@@ -5,7 +5,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+//	(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 //
 //	The contents of this file are subject to the IBPP License (the "License");
 //	you may not use this file except in compliance with the License.  You may
@@ -37,7 +37,6 @@
 #pragma hdrstop
 #endif
 
-#include <math.h>
 #include <time.h>
 
 using namespace ibpp_internals;
@@ -65,17 +64,6 @@ void RowImpl::Set(int param, bool value)
 		throw LogicExceptionImpl("Row::Set[bool]", _("The row is not initialized."));
 
 	SetValue(param, ivBool, &value);
-	mUpdated[param-1] = true;
-}
-
-void RowImpl::Set(int param, const char* cstring)
-{
-	if (mDescrArea == 0)
-		throw LogicExceptionImpl("Row::Set[char*]", _("The row is not initialized."));
-	if (cstring == 0)
-		throw LogicExceptionImpl("Row::Set[char*]", _("null char* pointer detected."));
-
-	SetValue(param, ivByte, cstring, (int)strlen(cstring));
 	mUpdated[param-1] = true;
 }
 
@@ -110,10 +98,10 @@ void RowImpl::Set(int param, int16_t value)
 	mUpdated[param-1] = true;
 }
 
-void RowImpl::Set(int param, int32_t value)
+void RowImpl::Set(int param, int value)
 {
 	if (mDescrArea == 0)
-		throw LogicExceptionImpl("Row::Set[int32_t]", _("The row is not initialized."));
+		throw LogicExceptionImpl("Row::Set[int]", _("The row is not initialized."));
 
 	SetValue(param, ivInt32, &value);
 	mUpdated[param-1] = true;
@@ -259,6 +247,7 @@ bool RowImpl::Get(int column, bool& retvalue)
 	return pvalue == 0 ? true : false;
 }
 
+/*
 bool RowImpl::Get(int column, char* retvalue)
 {
 	if (mDescrArea == 0)
@@ -275,6 +264,7 @@ bool RowImpl::Get(int column, char* retvalue)
 	}
 	return pvalue == 0 ? true : false;
 }
+*/
 
 bool RowImpl::Get(int column, void* bindata, int& userlen)
 {
@@ -282,8 +272,6 @@ bool RowImpl::Get(int column, void* bindata, int& userlen)
 		throw LogicExceptionImpl("Row::Get", _("The row is not initialized."));
 	if (bindata == 0)
 		throw LogicExceptionImpl("Row::Get", _("Null pointer detected"));
-	if (userlen < 0)
-		throw LogicExceptionImpl("Row::Get", _("Length must be >= 0"));
 
 	int sqllen;
 	void* pvalue = GetValue(column, ivByte, &sqllen);
@@ -292,6 +280,8 @@ bool RowImpl::Get(int column, void* bindata, int& userlen)
 		// userlen says how much bytes the user can accept
 		// let's shorten it, if there is less bytes available
 		if (sqllen < userlen) userlen = sqllen;
+		if (userlen < 0)
+			throw LogicExceptionImpl("Row::Get", _("Length must be >= 0"));
 		memcpy(bindata, pvalue, userlen);
 	}
 	return pvalue == 0 ? true : false;
@@ -317,14 +307,14 @@ bool RowImpl::Get(int column, int16_t& retvalue)
 	return pvalue == 0 ? true : false;
 }
 
-bool RowImpl::Get(int column, int32_t& retvalue)
+bool RowImpl::Get(int column, int& retvalue)
 {
 	if (mDescrArea == 0)
 		throw LogicExceptionImpl("Row::Get", _("The row is not initialized."));
 
 	void* pvalue = GetValue(column, ivInt32);
 	if (pvalue != 0)
-		retvalue = *(int32_t*)pvalue;
+		retvalue = *(int*)pvalue;
 	return pvalue == 0 ? true : false;
 }
 
@@ -391,12 +381,12 @@ bool RowImpl::Get(int column, IBPP::Date& date)
 	}
 }
 
-bool RowImpl::Get(int column, IBPP::Time& time)
+bool RowImpl::Get(int column, IBPP::Time& t)
 {
 	if (mDescrArea == 0)
 		throw LogicExceptionImpl("Row::Get", _("The row is not initialized."));
 
-	void* pvalue = GetValue(column, ivTime, (void*)&time);
+	void* pvalue = GetValue(column, ivTime, (void*)&t);
 	return pvalue == 0 ? true : false;
 }
 
@@ -455,6 +445,7 @@ bool RowImpl::Get(const std::string& name, bool& retvalue)
 	return Get(ColumnNum(name), retvalue);
 }
 
+/*
 bool RowImpl::Get(const std::string& name, char* retvalue)
 {
 	if (mDescrArea == 0)
@@ -462,6 +453,7 @@ bool RowImpl::Get(const std::string& name, char* retvalue)
 
 	return Get(ColumnNum(name), retvalue);
 }
+*/
 
 bool RowImpl::Get(const std::string& name, void* retvalue, int& count)
 {
@@ -487,7 +479,7 @@ bool RowImpl::Get(const std::string& name, int16_t& retvalue)
 	return Get(ColumnNum(name), retvalue);
 }
 
-bool RowImpl::Get(const std::string& name, int32_t& retvalue)
+bool RowImpl::Get(const std::string& name, int& retvalue)
 {
 	if (mDescrArea == 0)
 		throw LogicExceptionImpl("Row::Get", _("The row is not initialized."));
@@ -777,7 +769,6 @@ IBPP::Transaction RowImpl::TransactionPtr() const
 	return mTransaction;
 }
 
-/*
 IBPP::IRow* RowImpl::Clone()
 {
 	// By definition the clone of an IBPP Row is a new row (so refcount=0).
@@ -785,13 +776,12 @@ IBPP::IRow* RowImpl::Clone()
 	RowImpl* clone = new RowImpl(*this);
 	return clone;
 }
-*/
 
-void RowImpl::AddRef()
+IBPP::IRow* RowImpl::AddRef()
 {
 	ASSERTION(mRefCount >= 0);
 	++mRefCount;
-	return;
+	return this;
 }
 
 void RowImpl::Release()
@@ -1408,16 +1398,19 @@ void RowImpl::Free()
 	mStrings.clear();
 	mUpdated.clear();
 
+	/* Free() MUST NOT clear these members, but only 'free' allocations as above.
 	mDialect = 0;
 	mDatabase = 0;
 	mTransaction = 0;
+	*/
 }
 
 void RowImpl::Resize(int n)
 {
-	const int size = XSQLDA_LENGTH(n);
-
 	Free();
+
+	const int size = XSQLDA_LENGTH(n);
+	//lint -e{433} despite what Lint thinks it looks the allocated area is large enough
     mDescrArea = (XSQLDA*) new char[size];
 
 	memset(mDescrArea, 0, size);
@@ -1445,8 +1438,12 @@ void RowImpl::Resize(int n)
 	mDescrArea->sqln = (int16_t)n;
 }
 
+//lint -e{1556} new Type(integer) is expected in this function
 void RowImpl::AllocVariables()
 {
+	if (mDescrArea == 0)
+		throw LogicExceptionImpl("RowImpl internals", _("Unexpected null pointer."));
+
 	int i;
 	for (i = 0; i < mDescrArea->sqld; i++)
 	{
@@ -1489,13 +1486,19 @@ void RowImpl::AllocVariables()
 
 bool RowImpl::MissingValues()
 {
+	if (mDescrArea == 0)
+		throw LogicExceptionImpl("RowImpl internals", _("Unexpected null pointer."));
+
 	for (int i = 0; i < mDescrArea->sqld; i++)
 		if (! mUpdated[i]) return true;
 	return false;
 }
 
+//lint -e{1556} new Type(integer) is expected in this function
 RowImpl& RowImpl::operator=(const RowImpl& copied)
 {
+	if (&copied == this) return *this;
+
 	Free();
 
 	mDriver = copied.mDriver;
@@ -1504,6 +1507,8 @@ RowImpl& RowImpl::operator=(const RowImpl& copied)
 	const int size = XSQLDA_LENGTH(n);
 
 	// Initial brute copy
+	//lint -e{433} despite what Lint thinks it looks the allocated area is large enough
+	//lint -e{423} despite what Lint thinks mDescrArea has been freed by Free() above
     mDescrArea = (XSQLDA*) new char[size];
 	memcpy(mDescrArea, copied.mDescrArea, size);
 
@@ -1554,8 +1559,11 @@ RowImpl& RowImpl::operator=(const RowImpl& copied)
 	mStrings = copied.mStrings;
 
 	mDialect = copied.mDialect;
-	mDatabase = copied.mDatabase;
-	mTransaction = copied.mTransaction;
+	//lint -e{1555} may sound strange but the plain pointer copies are expected
+	{
+		mDatabase = copied.mDatabase;
+		mTransaction = copied.mTransaction;
+	}
 	
 	return *this;
 }

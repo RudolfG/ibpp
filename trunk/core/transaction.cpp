@@ -5,7 +5,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+//	(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 //
 //	The contents of this file are subject to the IBPP License (the "License");
 //	you may not use this file except in compliance with the License.  You may
@@ -319,14 +319,19 @@ void TransactionImpl::AttachDatabaseImpl(DatabaseImpl* dbi,
     if (lr == IBPP::lrNoWait) tpb->Insert(isc_tpb_nowait);
     else tpb->Insert(isc_tpb_wait);
 
-	if (flags & IBPP::tfIgnoreLimbo)	tpb->Insert(isc_tpb_ignore_limbo);
-	if (flags & IBPP::tfAutoCommit)		tpb->Insert(isc_tpb_autocommit);
-	if (flags & IBPP::tfNoAutoUndo)		tpb->Insert(isc_tpb_no_auto_undo);
+	//lint -e{655} bit-wise operation uses compatible enum
+	{
+		if (flags & IBPP::tfIgnoreLimbo)	tpb->Insert(isc_tpb_ignore_limbo);
+		if (flags & IBPP::tfAutoCommit)		tpb->Insert(isc_tpb_autocommit);
+		if (flags & IBPP::tfNoAutoUndo)		tpb->Insert(isc_tpb_no_auto_undo);
+	}
 
 	mTPBs.push_back(tpb);
 
 	// Signals the Database object that it has been attached to the Transaction
 	dbi->AttachTransactionImpl(this);
+
+	//lint -e{429} custodial tpb pointer is not freed or returned, it has been stored in mTPBs
 }
 
 void TransactionImpl::DetachDatabaseImpl(DatabaseImpl* dbi)
@@ -364,7 +369,7 @@ TransactionImpl::TransactionImpl(DriverImpl* drv, DatabaseImpl* db,
 TransactionImpl::~TransactionImpl()
 {
 	// Rollback the transaction if it was Started
-	try { if (Started()) Rollback(); }
+	try { if (TransactionImpl::Started()) TransactionImpl::Rollback(); }
 		catch (...) { }
 
 	// Let's detach cleanly all Blobs from this Transaction.

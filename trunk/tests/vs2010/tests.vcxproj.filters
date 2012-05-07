@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\ibpp-core">
+      <UniqueIdentifier>{c884abce-9823-4c55-b54e-6729abede418}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\ibpp-core">
+      <UniqueIdentifier>{bbf2d257-4277-4331-ba96-dd36e905ee17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\tests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\_dpb.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\_ibpp.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\_ibs.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\_rb.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\_spb.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\_tpb.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\array.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\blob.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\database.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\date.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\dbkey.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\events.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\exception.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\row.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\service.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\statement.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\time.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\transaction.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\user.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\core\_ibpp.h">
+      <Filter>Header Files\ibpp-core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\ibpp.h">
+      <Filter>Header Files\ibpp-core</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

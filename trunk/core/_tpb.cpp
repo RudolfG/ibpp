@@ -5,7 +5,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+//	(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 //
 //	The contents of this file are subject to the IBPP License (the "License");
 //	you may not use this file except in compliance with the License.  You may
@@ -91,6 +91,11 @@ void TPB::Reset()
 		mSize = 0;
 		mAlloc = 0;
 	}
+}
+
+TPB::~TPB()
+{
+	try { Reset(); } catch (...) { }
 }
 
 //
