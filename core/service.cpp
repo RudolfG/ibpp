@@ -5,7 +5,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+//	(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 //
 //	The contents of this file are subject to the IBPP License (the "License");
 //	you may not use this file except in compliance with the License.  You may
@@ -39,11 +39,6 @@
 
 using namespace ibpp_internals;
 
-#ifdef IBPP_UNIX
-#include <unistd.h>
-#define Sleep(x) usleep(x)
-#endif
-
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 
 void ServiceImpl::Connect()
@@ -60,7 +55,7 @@ void ServiceImpl::Connect()
 	// Attach to the Service Manager
 	IBS status(mDriver);
 	SPB spb(mDriver);
-	std::string connect;
+	std::string conn;
 
 	// Build a SPB based on	the	properties
 	spb.Insert(isc_spb_version);
@@ -70,13 +65,13 @@ void ServiceImpl::Connect()
 
 	if (! mServerName.empty())
 	{
-		connect = mServerName;
-		connect += ":";
+		conn = mServerName;
+		conn += ":";
 	}
 
-	connect += "service_mgr";
+	conn += "service_mgr";
 
-	(mDriver->m_service_attach)(status.Self(), (short)connect.size(), (char*)connect.c_str(),
+	(mDriver->m_service_attach)(status.Self(), (short)conn.size(), (char*)conn.c_str(),
 		&mHandle, spb.Size(), spb.Self());
 	if (status.Errors())
 	{
@@ -553,6 +548,7 @@ void ServiceImpl::Sweep(const std::string& dbfile)
 	Wait();
 }
 
+//lint -e{655} bit-wise operation uses compatible enum
 void ServiceImpl::Repair(const std::string& dbfile, IBPP::RPF flags)
 {
 	if (mDriver->mGDSVersion < 60)
@@ -588,6 +584,7 @@ void ServiceImpl::Repair(const std::string& dbfile, IBPP::RPF flags)
 	Wait();
 }
 
+//lint -e{655} bit-wise operation uses compatible enum
 void ServiceImpl::StartBackup(const std::string& dbfile,
 	const std::string& bkfile, IBPP::BRF flags)
 {
@@ -622,6 +619,7 @@ void ServiceImpl::StartBackup(const std::string& dbfile,
 		throw SQLExceptionImpl(status, "Service::Backup", _("isc_service_start failed"));
 }
 
+//lint -e{655} bit-wise operation uses compatible enum
 void ServiceImpl::StartRestore(const std::string& bkfile, const std::string& dbfile,
 	int	pagesize, IBPP::BRF flags)
 {
@@ -684,6 +682,8 @@ const char* ServiceImpl::WaitMsg()
 	return mWaitMessage.c_str();
 }
 
+#include <iostream>
+
 void ServiceImpl::Wait()
 {
 	IBS status(mDriver);
@@ -697,14 +697,6 @@ void ServiceImpl::Wait()
 	spb.Insert(isc_info_svc_line);
 	for (;;)
 	{
-		// Sleeps 1 millisecond upfront. This will release the remaining
-		// timeslot of the thread. Doing so will give a good chance for small
-		// services tasks to finish before we check if they are still running.
-		// The deal is to limit (in that particular case) the number of loops
-		// polling _service_query that will happen.
-
-		Sleep(1);
-
 		// _service_query will only block until a line of result is available
 		// (or until the end of the task if it does not report information) 
 		(mDriver->m_service_query)(status.Self(), &mHandle, 0, 0,	0,
@@ -772,7 +764,7 @@ ServiceImpl::ServiceImpl(DriverImpl* drv, const std::string& ServerName,
 
 ServiceImpl::~ServiceImpl()
 {
-	try { if (Connected()) Disconnect(); }
+	try { if (ServiceImpl::Connected()) ServiceImpl::Disconnect(); }
 		catch (...) { }
 }
 

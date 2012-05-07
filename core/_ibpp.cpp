@@ -5,7 +5,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+//	(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 //
 //	The contents of this file are subject to the IBPP License (the "License");
 //	you may not use this file except in compliance with the License.  You may
@@ -91,6 +91,20 @@ namespace IBPP
 	{
 		return (AppVersion & 0xFFFFFF00) ==
 				(IBPP::Version & 0xFFFFFF00) ? true : false;
+	}
+
+	bool EmbeddedShutdown(unsigned int timeout, const int reason)
+	{
+		// The reason code passed by an application should be positive or null.
+		// We turn a negative value to positive.
+		bool res = false;
+		try
+		{
+			res = (*gds.Call()->m_shutdown)(timeout, reason < 0 ? -reason : reason) == 0;
+		}
+		catch(...) { /**/ }
+
+		return res;
 	}
 
 }

@@ -5,7 +5,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+//	(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 //
 //	The contents of this file are subject to the IBPP License (the "License");
 //	you may not use this file except in compliance with the License.  You may
@@ -89,7 +89,7 @@ void StatementImpl::Prepare(const std::string& sql)
 
 	// Allocates output descriptor and prepares the statement
 	mOutRow = new RowImpl(mDriver, mDatabase->Dialect(), outEstimate, mDatabase, mTransaction);
-	//mOutRow->AddRef();
+	mOutRow->AddRef();
 
 	status.Reset();
 	(mDriver->m_dsql_prepare)(status.Self(), mTransaction->GetHandlePtr(),
@@ -143,7 +143,8 @@ void StatementImpl::Prepare(const std::string& sql)
 	{
 		// Get rid of the output descriptor, if it wasn't required (no output)
 		mOutRow->Release();
-		mOutRow = 0;
+		/*lint -e{423}*/ mOutRow = 0;	// There is NO memory leak here (see Release() above);
+
 		/*
 		DebugStream()<< _("Dropped output descriptor which was not required")<< fds;
 		*/
@@ -189,7 +190,8 @@ void StatementImpl::Prepare(const std::string& sql)
 		{
 			// Get rid of the input descriptor, if it wasn't required (no parameters)
 			mInRow->Release();
-			mInRow = 0;
+			/*lint -e{423}*/ mInRow = 0;	// There is NO memory leak here (see Release() above);
+
 			/*
 			DebugStream()<< _("Dropped input descriptor which was not required")<< fds;
 			*/
@@ -447,6 +449,10 @@ bool StatementImpl::Fetch(IBPP::Row& row)
 		throw LogicExceptionImpl("Statement::Fetch(row)",
 			_("No statement has been executed or no result set available."));
 
+	if (mOutRow == 0)
+		throw LogicExceptionImpl("Statement::Fetch(row)",
+			_("Internal consistency error, mOutRow is null."));
+
 	RowImpl* rowimpl = new RowImpl(*mOutRow);
 	row = rowimpl;
 
@@ -480,8 +486,8 @@ void StatementImpl::Close()
 	// Free all statement resources.
 	// Used before preparing a new statement or from destructor.
 
-	if (mInRow != 0) { mInRow->Release(); mInRow = 0; }
-	if (mOutRow != 0) { mOutRow->Release(); mOutRow = 0; }
+	if (mInRow != 0) { mInRow->Release();	/*lint -e{423}*/ mInRow = 0; }	// Yes Lint, No leaks here
+	if (mOutRow != 0) { mOutRow->Release();	/*lint -e{423}*/ mOutRow = 0; }	// Yes Lint, No leaks here
 
 	mResultSetAvailable = false;
 	mCursorOpened = false;
@@ -518,16 +524,6 @@ void StatementImpl::Set(int param, bool value)
 	mInRow->Set(param, value);
 }
 
-void StatementImpl::Set(int param, const char* cstring)
-{
-	if (mHandle == 0)
-		throw LogicExceptionImpl("Statement::Set[char*]", _("No statement has been prepared."));
-	if (mInRow == 0)
-		throw LogicExceptionImpl("Statement::Set[char*]", _("The statement does not take parameters."));
-
-	mInRow->Set(param, cstring);
-}
-
 void StatementImpl::Set(int param, const void* bindata, int len)
 {
 	if (mHandle == 0)
@@ -536,6 +532,18 @@ void StatementImpl::Set(int param, const void* bindata, int len)
 		throw LogicExceptionImpl("Statement::Set[void*]", _("The statement does not take parameters."));
 
 	mInRow->Set(param, bindata, len);
+}
+
+void StatementImpl::Set(int param, const char* s)
+{
+	if (mHandle == 0)
+		throw LogicExceptionImpl("Statement::Set[char*]", _("No statement has been prepared."));
+	if (mInRow == 0)
+		throw LogicExceptionImpl("Statement::Set[char*]", _("The statement does not take parameters."));
+
+	int len = 0;
+	try { len = (int)strlen(s); } catch (...) { }
+	mInRow->Set(param, s, len);
 }
 
 void StatementImpl::Set(int param, const std::string& s)
@@ -558,12 +566,12 @@ void StatementImpl::Set(int param, int16_t value)
 	mInRow->Set(param, value);
 }
 
-void StatementImpl::Set(int param, int32_t value)
+void StatementImpl::Set(int param, int value)
 {
 	if (mHandle == 0)
-		throw LogicExceptionImpl("Statement::Set[int32_t]", _("No statement has been prepared."));
+		throw LogicExceptionImpl("Statement::Set[int]", _("No statement has been prepared."));
 	if (mInRow == 0)
-		throw LogicExceptionImpl("Statement::Set[int32_t]", _("The statement does not take parameters."));
+		throw LogicExceptionImpl("Statement::Set[int]", _("The statement does not take parameters."));
 
 	mInRow->Set(param, value);
 }
@@ -678,25 +686,7 @@ bool StatementImpl::IsNull(int column)
 	return mOutRow->IsNull(column);
 }
 
-bool StatementImpl::Get(int column, bool* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(column, *retvalue);
-}
-
 bool StatementImpl::Get(int column, bool& retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-
-	return mOutRow->Get(column, retvalue);
-}
-
-bool StatementImpl::Get(int column, char* retvalue)
 {
 	if (mOutRow == 0)
 		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
@@ -720,16 +710,6 @@ bool StatementImpl::Get(int column, std::string& retvalue)
 	return mOutRow->Get(column, retvalue);
 }
 
-bool StatementImpl::Get(int column, int16_t* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(column, *retvalue);
-}
-
 bool StatementImpl::Get(int column, int16_t& retvalue)
 {
 	if (mOutRow == 0)
@@ -738,32 +718,12 @@ bool StatementImpl::Get(int column, int16_t& retvalue)
 	return mOutRow->Get(column, retvalue);
 }
 
-bool StatementImpl::Get(int column, int32_t* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(column, *retvalue);
-}
-
-bool StatementImpl::Get(int column, int32_t& retvalue)
+bool StatementImpl::Get(int column, int& retvalue)
 {
 	if (mOutRow == 0)
 		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
 
 	return mOutRow->Get(column, retvalue);
-}
-
-bool StatementImpl::Get(int column, int64_t* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(column, *retvalue);
 }
 
 bool StatementImpl::Get(int column, int64_t& retvalue)
@@ -774,32 +734,12 @@ bool StatementImpl::Get(int column, int64_t& retvalue)
 	return mOutRow->Get(column, retvalue);
 }
 
-bool StatementImpl::Get(int column, float* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(column, *retvalue);
-}
-
 bool StatementImpl::Get(int column, float& retvalue)
 {
 	if (mOutRow == 0)
 		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
 
 	return mOutRow->Get(column, retvalue);
-}
-
-bool StatementImpl::Get(int column, double* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(column, *retvalue);
 }
 
 bool StatementImpl::Get(int column, double& retvalue)
@@ -876,28 +816,10 @@ bool StatementImpl::IsNull(const std::string& name)
 	return mOutRow->IsNull(name);
 }
 
-bool StatementImpl::Get(const std::string& name, bool* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(name, *retvalue);
-}
-
 bool StatementImpl::Get(const std::string& name, bool& retvalue)
 {
 	if (mOutRow == 0)
 		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-
-	return mOutRow->Get(name, retvalue);
-}
-
-bool StatementImpl::Get(const std::string& name, char* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get[char*]", _("The row is not initialized."));
 
 	return mOutRow->Get(name, retvalue);
 }
@@ -918,16 +840,6 @@ bool StatementImpl::Get(const std::string& name, std::string& retvalue)
 	return mOutRow->Get(name, retvalue);
 }
 
-bool StatementImpl::Get(const std::string& name, int16_t* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(name, *retvalue);
-}
-
 bool StatementImpl::Get(const std::string& name, int16_t& retvalue)
 {
 	if (mOutRow == 0)
@@ -936,32 +848,12 @@ bool StatementImpl::Get(const std::string& name, int16_t& retvalue)
 	return mOutRow->Get(name, retvalue);
 }
 
-bool StatementImpl::Get(const std::string& name, int32_t* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(name, *retvalue);
-}
-
-bool StatementImpl::Get(const std::string& name, int32_t& retvalue)
+bool StatementImpl::Get(const std::string& name, int& retvalue)
 {
 	if (mOutRow == 0)
 		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
 
 	return mOutRow->Get(name, retvalue);
-}
-
-bool StatementImpl::Get(const std::string& name, int64_t* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(name, *retvalue);
 }
 
 bool StatementImpl::Get(const std::string& name, int64_t& retvalue)
@@ -972,32 +864,12 @@ bool StatementImpl::Get(const std::string& name, int64_t& retvalue)
 	return mOutRow->Get(name, retvalue);
 }
 
-bool StatementImpl::Get(const std::string& name, float* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(name, *retvalue);
-}
-
 bool StatementImpl::Get(const std::string& name, float& retvalue)
 {
 	if (mOutRow == 0)
 		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
 
 	return mOutRow->Get(name, retvalue);
-}
-
-bool StatementImpl::Get(const std::string& name, double* retvalue)
-{
-	if (mOutRow == 0)
-		throw LogicExceptionImpl("Statement::Get", _("The row is not initialized."));
-	if (retvalue == 0)
-		throw LogicExceptionImpl("Statement::Get", _("Null pointer detected"));
-
-	return mOutRow->Get(name, *retvalue);
 }
 
 bool StatementImpl::Get(const std::string& name, double& retvalue)
@@ -1296,12 +1168,12 @@ StatementImpl::StatementImpl(DriverImpl* drv, DatabaseImpl* database, Transactio
 {
 	AttachDatabaseImpl(database);
 	if (transaction != 0) AttachTransactionImpl(transaction);
-	if (! sql.empty()) Prepare(sql);
+	if (! sql.empty()) StatementImpl::Prepare(sql);
 }
 
 StatementImpl::~StatementImpl()
 {
-	try { Close(); }
+	try { StatementImpl::Close(); }
 		catch (...) { }
 	try { if (mTransaction != 0) mTransaction->DetachStatementImpl(this); }
 		catch (...) { }

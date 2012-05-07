@@ -5,7 +5,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+//	(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 //
 //	The contents of this file are subject to the IBPP License (the "License");
 //	you may not use this file except in compliance with the License.  You may
@@ -83,7 +83,7 @@
 #else
 	const char* DbName = "C:\\test.fdb";	// FDB extension (GDB is hacked by Windows Me/XP "System Restore")
 	const char* BkName = "C:\\test.fbk";
-	const std::string ServerName = "localhost/31600";	// Change to "" for local protocol / embedded
+	const std::string ServerName = "localhost";	// Change to "" for local protocol / embedded
 #endif
 
 //	The tests use by default the well-known default of SYSDBA/masterkey
@@ -130,7 +130,8 @@ void Test::RunTests()
 	driver = IBPP::DriverFactory();
 	driver->Load("C:\\integral_90\\firebird\\bin");
 
-	printf(_("\nIBPP Test Suite (Version %d.%d.%d.%d)\n\n"),
+	//lint -e{572} zeroes in the version number would trigger this warning
+	printf(_("\nIBPP Test Suite (Version %u.%u.%u.%u)\n\n"),
 		(IBPP::Version & 0xFF000000) >> 24,
 		(IBPP::Version & 0x00FF0000) >> 16,
 		(IBPP::Version & 0x0000FF00) >> 8,
@@ -291,7 +292,7 @@ void Test::Test2()
 	printf(_("Test 2 --- Exercise empty database creation & connection\n"));
 
 	int Major, Minor, PageSize, Pages, Buffers, Sweep;
-	bool Sync, Reserve;
+	bool Sync, Reserve, ReadOnly;
 
 	IBPP::Database db1;
 	DeleteFile(DbName);
@@ -310,7 +311,7 @@ void Test::Test2()
 
 	db1->Connect();	// A create, does not imply connection
 
-	db1->Info(&Major, &Minor, &PageSize, &Pages, &Buffers, &Sweep, &Sync, &Reserve);
+	db1->Info(&Major, &Minor, &PageSize, &Pages, &Buffers, &Sweep, &Sync, &Reserve, &ReadOnly);
 	if (Sync && _WriteMode == 1)
 	{
 		_Success = false;
@@ -338,6 +339,7 @@ void Test::Test2()
 	printf("           Buffers   %d\n", Buffers);
 	printf("           Sweep     %d\n", Sweep);
 	printf("           Reserve   %s\n", Reserve ? _("true") : _("false"));
+	printf("           Read-Only %s\n", ReadOnly ? _("true") : _("false"));
 	/**/
 
 	driver->Unload();
@@ -444,10 +446,10 @@ void Test::Test4()
 	}
 	st1->Fetch();
 	IBPP::Date dt;
-	IBPP::Time tm;
+	IBPP::Time tim;
 	IBPP::Timestamp ts;
 	st1->Get(1, dt);
-	st1->Get(2, tm);
+	st1->Get(2, tim);
 	st1->Get(3, ts);
 
 	int y, m, d, h, min, s, t;
@@ -459,7 +461,7 @@ void Test::Test4()
 		return;
 	}
 
-	tm.GetTime(h, min, s, t);
+	tim.GetTime(h, min, s, t);
 	if (h != 10 || min != 11 || s != 12 || t != 1314)
 	{
 		_Success = false;
@@ -568,40 +570,49 @@ void Test::Test4()
 	int somebytes[10] = { 1, 2, 3, 0, 5, 6, 7, 8, 0, 10 };
 
 	FILE* file = fopen("blob.txt", "w");
-	for (i = 0; i < 1000; i++)
-		fputs(_("Dummy blob data for running some blob input/output tests.\n"), file);
-	fclose(file);
+	if (file != 0)
+	{	
+		for (i = 0; i < 1000; i++)
+			fputs(_("Dummy blob data for running some blob input/output tests.\n"), file);
+		fclose(file);
+	}
 	for (i = 0; i < 100; i++)
 	{
 		// Writing a blob, using the low-level interface
 		char buffer[10240];
 		int len;
 		b1->Create();
-		FILE* file = fopen("blob.txt", "r");
-		while ((len = (int)fread(buffer, 1, 10240, file)) == 10240)
+		FILE* rfile = fopen("blob.txt", "r");
+		if (rfile != 0)
 		{
-			b1->Write(buffer, 10240);
-			total += 10240;
+			while ((len = (int)fread(buffer, 1, 10240, rfile)) == 10240)
+			{
+				b1->Write(buffer, 10240);
+				total += 10240;
+			}
+			b1->Write(buffer, len);
+			total += len;
+			fclose(rfile);
 		}
-		b1->Write(buffer, len);
-		total += len;
 		b1->Close();
-		fclose(file);
 		st1->Set(5, b1);
 
 		// Writing a blob, using the std:string interface
 		std::string bbs;
 		file = fopen("blob.txt", "r");
-		bbs.resize(40000);
-		fread(const_cast<char*>(bbs.data()), 1, 40000, file);
-		fclose(file);
+		if (file != 0)
+		{
+			bbs.resize(40000);
+			fread(const_cast<char*>(bbs.data()), 1, 40000, file);
+			fclose(file);
+		}
 		//bb->Save(bbs);
 		//st1->Set(6, bb);
 
 		// Third, direct way of writing a std::string to a blob
 		st1->Set(6, bbs);
 
-		st1->Set(7, (i%2) != 0);
+		st1->Set(7, (bool)((i%2) != 0));
 #ifdef __DMC__
 		st1->Set(8, (int32_t)i);
 #else
@@ -616,6 +627,7 @@ void Test::Test4()
 		st1->Set(11, da);
 
 		st1->Set(12, "C-STRING");
+
 		st1->Set(13, stdstring);
 
 		st1->Set(14, (char*)somebytes, 40);
@@ -764,7 +776,7 @@ void Test::Test5()
 		IBPP::Date d3;
 		int y, m, d;
 		int temp;
-		char cstring[31];
+		char charbuffer[41];	// Larger by 10, in order to better test Get()
 		std::string stdstring;
 
 		st1->Get(4, d2);
@@ -775,10 +787,10 @@ void Test::Test5()
 		d3.GetDate(y, m, d);
 		//printf("%d, %d, %d ",  y, m, d);
 		double tmp;
-		st1->Get(3, &tmp);
+		st1->Get(3, tmp);
 		st2->Set(1, tmp*40.0);
 		bool b;
-		st1->Get(5, &b);
+		st1->Get(5, b);
 		bool c;
 		st1->Get(5, c);
 		if (b != c)
@@ -791,7 +803,14 @@ void Test::Test5()
 		printf("%s\n", row->Get("TF"));
 		printf("%d\n", row->Get("ID"));
 		*/
-		st1->Get(6, cstring);
+
+		st1->Get(6, charbuffer);
+		if (strcmp(charbuffer, "C-STRING                      ") != 0)
+		{
+			_Success = false;
+			printf(_("Statement::Get(int, char[]&) is not working.\n"));
+		}
+
 		st1->Get(7, stdstring);
 
 		st2->Set(2, ! b);
@@ -848,8 +867,8 @@ void Test::Test5()
 		while (st1->Fetch())
 		{
 			double n2, n6;
- 			st1->Get(1, &n2);
-			st1->Get(2, &n6);
+ 			st1->Get(1, n2);
+			st1->Get(2, n6);
 			//printf("%g, %g\n", n2, n6);
 		}
 	}
@@ -883,6 +902,7 @@ void Test::Test5()
 	tr1->Commit();
 }
 
+//lint -e{655} bit-wise operation uses compatible enum is expected in this function
 void Test::Test6()
 {
 	printf(_("Test 6 --- Service APIs\n"));

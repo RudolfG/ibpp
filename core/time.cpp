@@ -5,7 +5,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+//	(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 //
 //	The contents of this file are subject to the IBPP License (the "License");
 //	you may not use this file except in compliance with the License.  You may
@@ -48,11 +48,11 @@ void IBPP::Time::Now()
 	IBPP::itot(&mTime, loctime->tm_hour, loctime->tm_min, loctime->tm_sec, 0);
 }
 
-void IBPP::Time::SetTime(int tm)
+void IBPP::Time::SetTime(int t)
 {
-	if (tm < 0 || tm > 863999999)
+	if (t < 0 || t > 863999999)
 		throw LogicExceptionImpl("Time::SetTime", _("Invalid time value"));
-	mTime = tm;
+	mTime = t;
 }
 
 void IBPP::Time::SetTime(int hour, int minute, int second, int tenthousandths)
@@ -120,6 +120,7 @@ IBPP::Time& IBPP::Time::operator=(const IBPP::Timestamp& assigned)
 	return *this;
 }
 
+//lint -e{1529} no need to test for assignment to this here
 IBPP::Time& IBPP::Time::operator=(const IBPP::Time& assigned)
 {
 	mTime = assigned.mTime;
@@ -178,14 +179,14 @@ void decodeDate(IBPP::Date& dt, const ISC_DATE& isc_dt)
 	dt.SetDate((int)isc_dt - 15019);
 }
 
-void encodeTime(ISC_TIME& isc_tm, const IBPP::Time& tm)
+void encodeTime(ISC_TIME& isc_tm, const IBPP::Time& t)
 {
-	isc_tm = (ISC_TIME)tm.GetTime();
+	isc_tm = (ISC_TIME)t.GetTime();
 }
 
-void decodeTime(IBPP::Time& tm, const ISC_TIME& isc_tm)
+void decodeTime(IBPP::Time& t, const ISC_TIME& isc_tm)
 {
-	tm.SetTime((int)isc_tm);
+	t.SetTime((int)isc_tm);
 }
 
 void encodeTimestamp(ISC_TIMESTAMP& isc_ts, const IBPP::Timestamp& ts)
