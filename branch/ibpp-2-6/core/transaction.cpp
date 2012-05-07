@@ -296,29 +296,21 @@ void TransactionImpl::AttachDatabaseImpl(DatabaseImpl* dbi,
 
 	// Prepare a new TPB
 	TPB* tpb = new TPB;
-    if (am == IBPP::amRead)	tpb->Insert(isc_tpb_read);
-    else					tpb->Insert(isc_tpb_write);
+    if (am == IBPP::amRead) tpb->Insert(isc_tpb_read);
+    else tpb->Insert(isc_tpb_write);
 
 	switch (il)
 	{
-		case IBPP::ilConsistency:
-				tpb->Insert(isc_tpb_consistency);
-				break;
-		case IBPP::ilReadDirty:
-				tpb->Insert(isc_tpb_read_committed);
-				tpb->Insert(isc_tpb_rec_version);
-				break;
-		case IBPP::ilReadCommitted:
-				tpb->Insert(isc_tpb_read_committed);
-				tpb->Insert(isc_tpb_no_rec_version);
-				break;
-		default:
-				tpb->Insert(isc_tpb_concurrency);
-				break;
+		case IBPP::ilConsistency :		tpb->Insert(isc_tpb_consistency); break;
+		case IBPP::ilReadDirty :		tpb->Insert(isc_tpb_read_committed);
+						    	    	tpb->Insert(isc_tpb_rec_version); break;
+		case IBPP::ilReadCommitted :	tpb->Insert(isc_tpb_read_committed);
+										tpb->Insert(isc_tpb_no_rec_version); break;
+		default :						tpb->Insert(isc_tpb_concurrency); break;
 	}
 
-    if (lr == IBPP::lrNoWait)	tpb->Insert(isc_tpb_nowait);
-    else						tpb->Insert(isc_tpb_wait);
+    if (lr == IBPP::lrNoWait) tpb->Insert(isc_tpb_nowait);
+    else tpb->Insert(isc_tpb_wait);
 
 	//lint -e{655} bit-wise operation uses compatible enum
 	{

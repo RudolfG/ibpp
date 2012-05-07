@@ -56,9 +56,9 @@ void DatabaseImpl::Create(int dialect)
 
 	// Build the SQL Create Statement
 	std::string create;
-	create.assign("CREATE DATABASE '");
+	create.assign("CREATE DATABASE \"");
 	if (! mServerName.empty()) create.append(mServerName).append(":");
-	create.append(mDatabaseName).append("' ");
+	create.append(escape(mDatabaseName, '"')).append("\" ");
 
 	create.append("USER '").append(mUserName).append("' ");
 	if (! mUserPassword.empty())
@@ -481,6 +481,18 @@ DatabaseImpl::~DatabaseImpl()
 			DatabaseImpl::Disconnect();
 	}
 	catch(...) { }
+}
+
+std::string ibpp_internals::escape(const std::string& s, char e)
+{
+	std::string::const_iterator it;
+	std::string esc;
+	for (it = s.begin(); it != s.end(); it++)
+	{
+		if (*it == e) esc.push_back('\\');
+		esc.push_back(*it);
+	}
+	return esc;
 }
 
 //

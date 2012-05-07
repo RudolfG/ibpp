@@ -388,6 +388,8 @@ typedef void        ISC_EXPORT proto_encode_sql_time (void *,
 typedef void        ISC_EXPORT proto_encode_timestamp (void *,
 					ISC_TIMESTAMP *);
 
+typedef int			ISC_EXPORT proto_shutdown(unsigned int, const int);
+
 //
 //	Internal binding structure to the GDS32 DLL
 //
@@ -460,6 +462,8 @@ struct GDS
 	//proto_encode_sql_date*			m_encode_sql_date;
 	//proto_encode_sql_time*			m_encode_sql_time;
 	//proto_encode_timestamp*			m_encode_timestamp;
+
+	proto_shutdown*					m_shutdown;
 
 	// Constructor (No need for a specific destructor)
 	//lint -e{1401} many members not initialized by constructor (expected)
@@ -679,7 +683,7 @@ public:
 	LogicExceptionImpl& operator=(const LogicExceptionImpl& copied);
 	LogicExceptionImpl(const std::string& context, const char* message = 0, ...);
 
-	virtual ~LogicExceptionImpl() throw();
+	virtual ~LogicExceptionImpl();
 
 	//	(((((((( OBJECT INTERFACE ))))))))
 	//
@@ -689,7 +693,7 @@ public:
 public:
     virtual const char* Origin() const;
     virtual const char* ErrorMessage() const;
-	virtual const char* what() const throw();
+	virtual const char* what() const;
 };
 
 class SQLExceptionImpl : public IBPP::SQLException, public ExceptionBase
@@ -711,7 +715,7 @@ public:
 	SQLExceptionImpl(const IBS& status, const std::string& context,
 						const char* message = 0, ...);
 
-	virtual ~SQLExceptionImpl() throw();
+	virtual ~SQLExceptionImpl() throw ();
 
 	//	(((((((( OBJECT INTERFACE ))))))))
 	//
@@ -721,7 +725,7 @@ public:
 public:
     virtual const char* Origin() const;
     virtual const char* ErrorMessage() const;
-	virtual const char* what() const throw();
+	virtual const char* what() const;
 	virtual int SqlCode() const;
 	virtual int EngineCode() const;
 };
@@ -741,7 +745,7 @@ public:
 	WrongTypeImpl(const std::string& context, int sqlType, IITYPE varType,
 					const char* message = 0, ...);
 
-	virtual ~WrongTypeImpl() throw();
+	virtual ~WrongTypeImpl() throw ();
 
 	//	(((((((( OBJECT INTERFACE ))))))))
 	//
@@ -751,7 +755,7 @@ public:
 public:
     virtual const char* Origin() const;
     virtual const char* ErrorMessage() const;
-	virtual const char* what() const throw();
+	virtual const char* what() const;
 };
 
 class ServiceImpl : public IBPP::IService
@@ -1385,6 +1389,8 @@ void decodeTime(IBPP::Time& tm, const ISC_TIME& isc_tm);
 
 void encodeTimestamp(ISC_TIMESTAMP& isc_ts, const IBPP::Timestamp& ts);
 void decodeTimestamp(IBPP::Timestamp& ts, const ISC_TIMESTAMP& isc_ts);
+
+std::string escape(const std::string&, char);
 
 struct consts	// See _ibpp.cpp for initializations of these constants
 {

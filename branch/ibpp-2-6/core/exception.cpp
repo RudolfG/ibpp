@@ -42,19 +42,19 @@
 
 using namespace ibpp_internals;
 
-IBPP::Exception::~Exception() throw()
+IBPP::Exception::~Exception()
 {
 }
 
-IBPP::LogicException::~LogicException() throw()
+IBPP::LogicException::~LogicException()
 {
 }
 
-IBPP::SQLException::~SQLException() throw()
+IBPP::SQLException::~SQLException()
 {
 }
 
-IBPP::WrongType::~WrongType() throw()
+IBPP::WrongType::~WrongType()
 {
 }
 
@@ -175,7 +175,7 @@ LogicExceptionImpl::LogicExceptionImpl(const std::string& context,
 	va_end(argptr);
 }
 
-LogicExceptionImpl::~LogicExceptionImpl() throw()
+LogicExceptionImpl::~LogicExceptionImpl()
 {
 }
 
@@ -189,7 +189,7 @@ const char* LogicExceptionImpl::ErrorMessage() const
 	return ExceptionBase::what();
 }
 
-const char* LogicExceptionImpl::what() const throw()
+const char* LogicExceptionImpl::what() const
 {
 	return ExceptionBase::what();
 }
@@ -246,7 +246,7 @@ const char* SQLExceptionImpl::ErrorMessage() const
 	return ExceptionBase::what();
 }
 
-const char* SQLExceptionImpl::what() const throw()
+const char* SQLExceptionImpl::what() const
 {
 	return ExceptionBase::what();
 }
@@ -345,7 +345,7 @@ const char* WrongTypeImpl::ErrorMessage() const
 	return ExceptionBase::what();
 }
 
-const char* WrongTypeImpl::what() const throw()
+const char* WrongTypeImpl::what() const
 {
 	return ExceptionBase::what();
 }

@@ -6,7 +6,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+//	(C) Copyright 2000-2009 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 //
 //	The contents of this file are subject to the IBPP License (the "License");
 //	you may not use this file except in compliance with the License.  You may
@@ -174,14 +174,14 @@ namespace IBPP
 	{
 	public:
 		virtual const char* Origin() const = 0;
-		virtual const char* what() const throw() = 0;
-		virtual ~Exception() throw();
+		virtual const char* what() const = 0;
+		virtual ~Exception();
 	};
 
 	class LogicException : public Exception
 	{
 	public:
-		virtual ~LogicException() throw();
+		virtual ~LogicException();
 	};
 
 	class SQLException : public Exception
@@ -190,13 +190,13 @@ namespace IBPP
 		virtual int SqlCode() const = 0;
 		virtual int EngineCode() const = 0;
 		
-		virtual ~SQLException() throw();
+		virtual ~SQLException();
 	};
 
 	class WrongType : public LogicException
 	{
 	public:
-		virtual ~WrongType() throw();
+		virtual ~WrongType();
 	};
 	
 	/* Classes Date, Time, Timestamp and DBKey are 'helper' classes.  They help
@@ -936,6 +936,14 @@ namespace IBPP
 	 * Currently, this is a NO-OP on platforms other than Win32. */
 	 
 	void ClientLibSearchPaths(const std::string&);
+
+	/* The following shutdown function is only meant to be used from a host application
+	 * to shutdown its embedded engine.  This will happen anyway properly when the host
+	 * application stops, but could be done earlier to reclaim system resources like
+	 * memory and threads when there are no needs for any Firebird attachments.
+	 */
+
+	bool EmbeddedShutdown(unsigned int msec_timeout, const int reason = 0);
 
 	/* Finally, here are some date and time conversion routines used by IBPP and
 	 * that may be helpful at the application level. They do not depend on

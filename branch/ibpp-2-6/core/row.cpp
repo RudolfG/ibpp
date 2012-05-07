@@ -38,7 +38,6 @@
 #endif
 
 #include <time.h>
-#include <math.h>
 
 using namespace ibpp_internals;
 
@@ -1395,9 +1394,11 @@ void RowImpl::Free()
 	mStrings.clear();
 	mUpdated.clear();
 
+	/* Free() MUST NOT clear these members, but only 'free' allocations as above.
 	mDialect = 0;
 	mDatabase = 0;
 	mTransaction = 0;
+	*/
 }
 
 void RowImpl::Resize(int n)

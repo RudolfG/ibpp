@@ -39,11 +39,6 @@
 
 using namespace ibpp_internals;
 
-#ifdef IBPP_UNIX
-#include <unistd.h>
-#define Sleep(x) usleep(x)
-#endif
-
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
 
 void ServiceImpl::Connect()
@@ -687,6 +682,8 @@ const char* ServiceImpl::WaitMsg()
 	return mWaitMessage.c_str();
 }
 
+#include <iostream>
+
 void ServiceImpl::Wait()
 {
 	IBS status;
@@ -700,14 +697,6 @@ void ServiceImpl::Wait()
 	spb.Insert(isc_info_svc_line);
 	for (;;)
 	{
-		// Sleeps 1 millisecond upfront. This will release the remaining
-		// timeslot of the thread. Doing so will give a good chance for small
-		// services tasks to finish before we check if they are still running.
-		// The deal is to limit (in that particular case) the number of loops
-		// polling _service_query that will happen.
-
-		Sleep(1);
-
 		// _service_query will only block until a line of result is available
 		// (or until the end of the task if it does not report information) 
 		(void)(*gds.Call()->m_service_query)(status.Self(), &mHandle, 0, 0,	0,

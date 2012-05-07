@@ -119,7 +119,7 @@ GDS* GDS::Call()
 		// runtime libraries) from the same location where FBCLIENT is found.
 
 		mHandle = 0;
-
+		std::string failed_paths;
 		std::string SysPath(getenv("PATH"));
 		std::string::size_type pos = 0;
 		while (pos < mSearchPaths.size())
@@ -138,9 +138,17 @@ GDS* GDS::Call()
 				AppPath.append(path).append(";").append(SysPath);
 				putenv(AppPath.c_str());
 
-				path.append("fbclient.dll");
-				mHandle = LoadLibrary(path.c_str());
-				if (mHandle != 0 || newpos == std::string::npos) break;
+				std::string dll(path);
+				dll.append("fbclient.dll");
+				mHandle = LoadLibrary(dll.c_str());
+				if (mHandle != 0) break;
+				failed_paths.append(dll).append("\n");
+
+				dll.assign(path).append("fbembed.dll");
+				mHandle = LoadLibrary(dll.c_str());
+				if (mHandle != 0) break;
+				failed_paths.append(dll).append("\n");
+				if (newpos == std::string::npos) break;
 			}
 			pos = newpos + 1;
 		}
@@ -171,6 +179,7 @@ GDS* GDS::Call()
 				mHandle = LoadLibrary(fbdll);
 				if (mHandle == 0)
 				{
+					failed_paths.append(fbdll).append("\n");
 					*p = '\0';
 					lstrcat(fbdll, "\\fbclient.dll");	// Or possibly renamed fbclient.dll
 					mHandle = LoadLibrary(fbdll);
@@ -182,6 +191,7 @@ GDS* GDS::Call()
 		{
 			// Try to locate FBCLIENT.DLL through the optional FB registry key.
 
+			failed_paths.append(fbdll).append("\n");
 			if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REG_KEY_ROOT_INSTANCES, 0,
 				KEY_READ, &hkey_instances) == ERROR_SUCCESS)
 			{
@@ -193,6 +203,7 @@ GDS* GDS::Call()
 				{
 					lstrcat(fbdll, "bin\\fbclient.dll");
 					mHandle = LoadLibrary(fbdll);
+					if (mHandle == 0) failed_paths.append(fbdll).append("\n");
 				}
 				RegCloseKey(hkey_instances);
 			}
@@ -206,10 +217,14 @@ GDS* GDS::Call()
 			{
 				// Not found. Last try : attemps loading gds32.dll from PATH and
 				// System directories
+				failed_paths.append("fbclient.dll").append("\n");
 				mHandle = LoadLibrary("gds32.dll");
 				if (mHandle == 0)
-					throw LogicExceptionImpl("GDS::Call()",
-						_("Can't find or load FBCLIENT.DLL or GDS32.DLL"));
+				{
+					failed_paths.append("gds32.dll").append("\n");
+					failed_paths.insert(0, "\n").insert(0, _("Can't find/load FBCLIENT.DLL/FBEMBED.DLL/GDS32.DLL through these paths:"));
+					throw LogicExceptionImpl("GDS::Call()", failed_paths.c_str());
+				}
 			}
 		}
 #endif
@@ -222,10 +237,14 @@ GDS* GDS::Call()
 #define IB_ENTRYPOINT(X) \
 			if ((m_##X = (proto_##X*)GetProcAddress(mHandle, "isc_"#X)) == 0) \
 				throw LogicExceptionImpl("GDS:gds()", _("Entry-point isc_"#X" not found"))
+#define FB_ENTRYPOINT(X) \
+			if ((m_##X = (proto_##X*)GetProcAddress(mHandle, "fb_"#X)) == 0) \
+				throw LogicExceptionImpl("GDS:gds()", _("Entry-point fb_"#X" not found"))
 #endif
 #ifdef IBPP_UNIX
 /* TODO : perform a late-bind on unix --- not so important, well I think (OM) */
 #define IB_ENTRYPOINT(X) m_##X = (proto_##X*)isc_##X
+#define FB_ENTRYPOINT(X) m_##X = (proto_##X*)fb_##X
 #endif
 
 		IB_ENTRYPOINT(create_database);
@@ -271,6 +290,8 @@ GDS* GDS::Call()
 		IB_ENTRYPOINT(service_start);
 		IB_ENTRYPOINT(service_query);
 
+		FB_ENTRYPOINT(shutdown);
+
 		mReady = true;
 	}
 
@@ -290,6 +311,20 @@ namespace IBPP
 	int GDSVersion()
 	{
 		return gds.Call()->mGDSVersion;
+	}
+
+	bool EmbeddedShutdown(unsigned int timeout, const int reason)
+	{
+		// The reason code passed by an application should be positive or null.
+		// We turn a negative value to positive.
+		bool res = false;
+		try
+		{
+			res = (*gds.Call()->m_shutdown)(timeout, reason < 0 ? -reason : reason) == 0;
+		}
+		catch(...) { /**/ }
+
+		return res;
 	}
 
 #ifdef IBPP_WINDOWS
