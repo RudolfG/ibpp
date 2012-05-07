@@ -37,8 +37,6 @@
 #pragma hdrstop
 #endif
 
-#include <math.h>
-
 using namespace ibpp_internals;
 
 //	(((((((( OBJECT INTERFACE IMPLEMENTATION ))))))))
