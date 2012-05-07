@@ -369,8 +369,8 @@ BlobImpl::~BlobImpl()
 	{
 		if (mHandle != 0)
 		{
-			if (mWriteMode) Cancel();
-			else Close();
+			if (mWriteMode) BlobImpl::Cancel();
+			else BlobImpl::Close();
 		}
 	}
 	catch (...) { }

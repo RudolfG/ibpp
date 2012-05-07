@@ -95,6 +95,7 @@ void EventsImpl::Add(const std::string& eventname, IBPP::EventInterface* objref)
 		Buffer::iterator it = mEventBuffer.begin() +
 				((prev_buffer_size==0) ? 1 : prev_buffer_size); // Byte after current content
 		*(it++) = static_cast<char>(eventname.length());
+		//lint -e{40,10,26} lint sees problems with this statement which aren't
 		it = std::copy(eventname.begin(), eventname.end(), it);
 		// We initialize the counts to (uint32_t)(-1) to initialize properly, see FireActions()
 		*(it++) = -1; *(it++) = -1; *(it++) = -1; *it = -1;
@@ -161,7 +162,7 @@ void EventsImpl::List(std::vector<std::string>& events)
 	}
 }
 
-void EventsImpl::Drop()
+void EventsImpl::Clear()
 {
 	Cancel();
 
@@ -367,7 +368,7 @@ EventsImpl::EventsImpl(DriverImpl* drv, DatabaseImpl* database)
 
 EventsImpl::~EventsImpl()
 {
-	try { Drop(); }
+	try { Clear(); }
 		catch (...) { }
 
 	try { if (mDatabase != 0) mDatabase->DetachEventsImpl(this); }
