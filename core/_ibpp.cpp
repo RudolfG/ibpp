@@ -93,20 +93,6 @@ namespace IBPP
 				(IBPP::Version & 0xFFFFFF00) ? true : false;
 	}
 
-	bool EmbeddedShutdown(unsigned int timeout, const int reason)
-	{
-		// The reason code passed by an application should be positive or null.
-		// We turn a negative value to positive.
-		bool res = false;
-		try
-		{
-			res = (*gds.Call()->m_shutdown)(timeout, reason < 0 ? -reason : reason) == 0;
-		}
-		catch(...) { /**/ }
-
-		return res;
-	}
-
 }
 
 //

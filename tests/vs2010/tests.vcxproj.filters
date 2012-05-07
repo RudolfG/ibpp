@@ -81,6 +81,9 @@
     <ClCompile Include="..\..\core\user.cpp">
       <Filter>Source Files\ibpp-core</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\core\driver.cpp">
+      <Filter>Source Files\ibpp-core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\core\_ibpp.h">

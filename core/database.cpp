@@ -98,8 +98,8 @@ void DatabaseImpl::Connect()
 		conn.assign(mServerName).append(":");
 	conn.append(mDatabaseName);
 
-	IBS status;
-	(void)(*gds.Call()->m_attach_database)(status.Self(), (short)conn.size(),
+	IBS status(mDriver);
+	(void)(*mDriver->m_attach_database)(status.Self(), (short)conn.size(),
 		const_cast<char*>(conn.c_str()), &mHandle, dpb.Size(), dpb.Self());
     if (status.Errors())
     {
