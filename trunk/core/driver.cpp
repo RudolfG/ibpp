@@ -5,7 +5,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
-//	(C) Copyright 2000-2006 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
+//	(C) Copyright 2000-2007 T.I.P. Group S.A. and the IBPP Team (www.ibpp.org)
 //
 //	The contents of this file are subject to the IBPP License (the "License");
 //	you may not use this file except in compliance with the License.  You may
@@ -72,7 +72,7 @@ void DriverImpl::Load(const std::string& optPaths)
 		// runtime libraries) from the same location where FBCLIENT is found.
 
 		mHandle = 0;
-
+		std::string failed_paths;
 		std::string SysPath(getenv("PATH"));
 		std::string::size_type pos = 0;
 		while (pos < optPaths.size())
@@ -91,9 +91,17 @@ void DriverImpl::Load(const std::string& optPaths)
 				AppPath.append(path).append(";").append(SysPath);
 				putenv(AppPath.c_str());
 
-				path.append("fbclient.dll");
-				mHandle = LoadLibrary(path.c_str());
-				if (mHandle != 0 || newpos == std::string::npos) break;
+				std::string dll(path);
+				dll.append("fbclient.dll");
+				mHandle = LoadLibrary(dll.c_str());
+				if (mHandle != 0) break;
+				failed_paths.append(dll).append("\n");
+
+				dll.assign(path).append("fbembed.dll");
+				mHandle = LoadLibrary(dll.c_str());
+				if (mHandle != 0) break;
+				failed_paths.append(dll).append("\n");
+				if (newpos == std::string::npos) break;
 			}
 			pos = newpos + 1;
 		}
@@ -124,6 +132,7 @@ void DriverImpl::Load(const std::string& optPaths)
 				mHandle = LoadLibrary(fbdll);
 				if (mHandle == 0)
 				{
+					failed_paths.append(fbdll).append("\n");
 					*p = '\0';
 					lstrcat(fbdll, "\\fbclient.dll");	// Or possibly renamed fbclient.dll
 					mHandle = LoadLibrary(fbdll);
@@ -135,6 +144,7 @@ void DriverImpl::Load(const std::string& optPaths)
 		{
 			// Try to locate FBCLIENT.DLL through the optional FB registry key.
 
+			failed_paths.append(fbdll).append("\n");
 			if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, REG_KEY_ROOT_INSTANCES, 0,
 				KEY_READ, &hkey_instances) == ERROR_SUCCESS)
 			{
@@ -146,6 +156,7 @@ void DriverImpl::Load(const std::string& optPaths)
 				{
 					lstrcat(fbdll, "bin\\fbclient.dll");
 					mHandle = LoadLibrary(fbdll);
+					if (mHandle == 0) failed_paths.append(fbdll).append("\n");
 				}
 				RegCloseKey(hkey_instances);
 			}
@@ -159,10 +170,15 @@ void DriverImpl::Load(const std::string& optPaths)
 			{
 				// Not found. Last try : attemps loading gds32.dll from PATH and
 				// System directories
+				failed_paths.append("fbclient.dll").append("\n");
 				mHandle = LoadLibrary("gds32.dll");
 				if (mHandle == 0)
+				{
+					failed_paths.append("gds32.dll").append("\n");
+					failed_paths.insert(0, "\n").insert(0, _("Can't find/load FBCLIENT.DLL/FBEMBED.DLL/GDS32.DLL through these paths:"));
 					throw LogicExceptionImpl("Driver::Load()",
 						_("Can't find or load FBCLIENT.DLL or GDS32.DLL"));
+				}
 			}
 		}
 #endif
@@ -175,10 +191,14 @@ void DriverImpl::Load(const std::string& optPaths)
 #define IB_ENTRYPOINT(X) \
 			if ((m_##X = (proto_##X*)GetProcAddress(mHandle, "isc_"#X)) == 0) \
 			throw LogicExceptionImpl("Driver::Load()", _("Entry-point isc_"#X" not found"))
+#define FB_ENTRYPOINT(X) \
+			if ((m_##X = (proto_##X*)GetProcAddress(mHandle, "fb_"#X)) == 0) \
+				throw LogicExceptionImpl("Driver::Load()", _("Entry-point fb_"#X" not found"))
 #endif
 #ifdef IBPP_UNIX
 /* TODO : perform a late-bind on unix */
 #define IB_ENTRYPOINT(X) m_##X = (proto_##X*)isc_##X
+#define FB_ENTRYPOINT(X) m_##X = (proto_##X*)fb_##X
 #endif
 
 		IB_ENTRYPOINT(create_database);
@@ -224,6 +244,8 @@ void DriverImpl::Load(const std::string& optPaths)
 		IB_ENTRYPOINT(service_start);
 		IB_ENTRYPOINT(service_query);
 
+		FB_ENTRYPOINT(shutdown);
+
 		mLoaded = true;
 	}
 }
@@ -257,6 +279,21 @@ void DriverImpl::Unload()
 		mLoaded = false;
 	}
 }
+
+bool DriverImpl::EmbeddedShutdown(unsigned int timeout, const int reason)
+{
+	// The reason code passed by an application should be positive or null.
+	// We turn a negative value to positive.
+	bool res = false;
+	try
+	{
+		res = (*m_shutdown)(timeout, reason < 0 ? -reason : reason) == 0;
+	}
+	catch(...) { /**/ }
+
+	return res;
+}
+
 
 void DriverImpl::GetVersion(std::string &version)
 {

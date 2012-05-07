@@ -769,6 +769,7 @@ IBPP::Transaction RowImpl::TransactionPtr() const
 	return mTransaction;
 }
 
+/*
 IBPP::IRow* RowImpl::Clone()
 {
 	// By definition the clone of an IBPP Row is a new row (so refcount=0).
@@ -776,12 +777,12 @@ IBPP::IRow* RowImpl::Clone()
 	RowImpl* clone = new RowImpl(*this);
 	return clone;
 }
+*/
 
-IBPP::IRow* RowImpl::AddRef()
+void RowImpl::AddRef()
 {
 	ASSERTION(mRefCount >= 0);
 	++mRefCount;
-	return this;
 }
 
 void RowImpl::Release()

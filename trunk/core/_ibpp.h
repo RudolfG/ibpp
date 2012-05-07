@@ -62,6 +62,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <set>
 #include <sstream>
 #include <cstdarg>
 
@@ -417,7 +418,7 @@ public:
 	short Size() { return (short)mSize; }
 
 	SPB(DriverImpl* drv) : mDriver(drv), mBuffer(0), mSize(0), mAlloc(0) { }
-	~SPB() { Reset(); }
+	~SPB();
 };
 
 //
@@ -446,7 +447,7 @@ public:
 	short Size() { return (short)mSize; }
 
 	DPB(DriverImpl* drv) : mDriver(drv), mBuffer(0), mSize(0), mAlloc(0) { }
-	~DPB() { Reset(); }
+	~DPB();
 };
 
 //
@@ -752,11 +753,15 @@ public:
 	//proto_encode_sql_time*			m_encode_sql_time;
 	//proto_encode_timestamp*			m_encode_timestamp;
 
+	proto_shutdown*				m_shutdown;
+
 	const DriverImpl* operator->() const
 	{
 		return mLoaded ? this :
 			throw LogicExceptionImpl("Driver", "Driver instance has been unloaded"), this;
 	}
+
+	bool EmbeddedShutdown(unsigned int timeout, const int reason);
 
 	void Detach(IBPP::IInterface*);
 
